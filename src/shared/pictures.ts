@@ -15,3 +15,10 @@ for (const [path, url] of Object.entries(files)) {
 }
 
 export const pictureFor = (key: string): string | undefined => pictures[key.toLowerCase()];
+
+/** Every picture in a folder, e.g. picturesIn('puzzles') → [{ name: 'unicorn-land', url }] */
+export const picturesIn = (folder: string): { name: string; url: string }[] =>
+  Object.entries(pictures)
+    .filter(([key]) => key.startsWith(`${folder.toLowerCase()}/`))
+    .map(([key, url]) => ({ name: key.slice(folder.length + 1), url }))
+    .sort((a, b) => a.name.localeCompare(b.name));

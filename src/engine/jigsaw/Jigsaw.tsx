@@ -1,0 +1,343 @@
+import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import type { PointerEvent as ReactPointerEvent } from 'react';
+import type { JigsawConfig } from '../../types/learning';
+import type { Mechanic, RoundProps } from '../types';
+import { narrator } from '../../shared/audio/narrator';
+import { sfx } from '../../shared/audio/sfx';
+import { progress } from '../../shared/progress/store';
+import { SpeakerButton } from '../../shared/ui/SpeakerButton';
+import './jigsaw.css';
+
+/**
+ * Jigsaw puzzle
+ * The picture is cut into real jigsaw pieces (with knobs). Pieces lie in a tray;
+ * she drags each one onto the board and it snaps in when it's close to its spot
+ * (generously). A wrong spot: a little squeak or boing and the piece slides back.
+ * Tapping a piece makes its spot flash; after 2 wrong tries the spot glows while
+ * she carries that piece. Early levels show the picture faintly on the board.
+ *
+ * All piece maths is in the picture's own pixels; the screen scale is applied on top.
+ */
+
+type Rect = { x: number; y: number; w: number; h: number };
+type Piece = {
+  id: number;
+  r: number;
+  c: number;
+  d: string;
+  placed: boolean;
+  /** Its own spot in the tray (shuffled) and a little wonkiness */
+  spot: number;
+  jx: number;
+  jy: number;
+  /** Where she left it in the tray, as fractions of the tray (once she has moved it) */
+  fx?: number;
+  fy?: number;
+  misses: number;
+};
+
+/** One side of a piece, from (x1,y1) to (x2,y2). dir 0 = flat, 1 = knob out, -1 = knob in. */
+function edge(x1: number, y1: number, x2: number, y2: number, dir: number, k: number): string {
+  if (!dir) return `L${x2} ${y2}`;
+  const len = Math.hypot(x2 - x1, y2 - y1);
+  const ux = (x2 - x1) / len;
+  const uy = (y2 - y1) / len;
+  // outward normal for a clockwise outline
+  const nx = uy * dir;
+  const ny = -ux * dir;
+  const m = len / 2;
+  const P = (a: number, v: number) => `${(x1 + ux * a + nx * v).toFixed(1)} ${(y1 + uy * a + ny * v).toFixed(1)}`;
+  return [
+    `L${P(m - 0.1 * k, 0)}`,
+    `C${P(m - 0.04 * k, 0.12 * k)} ${P(m - 0.27 * k, 0.25 * k)} ${P(m, 0.25 * k)}`,
+    `C${P(m + 0.27 * k, 0.25 * k)} ${P(m + 0.04 * k, 0.12 * k)} ${P(m + 0.1 * k, 0)}`,
+    `L${x2} ${y2}`,
+  ].join(' ');
+}
+
+function cutPieces(cols: number, rows: number, W: number, H: number): Piece[] {
+  const cw = W / cols;
+  const ch = H / rows;
+  const k = Math.min(cw, ch);
+  const flip = () => (Math.random() < 0.5 ? 1 : -1);
+  // hz[r][c]: edge under row r (+1 = knob points down); vt[r][c]: edge right of col c (+1 = knob points right)
+  const hz = Array.from({ length: rows }, () => Array.from({ length: cols }, flip));
+  const vt = Array.from({ length: rows }, () => Array.from({ length: cols }, flip));
+  const pieces: Piece[] = [];
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const x0 = c * cw;
+      const y0 = r * ch;
+      const x1 = x0 + cw;
+      const y1 = y0 + ch;
+      const d = [
+        `M${x0} ${y0}`,
+        edge(x0, y0, x1, y0, r > 0 ? -hz[r - 1][c] : 0, k),
+        edge(x1, y0, x1, y1, c < cols - 1 ? vt[r][c] : 0, k),
+        edge(x1, y1, x0, y1, r < rows - 1 ? hz[r][c] : 0, k),
+        edge(x0, y1, x0, y0, c > 0 ? -vt[r][c - 1] : 0, k),
+        'Z',
+      ].join(' ');
+      pieces.push({ id: r * cols + c, r, c, d, placed: false, spot: 0, jx: Math.random() - 0.5, jy: Math.random() - 0.5, misses: 0 });
+    }
+  }
+  // Each piece gets its own spot in the tray, in a random order
+  const spots = pieces.map((_, i) => i).sort(() => Math.random() - 0.5);
+  pieces.forEach((p, i) => (p.spot = spots[i]));
+  return pieces;
+}
+
+function useSize(ref: React.RefObject<HTMLElement | null>) {
+  const [size, setSize] = useState({ w: 0, h: 0 });
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const read = () => setSize({ w: el.clientWidth, h: el.clientHeight });
+    read();
+    const ro = new ResizeObserver(read);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [ref]);
+  return size;
+}
+
+function JigsawRound({ config, target, onCorrect, onRoundComplete }: RoundProps<JigsawConfig>) {
+  const url = target.photo ?? '';
+  const uid = useId().replace(/:/g, '');
+  const stageRef = useRef<HTMLDivElement>(null);
+  const stage = useSize(stageRef);
+  const [img, setImg] = useState<{ W: number; H: number } | null>(null);
+  const [pieces, setPieces] = useState<Piece[]>([]);
+  const [drag, setDrag] = useState<{ id: number; x: number; y: number; dx: number; dy: number; sx: number; sy: number } | null>(null);
+  const [flash, setFlash] = useState<number | null>(null);
+  const [bounce, setBounce] = useState<number | null>(null);
+  const [done, setDone] = useState(false);
+  const timers = useRef<number[]>([]);
+  const later = (fn: () => void, ms: number) => timers.current.push(window.setTimeout(fn, ms));
+  useEffect(() => () => timers.current.forEach(window.clearTimeout), []);
+
+  const ask = useCallback(() => void narrator.say(['puzzle.ask']), []);
+
+  // Load the picture to learn its shape, then cut it up
+  useEffect(() => {
+    const im = new Image();
+    im.onload = () => {
+      const W = im.naturalWidth;
+      const H = im.naturalHeight;
+      setImg({ W, H });
+      setPieces(cutPieces(config.cols, config.rows, W, H));
+    };
+    im.src = url;
+    ask();
+  }, [url, config.cols, config.rows, ask]);
+
+  // Where the board and tray go. Try the board on top and on the left, shrinking it
+  // until every piece has its own place in the tray, and keep whichever is bigger.
+  const layout = useMemo(() => {
+    if (!img || !stage.w || !stage.h) return null;
+    const n = config.cols * config.rows;
+    const aspect = img.W / img.H;
+    const pad = 12;
+    const cw = img.W / config.cols;
+    const ch = img.H / config.rows;
+    const t = Math.min(cw, ch) * 0.27; // room for the knobs
+    const plan = (bw: number, side: boolean) => {
+      const bh = bw / aspect;
+      const s = bw / img.W;
+      const boxW = (cw + 2 * t) * s;
+      const boxH = (ch + 2 * t) * s;
+      let board: Rect;
+      let tray: Rect;
+      if (side) {
+        tray = { x: bw + pad * 2.5, y: pad, w: stage.w - bw - pad * 3.5, h: stage.h - pad * 2 };
+        board = { x: pad, y: (stage.h - bh) / 2, w: bw, h: bh };
+      } else {
+        tray = { x: pad, y: bh + pad * 2.5, w: stage.w - pad * 2, h: stage.h - bh - pad * 3.5 };
+        board = { x: (stage.w - bw) / 2, y: pad, w: bw, h: bh };
+      }
+      // pieces may overlap a little (their knob corners are see-through)
+      const gc = Math.floor(tray.w / (boxW * 0.82));
+      const gr = Math.floor(tray.h / (boxH * 0.82));
+      const ok = gc >= 1 && gr >= 1 && gc * gr >= n;
+      return { ok, board, tray, s, cw, ch, t, boxW, boxH, gc: Math.max(1, Math.min(gc, n)) };
+    };
+    const best = (side: boolean) => {
+      let bw = side ? Math.min(stage.w * 0.7, (stage.h - pad * 2) * aspect) : Math.min(stage.w - pad * 2, stage.h * 0.62 * aspect);
+      let p = plan(bw, side);
+      while (!p.ok && bw > stage.w * 0.25) {
+        bw *= 0.96;
+        p = plan(bw, side);
+      }
+      return p;
+    };
+    const top = best(false);
+    const side = best(true);
+    return side.board.w > top.board.w ? side : top;
+  }, [img, stage.w, stage.h, config.cols, config.rows]);
+
+  const slotPos = (p: Piece) => {
+    const L = layout!;
+    return { x: L.board.x + (p.c * L.cw - L.t) * L.s, y: L.board.y + (p.r * L.ch - L.t) * L.s };
+  };
+  const trayPos = (p: Piece) => {
+    const L = layout!;
+    const clampX = (x: number) => Math.min(L.tray.x + Math.max(0, L.tray.w - L.boxW), Math.max(L.tray.x, x));
+    const clampY = (y: number) => Math.min(L.tray.y + Math.max(0, L.tray.h - L.boxH), Math.max(L.tray.y, y));
+    if (p.fx !== undefined && p.fy !== undefined) {
+      return { x: L.tray.x + p.fx * Math.max(0, L.tray.w - L.boxW), y: L.tray.y + p.fy * Math.max(0, L.tray.h - L.boxH) };
+    }
+    // its own cell in a grid, the whole grid centred in the tray
+    const n = pieces.length;
+    const rowsUsed = Math.ceil(n / L.gc);
+    const cellW = L.tray.w / L.gc;
+    const cellH = Math.min(L.tray.h / rowsUsed, L.boxH * 1.15);
+    const top = L.tray.y + (L.tray.h - cellH * rowsUsed) / 2;
+    const col = p.spot % L.gc;
+    const row = Math.floor(p.spot / L.gc);
+    const wiggle = Math.min(cellW - L.boxW * 0.82, L.boxW * 0.1);
+    return {
+      x: clampX(L.tray.x + (col + 0.5) * cellW - L.boxW / 2 + p.jx * Math.max(0, wiggle)),
+      y: clampY(top + (row + 0.5) * cellH - L.boxH / 2 + p.jy * Math.max(0, cellH - L.boxH * 0.82) * 0.5),
+    };
+  };
+
+  const down = (e: ReactPointerEvent<HTMLDivElement>, p: Piece) => {
+    if (p.placed || done || !layout) return;
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {
+      /* some browsers refuse; dragging still works while over the piece */
+    }
+    const pos = trayPos(p);
+    setDrag({ id: p.id, x: pos.x, y: pos.y, dx: e.clientX - pos.x, dy: e.clientY - pos.y, sx: e.clientX, sy: e.clientY });
+  };
+
+  const move = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (!drag) return;
+    setDrag({ ...drag, x: e.clientX - drag.dx, y: e.clientY - drag.dy });
+  };
+
+  const up = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (!drag || !layout) return;
+    const p = pieces.find((q) => q.id === drag.id)!;
+    setDrag(null);
+    const L = layout;
+
+    // A tap, not a drag: show where it goes
+    if (Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) < 8) {
+      sfx.flip();
+      setFlash(p.id);
+      later(() => setFlash((f) => (f === p.id ? null : f)), 1400);
+      return;
+    }
+
+    const slot = slotPos(p);
+    const snap = Math.max(30, Math.min(L.cw, L.ch) * L.s * 0.5);
+    if (Math.hypot(drag.x - slot.x, drag.y - slot.y) < snap) {
+      const next = pieces.map((q) => (q.id === p.id ? { ...q, placed: true } : q));
+      setPieces(next);
+      setFlash(null);
+      sfx.pop();
+      if (next.every((q) => q.placed)) finish();
+      return;
+    }
+
+    const cx = drag.x + L.boxW / 2;
+    const cy = drag.y + L.boxH / 2;
+    const onBoard = cx > L.board.x && cx < L.board.x + L.board.w && cy > L.board.y && cy < L.board.y + L.board.h;
+    if (onBoard) {
+      // Wrong spot: back to the tray, gently
+      if (progress.sillySounds()) sfx.fart('squeak');
+      else sfx.boing();
+      setBounce(p.id);
+      later(() => setBounce((b) => (b === p.id ? null : b)), 500);
+      setPieces(pieces.map((q) => (q.id === p.id ? { ...q, misses: q.misses + 1 } : q)));
+      return;
+    }
+
+    // Dropped in the tray: it stays where she put it
+    const fx = L.tray.w > L.boxW ? (drag.x - L.tray.x) / (L.tray.w - L.boxW) : 0;
+    const fy = L.tray.h > L.boxH ? (drag.y - L.tray.y) / (L.tray.h - L.boxH) : 0;
+    const clamp = (v: number) => Math.min(1, Math.max(0, v));
+    setPieces(pieces.map((q) => (q.id === p.id ? { ...q, fx: clamp(fx), fy: clamp(fy) } : q)));
+  };
+
+  const finish = () => {
+    setDone(true);
+    later(() => {
+      sfx.fanfare();
+      void narrator.say(['puzzle.done']);
+      onCorrect(target);
+    }, 400);
+    later(onRoundComplete, 2600);
+  };
+
+  const left = pieces.filter((p) => !p.placed).length;
+  const dragging = drag ? pieces.find((p) => p.id === drag.id) : undefined;
+  const glow = (p: Piece) => flash === p.id || (dragging?.id === p.id && p.misses >= 2);
+
+  // Placed pieces underneath, then tray pieces, the one being dragged on top
+  const order = [...pieces].sort((a, b) => Number(!a.placed) - Number(!b.placed) || Number(a.id === drag?.id) - Number(b.id === drag?.id));
+
+  return (
+    <div className="jigsaw-round">
+      <header className="jigsaw-top">
+        <SpeakerButton onPress={ask} />
+        {!done && pieces.length > 0 && <div className="jigsaw-count">🧩 {left}</div>}
+      </header>
+      <div className="jigsaw-stage" ref={stageRef} onPointerMove={move} onPointerUp={up} onPointerCancel={up}>
+        {layout && img && (
+          <>
+            <div className={`jigsaw-board${done ? ' done' : ''}`} style={{ left: layout.board.x, top: layout.board.y, width: layout.board.w, height: layout.board.h }}>
+              <svg viewBox={`0 0 ${img.W} ${img.H}`} width="100%" height="100%">
+                {config.ghost && <image href={url} width={img.W} height={img.H} opacity={0.28} preserveAspectRatio="none" />}
+                {pieces.map((p) => (
+                  <path key={p.id} d={p.d} className={`jigsaw-slot${glow(p) ? ' glow' : ''}`} vectorEffect="non-scaling-stroke" />
+                ))}
+              </svg>
+            </div>
+
+            {order.map((p) => {
+              const isDrag = drag?.id === p.id;
+              const pos = p.placed ? slotPos(p) : isDrag ? { x: drag.x, y: drag.y } : trayPos(p);
+              const vx = p.c * layout.cw - layout.t;
+              const vy = p.r * layout.ch - layout.t;
+              const vw = layout.cw + 2 * layout.t;
+              const vh = layout.ch + 2 * layout.t;
+              const cls = ['jigsaw-piece', p.placed && 'placed', isDrag && 'dragging', bounce === p.id && 'bounce', done && 'done'].filter(Boolean).join(' ');
+              return (
+                <div
+                  key={p.id}
+                  className={cls}
+                  data-r={p.r}
+                  data-c={p.c}
+                  style={{ left: pos.x, top: pos.y, width: layout.boxW, height: layout.boxH }}
+                  onPointerDown={(e) => down(e, p)}
+                >
+                  <svg viewBox={`${vx} ${vy} ${vw} ${vh}`} width="100%" height="100%">
+                    <defs>
+                      <clipPath id={`${uid}-${p.id}`}>
+                        <path d={p.d} />
+                      </clipPath>
+                    </defs>
+                    <image href={url} width={img.W} height={img.H} preserveAspectRatio="none" clipPath={`url(#${uid}-${p.id})`} />
+                    <path d={p.d} className="jigsaw-edge" vectorEffect="non-scaling-stroke" />
+                  </svg>
+                </div>
+              );
+            })}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export const jigsaw: Mechanic<JigsawConfig> = {
+  Round: JigsawRound,
+  clips: {
+    'puzzle.title': 'Puzzles',
+    'puzzle.ask': "Let's make the picture! Put the pieces where they go.",
+    'puzzle.done': 'You did it! You finished the puzzle!',
+  },
+};

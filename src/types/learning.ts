@@ -45,6 +45,8 @@ export interface LearningItem {
   group?: { key: string; clip: ClipId };
   /** A sorting activity (thinking section), used by Sort It */
   sortSet?: SortSet;
+  /** A photo or drawing (URL), used by the jigsaw puzzle */
+  photo?: string;
 }
 
 /** Baskets and the things that go in them */
@@ -243,7 +245,18 @@ export interface TraceConfig {
   pool: string[];
 }
 
+export interface JigsawConfig {
+  kind: 'jigsaw';
+  /** Item keys of pictures (items with a photo) */
+  pool: string[];
+  cols: number;
+  rows: number;
+  /** Show the picture faintly on the board as a guide */
+  ghost: boolean;
+}
+
 export type ActivityConfig =
+  | JigsawConfig
   | TraceConfig
   | MusicConfig
   | SortConfig

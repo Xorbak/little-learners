@@ -33,7 +33,7 @@ export function todaysPlan(): DailyStep[] {
     if (!section) return;
     const games = section.games.filter((g) => !SKIP.has(`${sectionId}/${g.id}`));
     const game = games[(day + i) % games.length];
-    steps.push({ id: `${sectionId}/${game.id}`, sectionId, gameId: game.id, rounds: game.id === 'sort' ? 1 : 2 });
+    steps.push({ id: `${sectionId}/${game.id}`, sectionId, gameId: game.id, rounds: game.id === 'sort' || game.id === 'puzzle' ? 1 : 2 });
   });
   const art = findSection('art');
   if (art) {

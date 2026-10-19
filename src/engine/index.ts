@@ -13,6 +13,7 @@ import { pattern } from './pattern/Pattern';
 import { oddOneOut } from './odd-one-out/OddOneOut';
 import { music } from './music/Music';
 import { trace } from './trace/Trace';
+import { jigsaw } from './jigsaw/Jigsaw';
 
 /**
  * Every game mechanic, keyed by its activity `kind`.
@@ -37,6 +38,7 @@ export const mechanics: { [K in ActivityConfig['kind']]: Mechanic<Extract<Activi
   'odd-one-out': oddOneOut,
   music,
   trace,
+  jigsaw,
 };
 
 export function mechanicFor<C extends ActivityConfig>(config: C): Mechanic<C> {
