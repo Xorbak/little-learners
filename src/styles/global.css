@@ -1,0 +1,817 @@
+:root {
+  --sky: #dff3ff;
+  --sky-deep: #b9e3fb;
+  --grass: #b2f2bb;
+  --card: #ffffff;
+  --ink: #2b2d42;
+  --ink-soft: #8d99ae;
+  --good: #40c057;
+  --shadow: 0 6px 0 rgba(43, 45, 66, 0.12), 0 12px 24px rgba(43, 45, 66, 0.12);
+  font-family: 'Fredoka', 'Baloo 2', 'Comic Sans MS', system-ui, sans-serif;
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  background: var(--sky);
+  overscroll-behavior: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+/* ---------- Screens ---------- */
+
+.screen {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: linear-gradient(180deg, var(--sky) 0%, var(--sky-deep) 100%);
+}
+
+.screen::after {
+  /* Rolling hills along the bottom */
+  content: '';
+  position: absolute;
+  left: -10%;
+  right: -10%;
+  bottom: -60px;
+  height: 140px;
+  background: var(--grass);
+  border-radius: 50% 50% 0 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.screen--start {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 40px;
+}
+
+.app-title {
+  margin: 0;
+  font-size: clamp(44px, 9vw, 96px);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-align: center;
+}
+
+.app-title span {
+  display: inline-block;
+  animation: letter-bounce 2s ease-in-out infinite;
+}
+
+.app-title span:nth-child(6n + 1) { color: #f03e3e; }
+.app-title span:nth-child(6n + 2) { color: #fd7e14; }
+.app-title span:nth-child(6n + 3) { color: #fab005; }
+.app-title span:nth-child(6n + 4) { color: #37b24d; }
+.app-title span:nth-child(6n + 5) { color: #1c7ed6; }
+.app-title span:nth-child(6n + 6) { color: #9c36b5; }
+
+@keyframes letter-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.start-btn {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 180px;
+  height: 180px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--good);
+  color: #fff;
+  box-shadow: 0 10px 0 #2b8a3e, 0 20px 40px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  animation: pulse 1.8s ease-in-out infinite;
+}
+
+.start-btn:active {
+  transform: translateY(8px);
+  box-shadow: 0 2px 0 #2b8a3e;
+}
+
+@keyframes pulse {
+  0%, 100% { scale: 1; }
+  50% { scale: 1.06; }
+}
+
+/* ---------- Tiles ---------- */
+
+.tile-grid {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: center;
+  gap: clamp(20px, 4vw, 40px);
+  height: 100%;
+  padding: 100px 24px 120px;
+}
+
+.tile {
+  display: grid;
+  place-items: center;
+  /* Shrinks with width and height so tiles fit a phone held either way */
+  width: clamp(104px, min(38vw, 26vw + 60px, 28vh), 240px);
+  aspect-ratio: 1;
+  border: 0;
+  border-radius: 40px;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  animation: tile-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tile:active {
+  transform: scale(0.94);
+}
+
+.tile--game {
+  background: var(--card);
+}
+
+.tile-icon {
+  font-size: clamp(40px, min(10vw, 12vh), 96px);
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 4px 0 rgba(0, 0, 0, 0.12);
+  line-height: 1;
+}
+
+@keyframes tile-in {
+  from { opacity: 0; transform: scale(0.6) translateY(30px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ---------- Buttons ---------- */
+
+.corner-left,
+.corner-right {
+  position: absolute;
+  top: 16px;
+  z-index: 5;
+}
+.corner-left { left: 16px; }
+.corner-right { right: 16px; }
+
+.round-btn {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--card);
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.round-btn:active {
+  transform: scale(0.92);
+}
+
+.round-btn--home { color: #1c7ed6; }
+.round-btn--speaker { color: #f08c00; width: 80px; height: 80px; flex-shrink: 0; }
+.round-btn--play { background: var(--good); color: #fff; }
+.round-btn--big { width: 100px; height: 100px; }
+.round-btn--huge { width: 150px; height: 150px; animation: pulse 1.8s ease-in-out infinite; }
+
+/* Parent gate: small and quiet, fills a ring while held */
+.hold-btn {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.6);
+  color: var(--ink-soft);
+  cursor: pointer;
+  touch-action: none;
+}
+
+.hold-ring {
+  position: absolute;
+  inset: 0;
+  transform: rotate(-90deg);
+}
+
+.hold-ring circle {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 3;
+  stroke-dasharray: 100.5;
+  stroke-dashoffset: 100.5;
+}
+
+.hold-btn--holding .hold-ring circle {
+  transition: stroke-dashoffset var(--hold) linear;
+  stroke-dashoffset: 0;
+}
+
+/* ---------- Game ---------- */
+
+.screen--game::after {
+  z-index: 0;
+}
+
+.screen--game > .pop-round,
+.screen--game .round-progress {
+  z-index: 1;
+}
+
+.round-progress {
+  position: absolute;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+  z-index: 3;
+}
+
+.round-pip {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.8);
+  transition: all 0.3s;
+}
+
+.round-pip--done {
+  background: #fab005;
+  transform: scale(1.25);
+}
+
+.numeral {
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: lining-nums;
+}
+
+.numeral--balloon {
+  color: #fff;
+  -webkit-text-stroke: 0.06em rgba(43, 45, 66, 0.55);
+  paint-order: stroke fill;
+  text-shadow: 0 3px 0 rgba(0, 0, 0, 0.15);
+}
+
+/* ---------- Celebration ---------- */
+
+.celebration {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.confetti {
+  position: absolute;
+  top: -20px;
+  width: 12px;
+  height: 18px;
+  border-radius: 3px;
+  animation: confetti-fall linear forwards;
+}
+
+.confetti--round {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+}
+
+@keyframes confetti-fall {
+  to { transform: translateY(110vh) rotate(var(--spin)); }
+}
+
+.celebration-stars {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+}
+
+.star {
+  width: clamp(70px, 14vw, 130px);
+  animation: star-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.star:nth-child(odd) {
+  margin-top: -40px;
+}
+
+@keyframes star-pop {
+  from { transform: scale(0) rotate(-90deg); }
+  to { transform: scale(1) rotate(0); }
+}
+
+.level-done {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+}
+
+.level-done-buttons {
+  position: absolute;
+  inset: auto 0 18%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;
+  z-index: 11;
+}
+
+/* ---------- Parent area ---------- */
+
+.parent {
+  min-height: 100%;
+  padding: 24px 16px 60px;
+  background: #f8f9fa;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.parent > * {
+  max-width: 860px;
+  margin-inline: auto;
+}
+
+.parent-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.parent h1 { margin: 0; font-size: 26px; }
+.parent h2 { margin: 0 0 8px; font-size: 19px; }
+.parent h3 { margin: 16px 0 8px; font-size: 15px; color: #495057; }
+
+.parent-card {
+  background: #fff;
+  border: 1px solid #e9ecef;
+  border-radius: 14px;
+  padding: 18px;
+  margin-bottom: 16px;
+}
+
+.parent-hint {
+  margin: 0 0 8px;
+  color: #6c757d;
+  font-size: 14px;
+}
+
+.parent-btn {
+  padding: 9px 16px;
+  border: 1px solid #ced4da;
+  border-radius: 10px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.parent-btn:hover { background: #f1f3f5; }
+.parent-btn--small { padding: 4px 10px; font-size: 13px; }
+.parent-btn--danger { color: #c92a2a; border-color: #ffc9c9; }
+
+.level-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.level-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px 8px 8px;
+  border: 2px solid #e9ecef;
+  border-radius: 999px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.level-chip--current {
+  border-color: #1c7ed6;
+  background: #e7f5ff;
+}
+
+.level-num {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #e9ecef;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.level-chip--current .level-num {
+  background: #1c7ed6;
+  color: #fff;
+}
+
+.mastery-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.mastery {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 72px;
+  padding: 8px;
+  border-radius: 10px;
+  background: #f1f3f5;
+  font-size: 12px;
+  font-family: 'Fredoka', system-ui, sans-serif;
+}
+
+.mastery--knows { background: #d3f9d8; }
+.mastery--practising { background: #fff3bf; }
+
+.voice-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.voice-row select {
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #ced4da;
+  max-width: 100%;
+}
+
+.voice-row label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.clip-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.clip-table th,
+.clip-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid #f1f3f5;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.clip-table code {
+  font-size: 12px;
+  word-break: break-all;
+}
+
+@media (max-width: 600px) {
+  .clip-table th:nth-child(3),
+  .clip-table td:nth-child(3) { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-title span, .start-btn, .round-btn--huge { animation: none; }
+}
+
+/* =====================================================================
+   Phones (and very short landscape screens)
+   Every game header follows the same pattern: room for the back button
+   on the left, compact speaker/target in the middle.
+   ===================================================================== */
+
+@media (max-width: 600px), (max-height: 500px) {
+  .round-btn { width: 60px; height: 60px; }
+  .round-btn svg { width: 30px; height: 30px; }
+  .round-btn--speaker { width: 64px; height: 64px; }
+  .round-btn--big { width: 84px; height: 84px; }
+  .round-btn--huge { width: 120px; height: 120px; }
+  .corner-left { top: 10px; left: 10px; }
+  .corner-right { top: 10px; right: 10px; }
+
+  .tile-grid {
+    gap: 16px;
+    padding: 76px 16px 64px;
+  }
+  .tile { border-radius: 28px; }
+
+  .round-progress { bottom: 6px; }
+}
+
+@media (max-height: 500px) {
+  /* Landscape phone: let tiles sit in one row */
+  .tile-grid { flex-wrap: nowrap; align-items: center; padding-top: 70px; padding-bottom: 50px; }
+  .level-done-buttons { inset: auto 0 10%; }
+}
+
+@media (max-width: 600px), (max-height: 500px) {
+  .start-btn { width: 140px; height: 140px; }
+}
+
+/* =====================================================================
+   Home: Today tile, sticker book button; Today screen; sticker book
+   ===================================================================== */
+
+.start-hello {
+  position: relative;
+  z-index: 1;
+  margin: -20px 0 0;
+  font-size: clamp(28px, 6vw, 44px);
+  font-weight: 700;
+  color: #e8590c;
+}
+
+/* The home grid: 3 across on a phone held upright, 5 across when wide */
+.tile-grid--home {
+  display: grid;
+  grid-template-columns: repeat(var(--cols), var(--tile));
+  gap: var(--gap);
+  justify-content: center;
+  align-content: center;
+  --cols: 5;
+  --rows: 2;
+  --gap: clamp(10px, 2.4vw, 24px);
+  --tile: min(200px, calc((100vw - 32px - (var(--cols) - 1) * var(--gap)) / var(--cols)), calc((100dvh - 130px - (var(--rows) - 1) * var(--gap)) / var(--rows)));
+}
+.tile-grid--home .tile { width: var(--tile); }
+.tile-grid--home .tile-icon { font-size: calc(var(--tile) * 0.42); }
+
+@media (orientation: portrait) {
+  .tile-grid--home { --cols: 3; --rows: 3; }
+}
+
+.tile--today {
+  position: relative;
+  background: radial-gradient(circle at 30% 25%, #fff3bf, #ffd43b 60%, #fab005);
+  box-shadow: 0 0 0 4px #fff, var(--shadow);
+}
+.tile--today .tile-icon { animation: today-spin 8s linear infinite; }
+
+.today-dots {
+  position: absolute;
+  bottom: 10%;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+}
+.today-dot {
+  width: calc(var(--tile, 150px) * 0.06);
+  height: calc(var(--tile, 150px) * 0.06);
+  min-width: 7px;
+  min-height: 7px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.7);
+  border: 2px solid rgba(0, 0, 0, 0.12);
+}
+.today-dot--done { background: var(--good); border-color: #fff; }
+
+@keyframes today-spin { to { transform: rotate(360deg); } }
+
+.book-btn {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border: 0;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: var(--shadow);
+  font-size: 36px;
+  cursor: pointer;
+}
+
+/* ---------- Today screen ---------- */
+
+.screen--today {
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, #fff9db 0%, var(--sky) 60%);
+}
+
+.today-top {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  min-height: 84px;
+  padding: 10px 12px 0 80px;
+}
+.today-sun { font-size: 52px; animation: today-spin 10s linear infinite; }
+
+.today-trail {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 0;
+  padding: 8px 14px;
+  list-style: none;
+  --stop: clamp(76px, min(26vw, 13vh), 120px);
+}
+
+.today-stop { animation: tile-in 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+
+.today-step {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: var(--stop);
+  height: var(--stop);
+  border: 0;
+  border-radius: 26px;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.today-step-icon { font-size: calc(var(--stop) * 0.5); line-height: 1; }
+.today-step--done { filter: saturate(0.35); opacity: 0.75; }
+.today-step--next { box-shadow: 0 0 0 5px #fff, 0 0 0 9px #fab005, var(--shadow); animation: pulse 1.6s ease-in-out infinite; }
+.today-step--treat { border-radius: 50%; }
+
+.today-tick {
+  position: absolute;
+  right: -6px;
+  top: -6px;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--good);
+  color: #fff;
+  font-size: 20px;
+  font-weight: 700;
+  box-shadow: 0 0 0 3px #fff;
+}
+
+.today-bottom {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  padding: 6px 0 42px;
+}
+.today-trophy { font-size: 96px; animation: pulse 1.6s ease-in-out infinite; }
+
+/* ---------- Sticker won (level done) ---------- */
+
+.sticker-won {
+  position: absolute;
+  left: 50%;
+  top: 22%;
+  z-index: 11;
+  display: grid;
+  place-items: center;
+  width: min(46vw, 30vh, 220px);
+  aspect-ratio: 1;
+  margin-left: calc(min(46vw, 30vh, 220px) / -2);
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff 55%, #ffe066 56%);
+  box-shadow: 0 0 0 8px #fff, 0 12px 30px rgba(0, 0, 0, 0.2);
+  animation: sticker-in 1s cubic-bezier(0.34, 1.56, 0.64, 1) 0.4s both;
+}
+.sticker-won-face { font-size: min(28vw, 18vh, 130px); line-height: 1; }
+
+@keyframes sticker-in {
+  from { transform: scale(0) rotate(-200deg); }
+  to { transform: scale(1) rotate(0); }
+}
+
+/* ---------- Sticker book ---------- */
+
+.screen--stickers {
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, #fff0f6, #e7f5ff);
+}
+.screen--stickers::after { display: none; }
+
+.book-top {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  min-height: 84px;
+  padding: 10px 12px 0 80px;
+}
+.book-title { font-size: 52px; }
+.book-trophies { font-size: 30px; font-weight: 700; color: #e67700; }
+
+.book-page {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+  align-content: start;
+  gap: 10px;
+  margin: 8px 12px 16px;
+  padding: 14px;
+  overflow-y: auto;
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: var(--shadow);
+}
+
+.book-slot {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  border: 3px dashed #dee2e6;
+  border-radius: 50%;
+  background: #f8f9fa;
+  font-size: 38px;
+  line-height: 1;
+  cursor: default;
+}
+.book-slot--have {
+  border: 0;
+  background: radial-gradient(circle, #fff 60%, #fff3bf 61%);
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+}
+.book-slot--wiggle { animation: pbn-wobble 0.55s ease; }
+
+/* ---------- Grown-ups extras ---------- */
+
+.parent-input {
+  width: 100%;
+  max-width: 320px;
+  padding: 10px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 10px;
+  font-size: 16px;
+}
+.week-row { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+.week-day { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 2px; border-radius: 10px; background: #f8f9fa; font-size: 13px; }
+.week-mark { font-size: 16px; }
+.feel-log { display: flex; flex-wrap: wrap; gap: 8px; }
+.feel-entry { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px; border-radius: 10px; background: #f8f9fa; font-size: 11px; color: #868e96; }
+
+@media (max-width: 600px), (max-height: 500px) {
+  .book-btn { width: 60px; height: 60px; font-size: 32px; border-radius: 18px; }
+  .today-sun { font-size: 40px; }
+  .today-top, .book-top { min-height: 76px; }
+}
+@media (max-height: 500px) and (orientation: landscape) {
+  .today-trail { --stop: clamp(64px, 20vh, 90px); }
+  .today-bottom { position: absolute; right: 16px; bottom: 16px; padding: 0; }
+  .today-bottom .round-btn--huge { width: 96px; height: 96px; }
+}
+
+/* Phone held upright: two big columns, with Today as a wide banner on top */
+@media (orientation: portrait) and (max-width: 560px) {
+  .tile-grid--home { --cols: 2; --rows: 5; }
+  .tile-grid--home .tile--today {
+    grid-column: span 2;
+    width: auto;
+    height: var(--tile);
+    aspect-ratio: auto;
+  }
+}

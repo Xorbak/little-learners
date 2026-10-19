@@ -1,0 +1,101 @@
+.pat-round {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.pat-top {
+  display: flex;
+  justify-content: center;
+  min-height: 92px;
+  padding: 12px 88px 0;
+}
+
+.pat-row {
+  /* Slots shrink to fit the row on any screen */
+  /* Up to 5 per row on a phone (the pattern wraps), bigger when there is room */
+  --slot: min(84px, calc((100vw - 32px) / min(var(--slots), 5) - 8px));
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 12px;
+}
+
+.pat-slot {
+  display: grid;
+  place-items: center;
+  width: var(--slot);
+  height: var(--slot);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: var(--shadow);
+}
+
+.pat-slot .emoji-picture { font-size: calc(var(--slot) * 0.7) !important; }
+.pat-slot--sing { animation: pat-hop 0.36s ease; }
+.pat-slot--new { animation: pat-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+.pat-slot--gap {
+  background: #fff;
+  border: 4px dashed var(--ink-soft);
+  box-shadow: none;
+  font-size: calc(var(--slot) * 0.55);
+  font-weight: 700;
+  color: var(--ink-soft);
+  animation: pat-wait 1.4s ease-in-out infinite;
+}
+
+.pat-choices {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  padding: 10px 12px 50px;
+}
+
+.pat-choice {
+  display: grid;
+  place-items: center;
+  width: clamp(84px, min(26vw, 16vh), 120px);
+  aspect-ratio: 1;
+  padding: 0;
+  border: 0;
+  border-radius: 26px;
+  background: #fff;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.pat-choice .emoji-picture { font-size: clamp(52px, min(17vw, 10vh), 78px) !important; }
+.pat-choice:active { transform: scale(0.94); }
+.pat-choice--wobble { animation: pat-wobble 0.55s ease; }
+.pat-choice--hint { box-shadow: 0 0 0 6px #ffd43b, var(--shadow); animation: pat-wait 1s ease-in-out infinite; }
+.pat-choice--used { opacity: 0.3; }
+
+@keyframes pat-hop {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-18px) scale(1.1); }
+}
+@keyframes pat-pop {
+  from { transform: scale(0.3); }
+  to { transform: none; }
+}
+@keyframes pat-wait {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+@keyframes pat-wobble {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(-10deg); }
+  50% { transform: rotate(8deg); }
+  75% { transform: rotate(-4deg); }
+}
+
+@media (max-width: 600px), (max-height: 500px) {
+  .pat-top { min-height: 76px; padding: 10px 12px 0 80px; }
+  .pat-choices { padding-bottom: 34px; gap: 10px; }
+}

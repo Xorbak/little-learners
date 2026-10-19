@@ -1,0 +1,93 @@
+.ci-round {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.ci-top {
+  display: flex;
+  justify-content: center;
+  min-height: 92px;
+  padding: 12px 88px 0;
+}
+
+.ci-faces {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(3, min(28vw, 22vh, 170px));
+  justify-content: center;
+  align-content: center;
+  gap: 16px;
+  padding: 0 12px 50px;
+}
+
+.ci-face {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  padding: 0;
+  border: 0;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  animation: ci-in 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ci-face .emoji-picture { font-size: min(18vw, 14vh, 110px) !important; }
+.ci-face:active { transform: scale(0.94); }
+
+.ci-chosen {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding-bottom: 50px;
+}
+
+.ci-big {
+  animation: ci-hug 1.2s ease-in-out infinite alternate;
+}
+.ci-big .emoji-picture { font-size: min(45vw, 32vh, 200px) !important; }
+
+.ci-breath {
+  display: grid;
+  place-items: center;
+  width: min(60vw, 40vh);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, #d0ebff 0 55%, #a5d8ff 56% 100%);
+  box-shadow: 0 0 0 10px rgba(255, 255, 255, 0.6);
+  animation-timing-function: ease-in-out;
+  animation-fill-mode: both;
+}
+.ci-breath .emoji-picture { font-size: min(22vw, 14vh, 110px) !important; }
+.ci-breath--in { animation-name: ci-grow; }
+.ci-breath--out { animation-name: ci-shrink; }
+
+@keyframes ci-in {
+  from { opacity: 0; transform: scale(0.5); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes ci-hug {
+  from { transform: scale(1) rotate(-3deg); }
+  to { transform: scale(1.06) rotate(3deg); }
+}
+@keyframes ci-grow {
+  from { transform: scale(0.6); }
+  to { transform: scale(1); }
+}
+@keyframes ci-shrink {
+  from { transform: scale(1); }
+  to { transform: scale(0.6); }
+}
+
+@media (max-width: 600px), (max-height: 500px) {
+  .ci-top { min-height: 76px; padding: 10px 12px 0 80px; }
+  .ci-faces { gap: 10px; }
+}
+@media (max-height: 500px) and (orientation: landscape) {
+  .ci-faces { grid-template-columns: repeat(6, min(14vw, 34vh)); }
+}

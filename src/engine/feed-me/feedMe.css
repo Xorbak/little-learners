@@ -1,0 +1,296 @@
+.feed-round {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.feed-top {
+  display: flex;
+  justify-content: center;
+  padding: 12px 88px 0;
+  min-height: 92px;
+}
+
+/* ---------- Animal and speech bubble ---------- */
+
+.feed-stage {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(16px, 4vw, 48px);
+  padding: 0 16px;
+  min-height: 0;
+}
+
+.feed-animal-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.feed-animal {
+  position: relative;
+  font-size: clamp(110px, 24vh, 210px);
+  line-height: 1;
+  transform-origin: 50% 90%;
+  transition: transform 0.2s;
+  animation: feed-breathe 2.6s ease-in-out infinite;
+}
+
+.feed-animal--ready { transform: scale(1.12); }
+.feed-animal--chomp { animation: feed-chomp 0.45s ease; }
+.feed-animal--shake { animation: feed-shake 0.8s ease; }
+.feed-animal--full { animation: feed-full 1.6s ease; }
+.feed-animal--hungry { animation: feed-hungry 1.4s ease; }
+.feed-animal--happy { animation: feed-happy 0.7s ease-in-out infinite; }
+
+.feed-hearts {
+  position: absolute;
+  top: -10%;
+  right: -20%;
+  font-size: 0.35em;
+  animation: feed-heart 1.2s ease-out infinite;
+}
+
+.feed-plate {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-height: 56px;
+  min-width: 180px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.75);
+  box-shadow: inset 0 -4px 0 rgba(43, 45, 66, 0.08);
+}
+
+.feed-plate-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 300px;
+}
+
+.feed-plate-food {
+  font-size: 36px;
+  line-height: 1.2;
+  animation: feed-pop-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.feed-bubble {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px 26px;
+  border-radius: 36px;
+  background: var(--card);
+  box-shadow: var(--shadow);
+  animation: feed-pop-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* The little tail pointing back at the animal */
+.feed-bubble::before {
+  content: '';
+  position: absolute;
+  left: -18px;
+  top: 50%;
+  border: 14px solid transparent;
+  border-right: 22px solid var(--card);
+  border-left: 0;
+  transform: translateY(-50%);
+}
+
+.feed-want-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.feed-want-row .numeral {
+  line-height: 1;
+  min-width: 0.7em;
+  text-align: center;
+}
+
+.feed-want-food {
+  font-size: 64px;
+  line-height: 1;
+}
+
+.feed-dots {
+  display: grid;
+  grid-template-columns: repeat(5, 18px);
+  gap: 8px;
+  justify-content: start;
+  padding-left: 6px;
+}
+
+.feed-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--ink);
+}
+
+/* ---------- Food pile ---------- */
+
+.feed-bottom {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 16px;
+  padding: 8px 16px 48px;
+}
+
+.feed-pile {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  max-width: 900px;
+}
+
+.feed-food {
+  width: 92px;
+  height: 92px;
+  padding: 0;
+  border: 0;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: var(--shadow);
+  font-size: 58px;
+  line-height: 1;
+  cursor: grab;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.25s, transform 0.25s;
+}
+
+.feed-food:active { transform: scale(0.94); }
+.feed-food--lifted { opacity: 0.25; }
+.feed-food--returned { animation: feed-returned 0.7s cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+.feed-food--eaten {
+  display: none;
+}
+
+.feed-give {
+  flex-shrink: 0;
+  width: 112px;
+  height: 112px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--good);
+  box-shadow: 0 8px 0 #2b8a3e, 0 14px 28px rgba(0, 0, 0, 0.15);
+  font-size: 58px;
+  cursor: pointer;
+  animation: pulse 1.8s ease-in-out infinite;
+}
+
+.feed-give:active {
+  transform: translateY(6px);
+  box-shadow: 0 2px 0 #2b8a3e;
+}
+
+.feed-drag {
+  position: fixed;
+  z-index: 20;
+  font-size: 80px;
+  line-height: 1;
+  transform: translate(-50%, -60%) rotate(-8deg);
+  pointer-events: none;
+  filter: drop-shadow(0 10px 10px rgba(0, 0, 0, 0.2));
+}
+
+/* Portrait: bubble above the animal */
+@media (max-aspect-ratio: 1/1) {
+  .feed-stage { flex-direction: column-reverse; gap: 20px; }
+  .feed-bubble::before {
+    left: 50%;
+    top: auto;
+    bottom: -22px;
+    border: 14px solid transparent;
+    border-top: 22px solid var(--card);
+    border-bottom: 0;
+    transform: translateX(-50%);
+  }
+  .feed-food { width: 84px; height: 84px; font-size: 52px; border-radius: 24px; }
+  .feed-give { width: 96px; height: 96px; font-size: 48px; }
+}
+
+@keyframes feed-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.03, 0.98); }
+}
+@keyframes feed-chomp {
+  0%, 100% { transform: scale(1); }
+  30% { transform: scale(1.12, 0.88); }
+  60% { transform: scale(0.95, 1.06); }
+}
+@keyframes feed-shake {
+  0%, 100% { transform: rotate(0); }
+  20% { transform: rotate(-12deg); }
+  40% { transform: rotate(12deg); }
+  60% { transform: rotate(-8deg); }
+  80% { transform: rotate(6deg); }
+}
+@keyframes feed-full {
+  0% { transform: scale(1); }
+  25% { transform: scale(1.25, 1.18); }
+  45% { transform: scale(1.2, 1.22) rotate(-4deg); }
+  65% { transform: scale(1.22, 1.18) rotate(4deg); }
+  100% { transform: scale(1); }
+}
+@keyframes feed-hungry {
+  0%, 100% { transform: rotate(0) translateY(0); }
+  25% { transform: rotate(-6deg) translateY(6px); }
+  50% { transform: rotate(6deg) translateY(6px); }
+  75% { transform: rotate(-4deg) translateY(4px); }
+}
+@keyframes feed-happy {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-24px) scale(1.05); }
+}
+@keyframes feed-heart {
+  from { transform: translateY(0) scale(0.8); opacity: 1; }
+  to { transform: translateY(-50px) scale(1.2); opacity: 0; }
+}
+@keyframes feed-pop-in {
+  from { transform: scale(0.3); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+@keyframes feed-returned {
+  0% { transform: translateY(-160px) scale(0.6); }
+  100% { transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feed-animal, .feed-give, .feed-hearts { animation: none; }
+}
+
+/* Bubble numerals scale with the screen (the numeral sets its own size inline) */
+.feed-want-row .numeral { font-size: clamp(40px, 11vh, 96px) !important; }
+.feed-want-food { font-size: clamp(32px, 8vh, 64px); }
+
+@media (max-width: 600px), (max-height: 500px) {
+  .feed-top { min-height: 76px; padding: 10px 12px 0 80px; }
+  .feed-animal { font-size: clamp(70px, 18vh, 160px); }
+  .feed-bubble { padding: 10px 16px; border-radius: 26px; gap: 4px; }
+  .feed-dots { grid-template-columns: repeat(5, 12px); gap: 5px; }
+  .feed-dot { width: 12px; height: 12px; }
+  .feed-plate { min-height: 36px; min-width: 120px; padding: 2px 10px; }
+  .feed-plate-food { font-size: 24px; }
+  .feed-bottom { padding: 6px 10px 30px; }
+  .feed-pile { gap: 8px; }
+  .feed-food { width: 64px; height: 64px; font-size: 40px; border-radius: 20px; }
+  /* "Here you go!" moves to the top-right corner so the pile gets the full width */
+  .feed-give { position: fixed; top: 10px; right: 10px; z-index: 6; width: 76px; height: 76px; font-size: 40px; }
+}

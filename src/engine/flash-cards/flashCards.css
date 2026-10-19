@@ -1,0 +1,185 @@
+.fc-round {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.fc-top {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 12px 88px 0;
+  min-height: 92px;
+}
+
+.fc-progress {
+  display: flex;
+  gap: 8px;
+}
+
+.fc-dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 3px dashed var(--ink-soft);
+  transition: all 0.3s;
+}
+
+.fc-dot--done {
+  border: 3px solid transparent;
+  background: var(--good);
+}
+
+.fc-stage {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  min-height: 0;
+  padding: 8px 16px;
+  perspective: 1400px;
+}
+
+/* ---------- The card ---------- */
+
+.fc-card {
+  position: relative;
+  width: min(420px, 80vw, calc((100dvh - 260px) * 0.8));
+  aspect-ratio: 4 / 5;
+  container-type: size;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  animation: fc-deal 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.fc-card--leaving {
+  animation: fc-leave 0.32s ease-in forwards;
+}
+
+.fc-inner {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transition: transform 0.55s cubic-bezier(0.34, 1.3, 0.64, 1);
+}
+
+.fc-card--flipped .fc-inner {
+  transform: rotateY(180deg);
+}
+
+.fc-face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 36px;
+  border: 8px solid #fff;
+  box-shadow: var(--shadow);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.fc-face--front {
+  background:
+    radial-gradient(circle at 18% 14%, rgba(255, 255, 255, 0.6) 0 7%, transparent 8%),
+    radial-gradient(circle at 84% 88%, rgba(255, 255, 255, 0.5) 0 5%, transparent 6%),
+    #ffe8cc;
+}
+
+.fc-face--back {
+  background: #fff;
+  transform: rotateY(180deg);
+}
+
+.fc-emoji {
+  line-height: 1;
+}
+
+.fc-face--front .fc-emoji { font-size: 50cqh !important; }
+.fc-face--back .fc-emoji { font-size: 36cqh !important; }
+/* Your own pictures (src/pictures/words) size from the card as well */
+.fc-face--front .fc-picture { width: 70cqw !important; height: 60cqh !important; }
+.fc-face--back .fc-picture { width: 60cqw !important; height: 42cqh !important; }
+
+.fc-word {
+  /* As big as fits: long words (elephant) get smaller than short ones (cat) */
+  font-size: min(22cqh, calc(88cqw / (var(--len, 4) * 0.62)));
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+}
+
+.fc-first {
+  display: inline-block;
+  padding: 0 4px;
+  border-radius: 16px;
+  color: #e8590c;
+  background: #fff4e6;
+  box-shadow: inset 0 -6px 0 #ffd8a8;
+}
+
+/* ---------- Next arrow ---------- */
+
+.fc-bottom {
+  display: flex;
+  justify-content: center;
+  min-height: 150px;
+  padding: 8px 16px 44px;
+}
+
+.fc-next {
+  display: grid;
+  place-items: center;
+  width: 100px;
+  height: 100px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--good);
+  color: #fff;
+  box-shadow: 0 8px 0 #2b8a3e, 0 14px 28px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  animation: fc-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both, pulse 1.8s ease-in-out 0.4s infinite;
+}
+
+.fc-next:active {
+  transform: translateY(6px);
+  box-shadow: 0 2px 0 #2b8a3e;
+}
+
+@keyframes fc-deal {
+  from { transform: translateX(60vw) rotate(12deg); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+
+@keyframes fc-leave {
+  to { transform: translateX(-70vw) rotate(-14deg); opacity: 0; }
+}
+
+@keyframes fc-pop {
+  from { transform: scale(0.3); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fc-card, .fc-card--leaving, .fc-next { animation: none; }
+  .fc-inner { transition-duration: 0.01s; }
+}
+
+@media (max-width: 600px), (max-height: 500px) {
+  .fc-top { min-height: 76px; padding: 10px 12px 0 80px; gap: 10px; }
+  .fc-dot { width: 16px; height: 16px; }
+  .fc-face { border-width: 6px; border-radius: 26px; }
+  .fc-bottom { min-height: 120px; padding-bottom: 30px; }
+  .fc-next { width: 84px; height: 84px; }
+}
+/* Landscape phone: next arrow beside the card */
+@media (max-height: 500px) and (orientation: landscape) {
+  .fc-card { width: calc((100dvh - 100px) * 0.8); }
+  .fc-bottom { position: absolute; right: 24px; top: 50%; min-height: 0; padding: 0; transform: translateY(-50%); }
+}

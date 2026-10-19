@@ -1,0 +1,104 @@
+.touch-round {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.touch-top {
+  display: flex;
+  justify-content: center;
+  min-height: 92px;
+  padding: 12px 88px 0;
+}
+
+.touch-field {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 0 16px 50px;
+}
+
+.touch-choice {
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 32px;
+  background: rgba(255, 255, 255, 0.55);
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  animation: touch-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.touch-choice:active { transform: scale(0.95); }
+
+.touch-shape {
+  display: grid;
+  place-items: center;
+  transition: transform 0.3s;
+}
+
+.touch-choice--wobble { animation: touch-wobble 0.55s ease; }
+.touch-choice--hint { animation: touch-hint 1s ease-in-out infinite; }
+.touch-choice--found { animation: touch-found 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; z-index: 2; }
+.touch-choice--fade { opacity: 0.25; transition: opacity 0.4s; }
+
+.touch-sparkles {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  pointer-events: none;
+}
+
+.touch-sparkle {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  margin: -9px;
+  border-radius: 50%;
+  background: #ffd43b;
+  animation: touch-sparkle 0.8s ease-out forwards;
+}
+
+@keyframes touch-in {
+  from { opacity: 0; transform: scale(0.4); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes touch-wobble {
+  0%, 100% { transform: rotate(0); }
+  20% { transform: rotate(-10deg) scale(0.95); }
+  40% { transform: rotate(8deg); }
+  60% { transform: rotate(-5deg); }
+  80% { transform: rotate(3deg); }
+}
+@keyframes touch-hint {
+  0%, 100% { transform: scale(1); box-shadow: var(--shadow); }
+  50% { transform: scale(1.06); box-shadow: 0 0 0 6px #ffd43b, var(--shadow); }
+}
+@keyframes touch-found {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.18) rotate(-4deg); }
+  100% { transform: scale(1.1); background: #fff; }
+}
+@keyframes touch-sparkle {
+  from { transform: rotate(var(--a)) translateY(0) scale(1); opacity: 1; }
+  to { transform: rotate(var(--a)) translateY(-130px) scale(0.3); opacity: 0; }
+}
+
+@media (max-width: 600px), (max-height: 500px) {
+  .touch-top { min-height: 76px; padding: 10px 12px 0 80px; }
+  .touch-field { gap: 14px; padding-bottom: 34px; }
+  .touch-choice { border-radius: 24px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .touch-choice, .touch-choice--hint { animation: none; }
+}

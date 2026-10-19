@@ -1,0 +1,137 @@
+.sort-round {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  --piece: clamp(64px, min(19vw, 13vh), 96px);
+  --basket-icon: clamp(40px, min(12vw, 8vh), 64px);
+}
+
+.sort-top {
+  display: flex;
+  justify-content: center;
+  min-height: 92px;
+  padding: 12px 88px 0;
+}
+
+.sort-pile {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 6px 12px;
+}
+
+.sort-piece {
+  display: grid;
+  place-items: center;
+  width: var(--piece);
+  height: var(--piece);
+  padding: 0;
+  border: 0;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: var(--shadow);
+  line-height: 1;
+  cursor: grab;
+  touch-action: none;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sort-piece--selected {
+  transform: translateY(-12px) scale(1.12);
+  box-shadow: 0 0 0 5px #ffd43b, var(--shadow);
+}
+.sort-piece--lifted { opacity: 0.25; }
+.sort-piece--wobble { animation: sort-wobble 0.55s ease; }
+
+.sort-baskets {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  padding: 8px 12px 40px;
+}
+
+.sort-basket {
+  position: relative;
+  flex: 1 1 0;
+  max-width: 280px;
+  min-height: clamp(130px, 22vh, 200px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 4px;
+  padding: 10px 8px 12px;
+  border: 0;
+  border-radius: 18px 18px 40px 40px;
+  background:
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.07) 0 6px, transparent 6px 18px),
+    var(--basket);
+  box-shadow: inset 0 10px 0 rgba(255, 255, 255, 0.35), var(--shadow);
+  cursor: pointer;
+  transition: transform 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sort-basket--ready { animation: sort-ready 1s ease-in-out infinite; }
+.sort-basket--glow { transform: scale(1.06); box-shadow: 0 0 0 6px #69db7c, var(--shadow); }
+.sort-basket--done { animation: sort-dance 0.7s ease-in-out 3; }
+
+.sort-basket-icon {
+  line-height: 1;
+  filter: drop-shadow(0 3px 0 rgba(0, 0, 0, 0.15));
+}
+
+.sort-basket-inside {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2px;
+}
+
+.sort-in { line-height: 1.1; animation: sort-plop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+.sort-drag {
+  position: fixed;
+  z-index: 20;
+  line-height: 1;
+  transform: translate(-50%, -60%) rotate(-8deg);
+  pointer-events: none;
+  filter: drop-shadow(0 10px 10px rgba(0, 0, 0, 0.2));
+}
+
+@keyframes sort-wobble {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(-12deg); }
+  50% { transform: rotate(10deg); }
+  75% { transform: rotate(-6deg); }
+}
+@keyframes sort-ready {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+@keyframes sort-dance {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(-6deg) translateY(-8px); }
+  75% { transform: rotate(6deg) translateY(-8px); }
+}
+@keyframes sort-plop {
+  from { transform: scale(0.2) translateY(-30px); }
+  to { transform: none; }
+}
+
+@media (max-width: 600px), (max-height: 500px) {
+  .sort-top { min-height: 76px; padding: 10px 12px 0 80px; }
+  .sort-baskets { padding-bottom: 30px; gap: 8px; }
+}
+@media (max-height: 500px) and (orientation: landscape) {
+  .sort-round { --piece: 58px; --basket-icon: 34px; }
+  .sort-basket { min-height: 96px; }
+}

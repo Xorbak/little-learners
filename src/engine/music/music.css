@@ -1,0 +1,102 @@
+.mus-round {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.mus-top {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  min-height: 92px;
+  padding: 12px 88px 0;
+}
+
+.mus-btn {
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 76px;
+  border: 0;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: var(--shadow);
+  font-size: 38px;
+  cursor: pointer;
+}
+.mus-btn--done { background: var(--good); color: #fff; font-weight: 700; }
+
+/* Landscape: bars stand up side by side, getting shorter left to right */
+.mus-xylo {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 16px 50px;
+}
+
+.mus-bar {
+  position: relative;
+  flex: 1 1 0;
+  max-width: 110px;
+  height: calc(var(--len) * 0.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  border: 0;
+  border-radius: 16px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.35), transparent 40%), var(--c);
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.18), var(--shadow);
+  cursor: pointer;
+  touch-action: none;
+  transition: transform 0.08s, filter 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mus-pin {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.75);
+}
+
+.mus-bar--lit { transform: scale(1.08) translateY(-6px); filter: brightness(1.25); box-shadow: 0 0 0 6px #fff, 0 0 30px var(--c); }
+.mus-bar--wobble { animation: mus-wobble 0.45s ease; }
+/* Guided levels: the bar to tap next glows */
+.mus-bar--next { animation: mus-next 1s ease-in-out infinite; }
+@keyframes mus-next {
+  0%, 100% { box-shadow: 0 6px 0 rgba(0, 0, 0, 0.18), var(--shadow); filter: brightness(1); }
+  50% { box-shadow: 0 0 0 6px #fff, 0 0 28px var(--c); filter: brightness(1.2); }
+}
+.mus-xylo--listen .mus-bar:not(.mus-bar--lit) { filter: saturate(0.6) brightness(0.95); }
+
+/* Portrait (phone held upright): bars lie across the screen, one per row */
+@media (orientation: portrait) {
+  .mus-xylo { flex-direction: column; gap: 8px; padding: 10px 16px 40px; }
+  .mus-bar {
+    flex: 1 1 0;
+    width: var(--len);
+    max-width: none;
+    max-height: 90px;
+    height: auto;
+    flex-direction: row;
+    padding: 0 16px;
+  }
+}
+
+@keyframes mus-wobble {
+  0%, 100% { transform: rotate(0); }
+  33% { transform: rotate(-4deg); }
+  66% { transform: rotate(4deg); }
+}
+
+@media (max-width: 600px), (max-height: 500px) {
+  .mus-top { min-height: 76px; padding: 10px 12px 0 80px; gap: 10px; }
+  .mus-btn { width: 62px; height: 62px; font-size: 30px; }
+}
