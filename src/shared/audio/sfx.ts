@@ -14,14 +14,53 @@ export function audioContext(): AudioContext | null {
 
 function audio(): AudioContext | null {
   if (!ctx) {
+    playbackSession();
     try {
       ctx = new AudioContext();
     } catch {
       return null;
     }
+    wakeOnTouch();
   }
-  if (ctx.state === 'suspended') void ctx.resume();
+  wake();
   return ctx;
+}
+
+/**
+ * iPhones mute web sounds and music with the silent switch, but not the narrator's
+ * voice. Saying the app plays media (like a video does) lets everything through,
+ * so she never hears the voice without the music and sounds.
+ */
+function playbackSession() {
+  try {
+    const session = (navigator as Navigator & { audioSession?: { type: string } }).audioSession;
+    if (session && session.type !== 'playback') session.type = 'playback';
+  } catch {
+    /* not supported: sound follows the silent switch */
+  }
+}
+
+/** Start sound again if the phone paused it (another app, a call, the screen locking) */
+function wake() {
+  if (ctx && ctx.state !== 'running' && ctx.state !== 'closed') {
+    playbackSession();
+    ctx.resume().catch(() => {
+      /* needs a tap first: the next one does it */
+    });
+  }
+}
+
+/** Phones only allow starting sound from a tap, so every tap checks */
+function wakeOnTouch() {
+  for (const type of ['pointerdown', 'touchend', 'keydown']) document.addEventListener(type, wake, { capture: true, passive: true });
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') wake();
+  });
+}
+
+/** How the sound is doing (for the grown-ups' sound check) */
+export function audioState(): string {
+  return ctx ? ctx.state : 'not started';
 }
 
 function tone(freq: number, start: number, duration: number, type: OscillatorType, volume = 0.2) {

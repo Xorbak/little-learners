@@ -29,5 +29,7 @@ function offline(): Plugin {
 export default defineConfig({
   // Relative paths, so the built app works from any folder or free host
   base: './',
+  // When this version was built (shown in Grown-ups, to check a phone has the latest)
+  define: { __BUILD_TIME__: JSON.stringify(new Date().toISOString()) },
   plugins: [react(), offline()],
 })

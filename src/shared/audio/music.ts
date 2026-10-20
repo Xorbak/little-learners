@@ -38,6 +38,9 @@ export const trackNames = () => Object.keys(urls).sort();
 // Loading (a few decoded tracks are kept; long songs are big once decoded)
 // ---------------------------------------------------------------------------
 const loading = new Map<string, Promise<AudioBuffer | null>>();
+/** Tracks that couldn't be loaded or played, and why (shown in the grown-ups' sound check) */
+const problems: string[] = [];
+export const musicProblems = () => problems.slice(-5);
 const decoded = new Map<string, AudioBuffer>();
 const KEEP = 2;
 
@@ -64,7 +67,10 @@ function load(name: string): Promise<AudioBuffer | null> {
         while (decoded.size > KEEP) decoded.delete(decoded.keys().next().value as string);
         return buffer;
       })
-      .catch(() => null)
+      .catch((e: unknown) => {
+        problems.push(`${name}: ${e instanceof Error ? e.message : String(e)}`);
+        return null;
+      })
       .finally(() => loading.delete(name));
     loading.set(name, p);
   }
@@ -218,7 +224,7 @@ function startLoop(name: string, buffer: AudioBuffer, volume: () => number) {
 // ---------------------------------------------------------------------------
 // Background music ("bed"): one at a time, for where she is
 // ---------------------------------------------------------------------------
-const BED_LEVEL = 0.3;
+const BED_LEVEL = 0.4;
 let bed: { name: string; handle: LoopHandle | null } | null = null;
 let backgroundOn = true;
 

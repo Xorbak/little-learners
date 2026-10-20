@@ -1423,3 +1423,15 @@ html[data-less-motion] .song-notes { display: none; }
 .music-list { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 4px; font-size: 14px; color: var(--ink-soft); }
 .music-list--have { color: var(--ink); }
 .music-list--have > span { color: var(--good); font-weight: 700; }
+.music-play {
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--good);
+  color: #fff;
+  font-size: 13px;
+  cursor: pointer;
+  vertical-align: middle;
+}
+.music-missing { display: inline-block; width: 30px; text-align: center; }
