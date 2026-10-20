@@ -12,7 +12,11 @@ function offline(): Plugin {
     apply: 'build',
     generateBundle(_options, bundle) {
       const publicFiles = ['manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png'];
-      const files = ['./', './index.html', ...publicFiles.map((f) => `./${f}`), ...Object.keys(bundle).map((f) => `./${f}`)];
+      // Songs and background music (src/music) are big: they are kept for offline use once
+      // they have played, instead of all being downloaded when the app is installed
+      const music = /^assets\/(calm|bg|jingle|song)-[^/]*\.(mp3|m4a|ogg|wav)$/;
+      const built = Object.keys(bundle).filter((f) => !music.test(f));
+      const files = ['./', './index.html', ...publicFiles.map((f) => `./${f}`), ...built.map((f) => `./${f}`)];
       const source = readFileSync(new URL('./src/sw-template.js', import.meta.url), 'utf8')
         .replace('__FILES__', JSON.stringify(files))
         .replace('__VERSION__', Date.now().toString(36));

@@ -13,9 +13,11 @@ import { StickerBook } from './screens/StickerBook';
 import { MoveBreak } from './screens/MoveBreak';
 import { MissionScreen } from './screens/MissionScreen';
 import { CalmScreen } from './screens/CalmScreen';
+import { SongsScreen } from './screens/SongsScreen';
 import { findSection } from './registry';
 import { hasName } from './name';
 import { setHapticsEnabled } from '../shared/haptics';
+import { preloadMusic, setBackgroundMusic, setBed } from '../shared/audio/music';
 
 export type Screen =
   | { name: 'start' }
@@ -27,6 +29,7 @@ export type Screen =
   | { name: 'move'; stepId: string; n: number }
   | { name: 'mission'; day: string; fresh?: boolean }
   | { name: 'calm' }
+  | { name: 'songs' }
   | { name: 'parent' };
 
 export type Navigate = (screen: Screen) => void;
@@ -43,6 +46,11 @@ export function App() {
   useEffect(() => {
     setHapticsEnabled(saved.vibration !== false);
   }, [saved.vibration]);
+
+  // Background music from src/music (can be switched off)
+  useEffect(() => {
+    setBackgroundMusic(saved.backgroundMusic !== false);
+  }, [saved.backgroundMusic]);
 
   // Words under the pictures for grown-ups (can be switched off)
   useEffect(() => {
@@ -124,6 +132,12 @@ export function App() {
     window.setTimeout(() => check(true), 0);
   };
 
+  // The background music for where she is (only if its file is in src/music)
+  useEffect(() => {
+    if (screen.name !== 'start') preloadMusic();
+    setBed(bedFor(screen, guard));
+  }, [screen, guard, saved.backgroundMusic]);
+
   const overlay =
     guard === 'break' ? (
       <PlayBreak
@@ -159,6 +173,8 @@ export function App() {
         return <MoveBreak key={screen.stepId} navigate={navigate} stepId={screen.stepId} n={screen.n} />;
       case 'calm':
         return <CalmScreen navigate={navigate} />;
+      case 'songs':
+        return <SongsScreen navigate={navigate} />;
       case 'mission':
         return <MissionScreen key={screen.day} navigate={navigate} day={screen.day} fresh={screen.fresh} />;
       case 'section': {
@@ -175,5 +191,32 @@ export function App() {
         );
       }
     }
+  }
+}
+
+/**
+ * Which background music goes with each screen: bg-home on the menus, bg-art for
+ * Paint by Numbers, bg-thinking for the thinking games, bg-move for exercise
+ * breaks. Other games stay quiet (listening games, the xylophone); the calm
+ * corner and sing-along play their own.
+ */
+function bedFor(screen: Screen, guard: null | 'break' | 'rest'): string | null {
+  if (guard === 'break') return 'bg-move';
+  if (guard === 'rest') return null;
+  switch (screen.name) {
+    case 'home':
+    case 'section':
+    case 'today':
+    case 'stickers':
+    case 'mission':
+      return 'bg-home';
+    case 'move':
+      return 'bg-move';
+    case 'play':
+      if (screen.sectionId === 'thinking') return 'bg-thinking';
+      if (screen.sectionId === 'art' && screen.gameId === 'paint-by-numbers') return 'bg-art';
+      return null;
+    default:
+      return null;
   }
 }

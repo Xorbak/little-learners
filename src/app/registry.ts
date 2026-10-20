@@ -7,6 +7,7 @@ import { exerciseClips } from './exercises';
 import { guardClips } from './guardClips';
 import { missionClips } from './missions';
 import { calmClips } from './calm/themes';
+import { songClips } from './songs';
 
 /**
  * Finds every section automatically: any folder in src/sections with an index.ts
@@ -32,5 +33,6 @@ narrator.registerClips(exerciseClips);
 narrator.registerClips(guardClips);
 narrator.registerClips(missionClips);
 narrator.registerClips(calmClips);
+narrator.registerClips(songClips);
 for (const m of Object.values(mechanics)) narrator.registerClips(m.clips);
 for (const s of sections) narrator.registerClips(s.clips);

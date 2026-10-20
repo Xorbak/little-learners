@@ -19,6 +19,7 @@ For each picture (use a short name with no spaces, e.g. `unicorn`):
   - `close` (default 2): raise it to close bigger gaps in the lines
   - `minTap` (default 0.022): smallest tappable area, as a fraction of the width
   - `paintWhite`: true to make white areas paintable too
+  - `keep`: colours from the coloured version that are painted in already instead of left for her, e.g. `["#fcd5b5"]` for skin (there is no skin-colour paint pot). Any area close to one of these colours is pre-painted with its own colour.
 
 Without a coloured version every area gets a stand-in colour; set them with `colours`.
 

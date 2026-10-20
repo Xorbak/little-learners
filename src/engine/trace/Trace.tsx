@@ -4,6 +4,7 @@ import type { TraceConfig } from '../../types/learning';
 import type { Mechanic, RoundProps } from '../types';
 import { narrator } from '../../shared/audio/narrator';
 import { sfx } from '../../shared/audio/sfx';
+import { fanfare } from '../../shared/audio/music';
 import { SpeakerButton } from '../../shared/ui/SpeakerButton';
 import './trace.css';
 
@@ -87,7 +88,7 @@ function TraceRound({ target, onCorrect, onRoundComplete }: RoundProps<TraceConf
     const raw = 0.5 * accuracy + 0.5 * covered;
     const s = Math.max(1, Math.min(10, Math.round(raw * 10 + 0.3))); // rounds kindly
     setScore(s);
-    sfx.fanfare();
+    fanfare();
     void narrator.say(['trace.you-got', `numbers.name.${s}`, 'trace.out-of-ten', s >= 8 ? 'trace.great' : s >= 5 ? 'trace.good' : 'trace.keep-going']);
     if (s >= 6) onCorrect(target);
     later(onRoundComplete, 4200);

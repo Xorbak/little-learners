@@ -3,6 +3,7 @@ import type { ClipId, LearningItem, PaintByNumbersConfig, PaintRegion } from '..
 import type { Mechanic, RoundProps } from '../types';
 import { narrator } from '../../shared/audio/narrator';
 import { sfx } from '../../shared/audio/sfx';
+import { fanfare } from '../../shared/audio/music';
 import { fx } from '../../shared/fx';
 import { SpeakerButton } from '../../shared/ui/SpeakerButton';
 import { PictureGallery } from '../../shared/ui/PictureGallery';
@@ -182,7 +183,7 @@ function Painting({ config, item, onCorrect, onRoundComplete }: RoundProps<Paint
     setSelected(null);
     onCorrect(target);
     later(() => {
-      sfx.fanfare();
+      fanfare();
       sfx.sparkle();
       fx.burstAt(document.querySelector('.pbn-picture'), 'sparkles', { count: 14, power: 2.5 });
       fx.rain(50);

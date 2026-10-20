@@ -79,6 +79,8 @@ export interface SavedData {
   lessMotion?: boolean;
   /** Vibration feedback on phones (missing = on) */
   vibration?: boolean;
+  /** Background music from src/music on menus and in some games (missing = on) */
+  backgroundMusic?: boolean;
   /** Words under the pictures for grown-ups (missing = on) */
   showLabels?: boolean;
   /** Play-time limits chosen by grown-ups (missing values use the defaults in shared/playtime.ts) */
@@ -294,6 +296,10 @@ export const progress = {
 
   setVibration(on: boolean) {
     commit({ ...data, vibration: on });
+  },
+
+  setBackgroundMusic(on: boolean) {
+    commit({ ...data, backgroundMusic: on });
   },
 
   showLabels(): boolean {

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { narrator } from '../../shared/audio/narrator';
 import { sfx } from '../../shared/audio/sfx';
+import { fanfare } from '../../shared/audio/music';
 import { fx } from '../../shared/fx';
 import { haptic } from '../../shared/haptics';
 import { PlayIcon, RoundButton } from '../../shared/ui/RoundButton';
@@ -80,7 +81,7 @@ export function ExerciseRun({
       }
       if (!alive.current) return;
       setPhase('done');
-      sfx.fanfare();
+      fanfare();
       fx.rain(40);
       await say([outroClip]);
     })();

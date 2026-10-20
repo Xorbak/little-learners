@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { narrator } from '../../shared/audio/narrator';
 import { sfx } from '../../shared/audio/sfx';
+import { fanfare } from '../../shared/audio/music';
 import { progress, today, TROPHY, useProgress } from '../../shared/progress/store';
 import { Celebration } from '../../shared/ui/Celebration';
 import { HomeIcon, PlayIcon, RoundButton } from '../../shared/ui/RoundButton';
@@ -38,7 +39,7 @@ export function TodayScreen({ navigate, justFinished }: { navigate: Navigate; ju
         progress.awardSticker(TROPHY, { today: true });
         progress.setMission(missionFor(dayNumber()).id);
         setTrophy(true);
-        sfx.fanfare();
+        fanfare();
         // Trophy, then a mission to do away from the screen
         void (async () => {
           await narrator.say(['today.all-done', 'mission.time']);

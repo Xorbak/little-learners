@@ -3,6 +3,7 @@ import type { CSSProperties } from 'react';
 import { narrator } from '../../shared/audio/narrator';
 import { sfx } from '../../shared/audio/sfx';
 import { startAmbient, type Ambient } from '../../shared/audio/ambient';
+import { hasTrack, playLoop, type LoopHandle } from '../../shared/audio/music';
 import { lessMotion } from '../../shared/fx';
 import { BackIcon, HomeIcon, RoundButton } from '../../shared/ui/RoundButton';
 import type { Navigate } from '../App';
@@ -15,6 +16,9 @@ import { Tag } from '../../shared/ui/Tag';
 const IN = 3.5;
 const OUT = 4.5;
 const CYCLE = IN + OUT;
+/** Volume of a calm track from src/music, and while the narrator talks */
+const TRACK_LEVEL = 0.75;
+const TRACK_DUCK = 0.4;
 /** How many breaths the narrator guides at the start (tap the guide for more) */
 const GUIDED = 4;
 
@@ -26,7 +30,8 @@ const breathAt = (t: number) => {
 
 /**
  * Calm corner: pick a calm place (starry night, falling leaves, under the sea,
- * gentle rain, fireflies). Each has soft music made in code, slow moving things,
+ * gentle rain, fireflies). Each has soft music (src/music/calm-<place>.mp3 if it is
+ * there, otherwise music made in code), slow moving things,
  * and a breathing guide in the middle that grows as she breathes in and shrinks
  * as she breathes out, with the whole screen glowing gently in time.
  */
@@ -77,20 +82,31 @@ function CalmPlace({ theme, onBack }: { theme: CalmTheme; onBack: () => void }) 
   const rootRef = useRef<HTMLElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ambient = useRef<Ambient | null>(null);
+  const track = useRef<LoopHandle | null>(null);
   const guided = useRef(GUIDED);
   const introDone = useRef(false);
   const [music, setMusic] = useState(true);
+  const musicOn = useRef(true);
 
   useEffect(() => {
+    const alive = { current: true };
     const calm = lessMotion();
     const scene = makeScene(canvasRef.current!, theme.id, calm);
-    ambient.current = startAmbient(theme.id, CYCLE);
+    // Its own music track if there is one (falls back to the music made in code if it can't load)
+    const startMade = () => {
+      if (alive.current && !ambient.current) {
+        ambient.current = startAmbient(theme.id, CYCLE);
+        ambient.current?.setMusic(musicOn.current);
+      }
+    };
+    const name = `calm-${theme.id}`;
+    if (hasTrack(name)) track.current = playLoop(name, { level: musicOn.current ? TRACK_LEVEL : 0, duck: musicOn.current ? TRACK_DUCK : 0, onFail: startMade });
+    else startMade();
     const start = performance.now();
     let last = start;
     let lastHalf = -1;
     let saidIn = false;
     let frame = 0;
-    const alive = { current: true };
 
     void narrator.say([`calm.intro.${theme.id}`]).then(() => {
       if (alive.current) introDone.current = true;
@@ -132,6 +148,8 @@ function CalmPlace({ theme, onBack }: { theme: CalmTheme; onBack: () => void }) 
       window.removeEventListener('resize', onResize);
       ambient.current?.stop();
       ambient.current = null;
+      track.current?.stop(1.5);
+      track.current = null;
       narrator.stop();
     };
   }, [theme]);
@@ -152,7 +170,9 @@ function CalmPlace({ theme, onBack }: { theme: CalmTheme; onBack: () => void }) 
           onClick={() => {
             const on = !music;
             setMusic(on);
+            musicOn.current = on;
             ambient.current?.setMusic(on);
+            track.current?.setLevel(on ? TRACK_LEVEL : 0, on ? TRACK_DUCK : 0);
           }}
           aria-label={music ? 'Music off' : 'Music on'}
         >

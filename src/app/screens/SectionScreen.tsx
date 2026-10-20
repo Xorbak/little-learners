@@ -4,6 +4,7 @@ import { sfx } from '../../shared/audio/sfx';
 import { HomeIcon, RoundButton } from '../../shared/ui/RoundButton';
 import type { Navigate } from '../App';
 import { Tag, words } from '../../shared/ui/Tag';
+import { availableSongs } from '../songs';
 
 /** The games inside one section. She taps a game and it starts at her current level. */
 export function SectionScreen({ section, navigate }: { section: Section; navigate: Navigate }) {
@@ -32,6 +33,22 @@ export function SectionScreen({ section, navigate }: { section: Section; navigat
             <Tag>{words(game.titleClip)}</Tag>
           </button>
         ))}
+        {/* Sing along, once there are songs in src/music */}
+        {section.id === 'art' && availableSongs().length > 0 && (
+          <button
+            type="button"
+            className="tile tile--game"
+            style={{ animationDelay: `${section.games.length * 0.08}s` }}
+            onClick={() => {
+              sfx.pop();
+              navigate({ name: 'songs' });
+            }}
+            aria-label={narrator.allClips()['songs.title']}
+          >
+            <span className="tile-icon">🎤</span>
+            <Tag>{words('songs.title')}</Tag>
+          </button>
+        )}
       </div>
     </main>
   );

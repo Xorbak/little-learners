@@ -10,6 +10,7 @@
  *   unicorn-coloured.png    (optional, recommended) the same picture coloured in with flat colours
  *   unicorn.json            (optional) settings, e.g.
  *                           { "name": "unicorn", "max": 12, "colours": { "4": "pink" }, "paintWhite": false }
+ *                           "keep": ["#fcd5b5"] paints areas of that colour in already (skin, say)
  *
  * Writes src/sections/art/colouring/unicorn.json, which the Art section picks up
  * automatically (it appears in the Paint by Numbers gallery).
@@ -450,12 +451,16 @@ function convert(name) {
   const placeholder = ['red', 'blue', 'yellow', 'green', 'orange', 'purple', 'pink', 'light-blue', 'brown'];
   let pi = 0;
   const list = areas.slice(1).filter((a) => a.size > 0);
+  // Colours that are painted in already, never left for her (skin, say: there is no skin paint pot)
+  const keep = (settings.keep ?? []).map(hexToRgb);
+  const isKept = (rgb) => keep.some((k) => Math.hypot(rgb[0] - k[0], rgb[1] - k[1], rgb[2] - k[2]) < 28);
   for (const a of list) {
     const avg = a.cnt ? a.sum.map((v) => v / a.cnt) : [255, 255, 255];
     a.avgHex = rgbToHex(avg);
     a.colour = col ? snap(avg) : null;
     a.kind = 'paint';
     if (a.size < speck) a.kind = 'speck';
+    else if (col && isKept(avg)) a.kind = 'fixed';
     else if (col && a.colour === 'white' && !settings.paintWhite) a.kind = 'paper';
     else if (a.r < tapR) a.kind = 'fixed';
   }

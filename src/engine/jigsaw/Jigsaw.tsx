@@ -5,6 +5,7 @@ import { PictureGallery } from '../../shared/ui/PictureGallery';
 import type { Mechanic, RoundProps } from '../types';
 import { narrator } from '../../shared/audio/narrator';
 import { sfx } from '../../shared/audio/sfx';
+import { fanfare } from '../../shared/audio/music';
 import { progress } from '../../shared/progress/store';
 import { SpeakerButton } from '../../shared/ui/SpeakerButton';
 import { fx } from '../../shared/fx';
@@ -340,7 +341,7 @@ function JigsawRound({ config, target, onCorrect, onRoundComplete }: RoundProps<
   const finish = () => {
     setDone(true);
     later(() => {
-      sfx.fanfare();
+      fanfare();
       sfx.sparkle();
       void narrator.say(['puzzle.done']);
       fx.jump(stageRef.current, 26);

@@ -44,6 +44,15 @@ let currentUtterance: SpeechSynthesisUtterance | null = null;
 
 type Segment = { type: 'recording'; url: string } | { type: 'tts'; text: string };
 
+// Background music listens, to go quieter while the narrator talks
+const speakingListeners = new Set<(on: boolean) => void>();
+let speakingNow = false;
+function setSpeaking(on: boolean) {
+  if (on === speakingNow) return;
+  speakingNow = on;
+  speakingListeners.forEach((listener) => listener(on));
+}
+
 export const narrator = {
   registerClips(table: ClipTable) {
     clips = { ...clips, ...table };
@@ -79,6 +88,13 @@ export const narrator = {
     currentAudio?.pause();
     currentAudio = null;
     if ('speechSynthesis' in window) speechSynthesis.cancel();
+    setSpeaking(false);
+  },
+
+  /** Told when the narrator starts and stops talking */
+  onSpeaking(listener: (on: boolean) => void): () => void {
+    speakingListeners.add(listener);
+    return () => speakingListeners.delete(listener);
   },
 
   /**
@@ -97,6 +113,7 @@ export const narrator = {
     lastKey = key;
     lastStart = Date.now();
     const token = playToken;
+    setSpeaking(true);
     current = (async () => {
       // Chrome sometimes swallows the start of a sentence spoken straight after cancel()
       if (wasSpeaking) await new Promise((r) => setTimeout(r, 120));
@@ -105,6 +122,7 @@ export const narrator = {
         if (segment.type === 'recording') await playRecording(segment.url);
         else await speak(segment.text);
       }
+      if (token === playToken) setSpeaking(false);
     })();
     return current;
   },

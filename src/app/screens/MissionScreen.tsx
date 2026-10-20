@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { narrator } from '../../shared/audio/narrator';
 import { sfx } from '../../shared/audio/sfx';
+import { fanfare, hasTrack, playSong, type SongHandle } from '../../shared/audio/music';
+import { MISSION_SONGS } from '../songs';
 import { fx } from '../../shared/fx';
 import { progress } from '../../shared/progress/store';
 import { Celebration } from '../../shared/ui/Celebration';
@@ -24,7 +26,27 @@ export function MissionScreen({ navigate, day, fresh }: { navigate: Navigate; da
   const [show, setShow] = useState<DOMRect | null>(null);
   const stickerRef = useRef<HTMLButtonElement>(null);
 
-  const tell = () => mission && void narrator.say([fresh ? 'mission.intro' : 'mission.again', `mission.${mission.id}`, 'mission.go']);
+  // A song to go with some missions (tidying, dancing, hunting colours, counting)
+  const songName = mission ? MISSION_SONGS[mission.id] : undefined;
+  const hasSong = !!songName && hasTrack(songName);
+  const [singing, setSinging] = useState(false);
+  const song = useRef<SongHandle | null>(null);
+  useEffect(() => () => song.current?.stop(), []);
+  const toggleSong = () => {
+    if (!songName) return;
+    sfx.pop();
+    if (singing) {
+      song.current?.stop();
+      setSinging(false);
+      return;
+    }
+    narrator.stop();
+    song.current = playSong(songName, { onEnd: () => setSinging(false) });
+    setSinging(true);
+  };
+
+  const tell = () =>
+    mission && void narrator.say([fresh ? 'mission.intro' : 'mission.again', `mission.${mission.id}`, 'mission.go', ...(hasSong && !done ? ['songs.mission'] : [])]);
   useEffect(() => {
     if (!done) tell();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -33,10 +55,12 @@ export function MissionScreen({ navigate, day, fresh }: { navigate: Navigate; da
   const tick = () => {
     if (!mission || done) return;
     progress.missionDone(day);
+    song.current?.stop();
+    setSinging(false);
     const won = progress.awardSticker(undefined, { mission: mission.id });
     setDone(true);
     setSticker(won);
-    sfx.fanfare();
+    fanfare();
     void narrator.say(['mission.done']);
     window.setTimeout(() => {
       const el = stickerRef.current;
@@ -61,6 +85,18 @@ export function MissionScreen({ navigate, day, fresh }: { navigate: Navigate; da
           <HomeIcon />
         </RoundButton>
       </div>
+      {hasSong && !done && (
+        <div className="corner-right">
+          <button
+            type="button"
+            className={`mission-song ${singing ? 'mission-song--on' : ''}`}
+            onClick={toggleSong}
+            aria-label={singing ? 'Stop the song' : narrator.allClips()['songs.mission']}
+          >
+            {singing ? '⏹' : '🎵'}
+          </button>
+        </div>
+      )}
       <header className="mission-top">
         <SpeakerButton onPress={tell} />
         <span className="mission-badge" aria-hidden="true">🔍</span>

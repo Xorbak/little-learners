@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { narrator } from '../../shared/audio/narrator';
 import { sfx } from '../../shared/audio/sfx';
+import { playSong, type SongHandle } from '../../shared/audio/music';
 import { playClock } from '../../shared/playtime';
 import { HoldButton } from '../../shared/ui/HoldButton';
 import { EXERCISES, pickExercises } from '../exercises';
@@ -40,7 +41,16 @@ export function TimeUp({ fresh, onUnlocked }: { fresh: boolean; onUnlocked: () =
 
   useEffect(() => {
     sfx.cheer();
-    void narrator.say(fresh ? ['guard.stop', 'guard.idea', `mission.${idea.id}`] : ['guard.resting'], { force: true });
+    let alive = true;
+    let song: SongHandle | null = null;
+    void narrator.say(fresh ? ['guard.stop', 'guard.idea', `mission.${idea.id}`] : ['guard.resting'], { force: true }).then(() => {
+      // Then the "Off we go" song (src/music/song-break.mp3), once, when play time has just ended
+      if (alive && fresh) song = playSong('song-break', { level: 0.8 });
+    });
+    return () => {
+      alive = false;
+      song?.stop();
+    };
   }, [fresh, idea.id]);
 
   // When the rest time is over, open up again by itself

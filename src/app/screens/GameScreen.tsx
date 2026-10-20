@@ -3,6 +3,7 @@ import type { Game, LearningItem, Section } from '../../types/learning';
 import { mechanicFor } from '../../engine';
 import { narrator } from '../../shared/audio/narrator';
 import { sfx } from '../../shared/audio/sfx';
+import { fanfare } from '../../shared/audio/music';
 import { randomPraise } from '../../shared/audio/sharedClips';
 import { masteryOf, pickAdaptive } from '../../shared/progress/adaptive';
 import { progress } from '../../shared/progress/store';
@@ -105,7 +106,7 @@ function LevelSession({ section, game, navigate, daily, onPlayAgain }: Props & {
         setSticker(won);
         setUnlockedNext(result.unlocked);
         setPhase('done');
-        sfx.fanfare();
+        fanfare();
         const lines = daily ? ['shared.well-done-step'] : ['shared.level-done'];
         if (result.unlocked) lines.push('shared.something-new');
         if (won) lines.push('sticker.got-for', game.titleClip);

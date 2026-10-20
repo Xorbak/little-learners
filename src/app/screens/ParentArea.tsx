@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { narrator } from '../../shared/audio/narrator';
 import { masteryOf } from '../../shared/progress/adaptive';
 import { applyMotionSetting, lessMotion } from '../../shared/fx';
+import { hasTrack } from '../../shared/audio/music';
 import { progress, useProgress } from '../../shared/progress/store';
 import type { Navigate } from '../App';
 import { findSection, gameKey, sections } from '../registry';
@@ -237,6 +238,26 @@ export function ParentArea({ navigate }: { navigate: Navigate }) {
       </section>
 
       <section className="parent-card">
+        <h2>Music and songs</h2>
+        <p className="parent-hint">
+          Songs you make (with Suno, say) go in <code>src/music/</code> with the names below; see the README there. Background music plays
+          quietly on the menus, in Paint by Numbers, the thinking games and exercise breaks, and goes quieter while the narrator talks. The calm
+          places use their own music, and songs show up in Art and music → Sing along.
+        </p>
+        <label className="voice-row">
+          <input type="checkbox" checked={saved.backgroundMusic !== false} onChange={(e) => progress.setBackgroundMusic(e.target.checked)} />
+          Background music
+        </label>
+        <ul className="music-list">
+          {MUSIC_FILES.map(([file, use]) => (
+            <li key={file} className={hasTrack(file) ? 'music-list--have' : ''}>
+              <span aria-hidden="true">{hasTrack(file) ? '✓' : '·'}</span> <code>{file}.mp3</code> {use}
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="parent-card">
         <h2>Vibration</h2>
         <p className="parent-hint">
           On phones that can vibrate: a tiny tick on every tap, two happy taps for a right answer, a soft double for a miss, a little drum roll when
@@ -466,3 +487,22 @@ function PlayTimeCard() {
   );
 }
 
+/** The music files the app looks for in src/music, and where each plays */
+const MUSIC_FILES: [string, string][] = [
+  ['calm-stars', 'Calm corner: starry night'],
+  ['calm-leaves', 'Calm corner: falling leaves'],
+  ['calm-ocean', 'Calm corner: under the sea'],
+  ['calm-rain', 'Calm corner: gentle rain'],
+  ['calm-fireflies', 'Calm corner: fireflies'],
+  ['bg-home', 'Home and menus'],
+  ['bg-art', 'Paint by Numbers'],
+  ['bg-thinking', 'Thinking games'],
+  ['bg-move', 'Exercise breaks'],
+  ['jingle-win', 'Level done (instead of the fanfare)'],
+  ['song-break', "Time's up (after the owl)"],
+  ['song-move', 'Sing along; dance mission'],
+  ['song-count', 'Sing along; counting missions'],
+  ['song-colours', 'Sing along; colour-hunt missions'],
+  ['song-tidy', 'Sing along; tidy-up mission'],
+  ['calm-breathe-song', 'Sing along'],
+];
