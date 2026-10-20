@@ -10,6 +10,8 @@ export function HomeScreen({ navigate }: { navigate: Navigate }) {
   useProgress();
   const required = requiredSteps(todaysPlan());
   const done = progress.dailyDone().filter((id) => required.includes(id)).length;
+  /** A mission from Today's lessons that isn't ticked off yet */
+  const open = progress.openMission();
 
   return (
     <main className="screen screen--home">
@@ -25,6 +27,19 @@ export function HomeScreen({ navigate }: { navigate: Navigate }) {
         >
           📒
         </button>
+        {open && (
+          <button
+            type="button"
+            className="mission-btn mission-btn--home"
+            onClick={() => {
+              sfx.pop();
+              navigate({ name: 'mission', day: open.day });
+            }}
+            aria-label="Your mission"
+          >
+            🔍
+          </button>
+        )}
       </div>
       <div className="corner-right">
         <HoldButton onHeld={() => navigate({ name: 'parent' })} />

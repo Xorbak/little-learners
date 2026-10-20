@@ -24,13 +24,14 @@ export const sharedClips: ClipTable = {
   'sticker.why.trophy-today': 'You got it today, for doing all your games!',
   'sticker.why.trophy': 'You got it for doing all your games!',
   'sticker.why.unknown': 'You got it for finishing a game. Well done!',
+  'sticker.why.mission': 'for doing your mission:',
   'sticker.book': 'Your sticker book!',
   'sticker.empty': 'Your sticker book! Finish a game to get your first sticker.',
   'today.title': "Today's lessons",
   'today.hello': "Today's lessons! A little bit of everything. Press play!",
   'today.next': 'Well done! Ready for the next one?',
   'today.all-done': 'You did all of today’s lessons! Here is a golden trophy!',
-  'today.all-done-again': 'All done for today! You can play anything you like.',
+  'today.all-done-again': 'All done for today! Time to go and play.',
 };
 
 export const praiseClips = ['shared.praise.1', 'shared.praise.2', 'shared.praise.3', 'shared.praise.4'];

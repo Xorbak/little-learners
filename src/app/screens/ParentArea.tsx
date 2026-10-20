@@ -7,6 +7,7 @@ import type { Navigate } from '../App';
 import { findSection, gameKey, sections } from '../registry';
 import { hasName } from '../name';
 import { todaysPlan } from '../daily';
+import { missionById } from '../missions';
 import { soundExamples } from '../../sections/letters/words';
 
 /**
@@ -52,7 +53,11 @@ export function ParentArea({ navigate }: { navigate: Navigate }) {
 
       <section className="parent-card">
         <h2>Today's lessons this week</h2>
-        <p className="parent-hint">The ☀️ button on the home screen: a bit of every subject, {todaysPlan().filter((s) => !s.treat).length} short stops a day. 🏆 = she finished them all.</p>
+        <p className="parent-hint">
+          The ☀️ button on the home screen: a bit of every subject, {todaysPlan().filter((s) => !s.treat && !s.move).length} short games and{' '}
+          {todaysPlan().filter((s) => s.move).length} 🤸 movement breaks a day. 🏆 = she finished them all; then she gets a 🔍 mission to do away from the
+          screen.
+        </p>
         <div className="week-row">
           {Array.from({ length: 7 }, (_, i) => {
             const d = new Date();
@@ -66,6 +71,44 @@ export function ParentArea({ navigate }: { navigate: Navigate }) {
               </div>
             );
           })}
+        </div>
+      </section>
+
+      <section className="parent-card">
+        <h2>Missions</h2>
+        <p className="parent-hint">
+          After Today's lessons she gets a mission to do away from the screen. When she has done it, tick it here (or hold the ✓ on the mission screen) and
+          she gets a sticker for it.
+        </p>
+        <div className="mission-log">
+          {Object.keys(profile.missions ?? {}).length === 0 && <span className="parent-hint">No missions yet.</span>}
+          {Object.entries(profile.missions ?? {})
+            .sort(([a], [b]) => (a < b ? 1 : -1))
+            .slice(0, 7)
+            .map(([day, m]) => {
+              const mission = missionById(m.id);
+              return (
+                <div key={day} className="mission-row">
+                  <span className="mission-row-day">{new Date(`${day}T12:00`).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' })}</span>
+                  <span className="mission-row-pic">{mission?.picture.join('')}</span>
+                  <span className="mission-row-text">{narrator.allClips()[`mission.${m.id}`]}</span>
+                  {m.done ? (
+                    <span className="mission-row-done">✓ done</span>
+                  ) : (
+                    <button
+                      type="button"
+                      className="parent-btn"
+                      onClick={() => {
+                        progress.missionDone(day);
+                        progress.awardSticker(undefined, { mission: m.id });
+                      }}
+                    >
+                      Tick (gives a sticker)
+                    </button>
+                  )}
+                </div>
+              );
+            })}
         </div>
       </section>
 

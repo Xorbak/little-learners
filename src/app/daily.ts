@@ -13,13 +13,15 @@ export interface DailyStep {
   rounds: number;
   /** Fun extra at the end; not needed to finish the day */
   treat?: boolean;
+  /** A movement break (get up and move), not a game */
+  move?: number;
 }
 
 const SUBJECTS = ['numbers', 'colours', 'shapes', 'letters', 'world', 'thinking'];
 /** Games left out of the daily rotation (free play and long-form games) */
 const SKIP = new Set(['colours/mix-paint', 'numbers/memory-match', 'colours/memory-match', 'shapes/memory-match', 'letters/memory-match']);
 
-const dayNumber = () => {
+export const dayNumber = () => {
   const now = new Date();
   return Math.floor(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) / 86400000);
 };
@@ -28,12 +30,19 @@ export function todaysPlan(): DailyStep[] {
   const day = dayNumber();
   const steps: DailyStep[] = [];
   if (findSection('feelings')) steps.push({ id: 'feelings/check-in', sectionId: 'feelings', gameId: 'check-in', rounds: 1 });
+  let subjects = 0;
   SUBJECTS.forEach((sectionId, i) => {
     const section = findSection(sectionId);
     if (!section) return;
     const games = section.games.filter((g) => !SKIP.has(`${sectionId}/${g.id}`));
     const game = games[(day + i) % games.length];
     steps.push({ id: `${sectionId}/${game.id}`, sectionId, gameId: game.id, rounds: game.id === 'sort' || game.id === 'puzzle' ? 1 : 2 });
+    // A movement break after every two subjects (not at the very end)
+    subjects++;
+    if (subjects % 2 === 0 && subjects < SUBJECTS.length) {
+      const n = subjects / 2;
+      steps.push({ id: `move/${n}`, sectionId: '', gameId: '', rounds: 0, move: n });
+    }
   });
   const art = findSection('art');
   if (art) {

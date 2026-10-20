@@ -6,22 +6,37 @@ import { TROPHY, today, type StickerWhy } from '../../shared/progress/store';
 import type { ClipId } from '../../types/learning';
 import { findSection } from '../registry';
 import { stickerInfo, type StickerAction } from '../stickers';
+import { missionById } from '../missions';
 
 /** "You got this one today, in Numbers, for finishing Pop the balloons!" */
 function whyClips(emoji: string, why?: StickerWhy): ClipId[] {
   if (emoji === TROPHY) return [why?.date === today() ? 'sticker.why.trophy-today' : 'sticker.why.trophy'];
+  if (why?.mission) return [whenClip(why.date), 'sticker.why.mission', `mission.${why.mission}`];
   const section = why?.sectionId ? findSection(why.sectionId) : undefined;
   const game = section?.games.find((g) => g.id === why?.gameId);
   if (!why || !section || !game) return ['sticker.why.unknown'];
+  return [whenClip(why.date), 'sticker.why.in', section.titleClip, 'sticker.why.for', game.titleClip];
+}
+
+function whenClip(date: string): ClipId {
   const y = new Date();
   y.setDate(y.getDate() - 1);
   const yesterday = `${y.getFullYear()}-${String(y.getMonth() + 1).padStart(2, '0')}-${String(y.getDate()).padStart(2, '0')}`;
-  const when = why.date === today() ? 'sticker.when.today' : why.date === yesterday ? 'sticker.when.yesterday' : 'sticker.when.before';
-  return [when, 'sticker.why.in', section.titleClip, 'sticker.why.for', game.titleClip];
+  return date === today() ? 'sticker.when.today' : date === yesterday ? 'sticker.when.yesterday' : 'sticker.when.before';
 }
 
 /** Pictures of where she got it, for a child who can't read yet: the section tile and the game */
 function WhyCard({ emoji, why }: { emoji: string; why?: StickerWhy }) {
+  const mission = why?.mission ? missionById(why.mission) : undefined;
+  if (mission) {
+    return (
+      <div className="sticker-why" aria-hidden="true">
+        <span className="sticker-why-tile" style={{ background: '#20c997' }}>🔍</span>
+        <span className="sticker-why-arrow">→</span>
+        <span className="sticker-why-tile sticker-why-tile--game">{mission.picture[0]}</span>
+      </div>
+    );
+  }
   if (emoji === TROPHY || why?.today) {
     return (
       <div className="sticker-why" aria-hidden="true">
@@ -134,10 +149,10 @@ export function StickerStage({ emoji, from, why, onClose }: { emoji: string; fro
   );
 }
 
-type Later = (fn: () => void, ms: number) => void;
+export type Later = (fn: () => void, ms: number) => void;
 
 /** The moves. Distances in vw/vh so they suit any screen. */
-function perform(action: StickerAction, el: HTMLElement, later: Later) {
+export function perform(action: StickerAction, el: HTMLElement, later: Later) {
   const calm = lessMotion();
   const at = (sel: 'centre' | 'feet' | 'top') => {
     const r = el.getBoundingClientRect();

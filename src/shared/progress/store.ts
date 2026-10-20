@@ -40,6 +40,8 @@ export interface ChildProfile {
   stickers?: string[];
   /** Why she got each sticker (the latest time she got it) */
   stickerWhy?: Record<string, StickerWhy>;
+  /** Off-screen missions, by day (YYYY-MM-DD) */
+  missions?: Record<string, { id: string; done?: boolean }>;
   /** Today's lessons: which steps are done, per day (kept for two weeks) */
   daily?: Record<string, { done: string[]; trophy?: boolean }>;
 }
@@ -62,6 +64,8 @@ export interface StickerWhy {
   gameId?: string;
   /** All of Today's lessons (trophies) */
   today?: boolean;
+  /** A mission done away from the screen */
+  mission?: string;
 }
 
 export interface SavedData {
@@ -227,6 +231,37 @@ export const progress = {
       return { ...p, daily: { ...keep, [day]: { done, trophy: entry.trophy || allDone } } };
     });
     return trophyNow;
+  },
+
+  /** The mission for a day (set when Today's lessons are finished) */
+  mission(day = today()): { id: string; done?: boolean } | undefined {
+    return this.profile().missions?.[day];
+  },
+
+  /** The most recent mission not done yet (today or the day before) */
+  openMission(): { day: string; id: string } | undefined {
+    const all = Object.entries(this.profile().missions ?? {}).sort(([a], [b]) => (a < b ? 1 : -1));
+    const [day, m] = all[0] ?? [];
+    if (!day || !m || m.done) return undefined;
+    const ageDays = (Date.parse(today()) - Date.parse(day)) / 86400000;
+    return ageDays <= 1 ? { day, id: m.id } : undefined;
+  },
+
+  setMission(id: string) {
+    const day = today();
+    if (this.profile().missions?.[day]) return;
+    updateProfile((p) => {
+      const keep = Object.fromEntries(Object.entries(p.missions ?? {}).sort(([a], [b]) => (a < b ? 1 : -1)).slice(0, 13));
+      return { ...p, missions: { ...keep, [day]: { id } } };
+    });
+  },
+
+  /** A grown-up ticked the mission off */
+  missionDone(day: string) {
+    updateProfile((p) => {
+      const m = p.missions?.[day];
+      return m ? { ...p, missions: { ...p.missions, [day]: { ...m, done: true } } } : p;
+    });
   },
 
   setName(name: string) {
