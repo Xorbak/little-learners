@@ -39,7 +39,7 @@ export const trackNames = () => Object.keys(urls).sort();
 // ---------------------------------------------------------------------------
 const loading = new Map<string, Promise<AudioBuffer | null>>();
 const decoded = new Map<string, AudioBuffer>();
-const KEEP = 3;
+const KEEP = 2;
 
 function load(name: string): Promise<AudioBuffer | null> {
   const ctx = audioContext();

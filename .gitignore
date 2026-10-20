@@ -23,3 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 art/preview/
+
+# Suno originals (the app uses the prepared copies in src/music)
+src/music/originals/

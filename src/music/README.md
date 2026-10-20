@@ -24,6 +24,9 @@ rest: missing calm tracks keep the music made in code, a missing jingle keeps th
 | `calm-breathe-song.mp3` | Sing along |
 
 - `.mp3`, `.m4a`, `.ogg` and `.wav` all work. Refresh the app (or rebuild) and it is used.
+- Files in folders inside this one are ignored: Suno originals are kept in `originals/` (not in the repo).
+- The tracks here were prepared from the Suno originals: renamed, quiet tails trimmed, mono 96 kbps,
+  loudness evened out to about -16 LUFS (so they all sit at the same level in the app).
 - Background music loops with a 4-second crossfade, so tracks don't need a perfect loop. It plays
   quietly, goes quieter while the narrator talks, and stops while a song plays.
   Grown-ups → Music and songs turns it off, and shows which files are in.
