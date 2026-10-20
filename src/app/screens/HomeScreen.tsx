@@ -78,6 +78,18 @@ export function HomeScreen({ navigate }: { navigate: Navigate }) {
             <span className="tile-icon">{section.icon}</span>
           </button>
         ))}
+        <button
+          type="button"
+          className="tile tile--calm"
+          style={{ animationDelay: `${sections.length * 0.08}s` }}
+          onClick={() => {
+            sfx.pop();
+            navigate({ name: 'calm' });
+          }}
+          aria-label={narrator.allClips()['calm.title']}
+        >
+          <span className="tile-icon">🌙</span>
+        </button>
       </div>
     </main>
   );

@@ -12,6 +12,7 @@ import { TodayScreen } from './screens/TodayScreen';
 import { StickerBook } from './screens/StickerBook';
 import { MoveBreak } from './screens/MoveBreak';
 import { MissionScreen } from './screens/MissionScreen';
+import { CalmScreen } from './screens/CalmScreen';
 import { findSection } from './registry';
 import { hasName } from './name';
 
@@ -24,6 +25,7 @@ export type Screen =
   | { name: 'stickers' }
   | { name: 'move'; stepId: string; n: number }
   | { name: 'mission'; day: string; fresh?: boolean }
+  | { name: 'calm' }
   | { name: 'parent' };
 
 export type Navigate = (screen: Screen) => void;
@@ -71,6 +73,8 @@ export function App() {
       pendingSince.current = null;
       return;
     }
+    // No jumping-jacks in the middle of calming down: breaks wait until she leaves the calm corner
+    if (state === 'break' && screenRef.current === 'calm') return;
     pendingSince.current ??= Date.now();
     // Wait for a good moment (between rounds), but not for ever
     if (!now && Date.now() - pendingSince.current < 90000) return;
@@ -142,6 +146,8 @@ export function App() {
         return <StickerBook navigate={navigate} />;
       case 'move':
         return <MoveBreak key={screen.stepId} navigate={navigate} stepId={screen.stepId} n={screen.n} />;
+      case 'calm':
+        return <CalmScreen navigate={navigate} />;
       case 'mission':
         return <MissionScreen key={screen.day} navigate={navigate} day={screen.day} fresh={screen.fresh} />;
       case 'section': {

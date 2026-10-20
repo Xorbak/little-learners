@@ -57,7 +57,7 @@ export function startAmbient(theme: AmbientTheme, breathSeconds: number): Ambien
   comp.connect(ctx.destination);
   const master = ctx.createGain();
   master.gain.setValueAtTime(0.0001, now);
-  master.gain.exponentialRampToValueAtTime(0.7, now + 3);
+  master.gain.exponentialRampToValueAtTime(1, now + 3);
   master.connect(comp);
   const music = ctx.createGain();
   music.connect(master);
