@@ -1,4 +1,4 @@
-import { rainbow, bird, butterfly, INK, ol, svg, vgrad, rect, circle, ellipse, path, g, blob, hill, eye, face, cheek, smile, cloud, sun, flower, tree, grassTufts } from '../lib.mjs';
+import { rainbow, bird, butterfly, INK, ol, svg, vgrad, rect, circle, ellipse, path, g, blob, hill, eye, cheek, smile, cloud, sun, flower, tree, grassTufts } from '../lib.mjs';
 
 function cow(x, y) {
   // (x, y) = middle of the body

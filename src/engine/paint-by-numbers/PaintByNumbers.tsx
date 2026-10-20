@@ -140,6 +140,8 @@ function Painting({ config, item, onCorrect, onRoundComplete }: RoundProps<Paint
   const { regions, Details } = picture;
   const [, , vw, vh] = picture.viewBox.split(' ').map(Number);
   const width = useFitSize(vw / vh);
+  /** Labels were designed for a 400-wide picture; keep them the same size on screen */
+  const labelScale = vw / 400;
 
   const [pots] = useState<Pot[]>(() =>
     config.free ? FREE_PALETTE.map((p, i) => ({ number: i + 1, ...p })) : potsFor(regions),
@@ -274,7 +276,7 @@ function Painting({ config, item, onCorrect, onRoundComplete }: RoundProps<Paint
             <path
               key={i}
               d={r.d}
-              className={`pbn-region ${wobble === i ? 'pbn-region--wobble' : ''} ${hintHex === r.hex && !painted[i] ? 'pbn-region--hint' : ''}`}
+              className={`pbn-region ${picture.lineArt ? 'pbn-region--lineart' : ''} ${wobble === i ? 'pbn-region--wobble' : ''} ${hintHex === r.hex && !painted[i] ? 'pbn-region--hint' : ''}`}
               style={{ fill: painted[i] ?? '#ffffff' }}
               onPointerDown={(e) => {
                 tapPoint.current = { x: e.clientX, y: e.clientY };
@@ -290,7 +292,7 @@ function Painting({ config, item, onCorrect, onRoundComplete }: RoundProps<Paint
               const pot = potOf(r.hex);
               const [x, y] = r.label;
               return (
-                <g key={i} className="pbn-label" transform={`translate(${x} ${y})`}>
+                <g key={i} className="pbn-label" transform={`translate(${x} ${y}) scale(${labelScale})`}>
                   {config.hints === 'colour' ? (
                     <circle r="11" fill={r.hex} stroke="#2b2d42" strokeWidth="2" />
                   ) : (

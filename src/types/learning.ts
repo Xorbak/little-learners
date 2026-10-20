@@ -75,6 +75,8 @@ export interface PaintPicture {
   regions: PaintRegion[];
   /** Lines drawn on top that can't be painted (eyes, smiles, bubbles) */
   Details?: FC;
+  /** Made from a colouring page: the line art (in Details) gives the outlines, so areas have no stroke of their own */
+  lineArt?: boolean;
 }
 
 // ---------------------------------------------------------------------------

@@ -43,6 +43,10 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+.pbn-region--lineart {
+  stroke: none;
+}
+
 .pbn-region--wobble { animation: pbn-wobble 0.55s ease; }
 .pbn-region--hint { animation: pbn-hint 1s ease-in-out infinite; }
 

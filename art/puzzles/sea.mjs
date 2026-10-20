@@ -1,4 +1,4 @@
-import { INK, ol, svg, vgrad, rect, circle, ellipse, path, g, blob, hill, eye, face, cheek, smile, bubbles, star, rng } from '../lib.mjs';
+import { INK, ol, svg, vgrad, rect, circle, ellipse, path, g, hill, eye, face, cheek, smile, bubbles, star, rng } from '../lib.mjs';
 
 const T = (x, y, s = 1) => `translate(${x} ${y}) scale(${s})`;
 
