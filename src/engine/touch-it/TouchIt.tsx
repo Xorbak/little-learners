@@ -4,6 +4,7 @@ import type { LearningItem, TouchItConfig } from '../../types/learning';
 import type { Mechanic, RoundProps } from '../types';
 import { narrator } from '../../shared/audio/narrator';
 import { sfx } from '../../shared/audio/sfx';
+import { fx } from '../../shared/fx';
 import { SpeakerButton } from '../../shared/ui/SpeakerButton';
 import './touchIt.css';
 
@@ -96,7 +97,7 @@ function TouchItRound({ config, target, items, onCorrect, onWrong, onRoundComple
     return () => window.clearInterval(timer);
   }, [sayPrompt]);
 
-  const tap = (choice: Choice) => {
+  const tap = (choice: Choice, el?: HTMLElement) => {
     if (doneRef.current) return;
     lastTapRef.current = Date.now();
     if (choice.item.key === target.key) {
@@ -104,6 +105,7 @@ function TouchItRound({ config, target, items, onCorrect, onWrong, onRoundComple
       setFound(true);
       setHint(false);
       sfx.pop();
+      fx.yay(el, { jump: 40 });
       void narrator.say([config.yesClip ?? 'touch.yes-thats', target.nameClip, ...withSound(target)]);
       onCorrect(target);
       later(onRoundComplete, 1500);
@@ -144,7 +146,7 @@ function TouchItRound({ config, target, items, onCorrect, onWrong, onRoundComple
               style={{ width: size, height: size, color: c.colour, animationDelay: `${i * 0.07}s`, '--tilt': `${c.tilt}deg` } as CSSProperties}
               onPointerDown={(e) => {
                 e.preventDefault();
-                tap(c);
+                tap(c, e.currentTarget);
               }}
               aria-label={narrator.allClips()[c.item.nameClip]}
             >

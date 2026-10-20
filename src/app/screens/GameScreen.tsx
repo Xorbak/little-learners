@@ -7,6 +7,7 @@ import { randomPraise } from '../../shared/audio/sharedClips';
 import { masteryOf, pickAdaptive } from '../../shared/progress/adaptive';
 import { progress } from '../../shared/progress/store';
 import { Celebration } from '../../shared/ui/Celebration';
+import { fx } from '../../shared/fx';
 import { HomeIcon, BackIcon, PlayIcon, RoundButton } from '../../shared/ui/RoundButton';
 import type { Navigate } from '../App';
 import { gameKey } from '../registry';
@@ -112,6 +113,22 @@ function LevelSession({ section, game, navigate, daily, onPlayAgain }: Props & {
     })();
   }, [key, levelIndex, level, game.levels.length, section.id, sessionRounds, daily]);
 
+  // The sticker slaps down: thud, squash, stars and one screen shake
+  const stickerRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!sticker) return;
+    const t = window.setTimeout(() => {
+      const el = stickerRef.current;
+      if (!el) return;
+      el.classList.add('sticker-won--landed');
+      sfx.thud();
+      fx.burstAt(el, 'stars', { count: 12, power: 1.4 });
+      fx.shake(1.2);
+      fx.haptic(30);
+    }, 1150);
+    return () => window.clearTimeout(t);
+  }, [sticker]);
+
   return (
     <main className="screen screen--game">
       <div className="corner-left">
@@ -147,7 +164,7 @@ function LevelSession({ section, game, navigate, daily, onPlayAgain }: Props & {
         <div className="level-done">
           <Celebration big />
           {sticker && (
-            <div className="sticker-won" aria-label="You got a sticker">
+            <div className="sticker-won" ref={stickerRef} aria-label="You got a sticker">
               <span className="sticker-won-face">{sticker}</span>
             </div>
           )}

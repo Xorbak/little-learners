@@ -141,13 +141,17 @@ button {
   border-radius: 40px;
   box-shadow: var(--shadow);
   cursor: pointer;
-  animation: tile-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  /* Tiles spring in one after another (delay set per tile) */
+  animation: tile-in 0.8s var(--spring) both;
+  transition: scale 0.08s;
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Press-in squash on tap (scale, so it works on top of the spring-in animation) */
 .tile:active {
-  transform: scale(0.94);
+  scale: 0.92 0.86;
 }
+
 
 .tile--game {
   background: var(--card);
@@ -162,9 +166,14 @@ button {
 }
 
 @keyframes tile-in {
-  from { opacity: 0; transform: scale(0.6) translateY(30px); }
+  from { opacity: 0; transform: scale(0.4) translateY(40px); }
+  20% { opacity: 1; }
   to { opacity: 1; transform: none; }
 }
+
+/* Round buttons squash when pressed */
+.round-btn { transition: scale 0.08s; }
+.round-btn:active { scale: 0.9 0.84; }
 
 /* ---------- Buttons ---------- */
 
@@ -291,25 +300,6 @@ button {
   overflow: hidden;
 }
 
-.confetti {
-  position: absolute;
-  top: -20px;
-  width: 12px;
-  height: 18px;
-  border-radius: 3px;
-  animation: confetti-fall linear forwards;
-}
-
-.confetti--round {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-}
-
-@keyframes confetti-fall {
-  to { transform: translateY(110vh) rotate(var(--spin)); }
-}
-
 .celebration-stars {
   position: absolute;
   inset: 0;
@@ -321,7 +311,7 @@ button {
 
 .star {
   width: clamp(70px, 14vw, 130px);
-  animation: star-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation: star-pop 0.9s var(--spring) both;
 }
 
 .star:nth-child(odd) {
@@ -329,7 +319,7 @@ button {
 }
 
 @keyframes star-pop {
-  from { transform: scale(0) rotate(-90deg); }
+  from { transform: scale(0) rotate(-120deg); }
   to { transform: scale(1) rotate(0); }
 }
 
@@ -716,13 +706,24 @@ button {
   border-radius: 50%;
   background: radial-gradient(circle, #fff 55%, #ffe066 56%);
   box-shadow: 0 0 0 8px #fff, 0 12px 30px rgba(0, 0, 0, 0.2);
-  animation: sticker-in 1s cubic-bezier(0.34, 1.56, 0.64, 1) 0.4s both;
+  animation: sticker-in 0.75s cubic-bezier(0.5, 0, 0.75, 0) 0.4s both;
+}
+
+/* After landing: a squash and a jelly settle (added by the level-done screen) */
+.sticker-won--landed {
+  animation: sticker-land 0.9s var(--spring-jelly) both;
 }
 .sticker-won-face { font-size: min(28vw, 18vh, 130px); line-height: 1; }
 
+/* The sticker is slapped down: it comes in big from above the screen and lands */
 @keyframes sticker-in {
-  from { transform: scale(0) rotate(-200deg); }
-  to { transform: scale(1) rotate(0); }
+  from { transform: scale(2.6) rotate(-25deg); opacity: 0; }
+  30% { opacity: 1; }
+  to { transform: scale(1) rotate(-6deg); opacity: 1; }
+}
+@keyframes sticker-land {
+  from { transform: scale(1.22, 0.78) rotate(-6deg); }
+  to { transform: scale(1) rotate(-6deg); }
 }
 
 /* ---------- Sticker book ---------- */

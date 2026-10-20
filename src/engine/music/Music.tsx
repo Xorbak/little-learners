@@ -4,6 +4,7 @@ import type { MusicConfig } from '../../types/learning';
 import type { Mechanic, RoundProps } from '../types';
 import { narrator } from '../../shared/audio/narrator';
 import { sfx } from '../../shared/audio/sfx';
+import { fx } from '../../shared/fx';
 import { SpeakerButton } from '../../shared/ui/SpeakerButton';
 import './music.css';
 
@@ -88,7 +89,11 @@ function MusicRound({ config, onRoundComplete }: RoundProps<MusicConfig>) {
       if (config.guide) setNextBar(progressRef.current < tune.length ? tune[progressRef.current] : null);
       if (progressRef.current === tune.length) {
         setTurn('done');
-        later(() => void narrator.say(['music.yes']), 500);
+        later(() => {
+          void narrator.say(['music.yes']);
+          fx.burstAt(document.querySelector('.mus-xylo'), 'stars', { count: 12, power: 1.4 });
+          sfx.sparkle();
+        }, 500);
         later(onRoundComplete, 2400);
       }
       return;
@@ -131,6 +136,8 @@ function MusicRound({ config, onRoundComplete }: RoundProps<MusicConfig>) {
             style={{ '--c': COLOURS[i % COLOURS.length], '--len': `${100 - (i * 40) / Math.max(1, config.bars - 1)}%` } as CSSProperties}
             onPointerDown={(e) => {
               e.preventDefault();
+              fx.squash(e.currentTarget, 0.35);
+              fx.burst(e.clientX, e.clientY, 'sparkles', { count: 3, power: 0.6, colour: COLOURS[i % COLOURS.length] });
               tap(i);
             }}
             aria-label={`Note ${i + 1}`}

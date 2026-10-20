@@ -42,7 +42,7 @@
 }
 
 .feed-animal--ready { transform: scale(1.12); }
-.feed-animal--chomp { animation: feed-chomp 0.45s ease; }
+.feed-animal--chomp { animation: feed-chomp 0.5s ease; }
 .feed-animal--shake { animation: feed-shake 0.8s ease; }
 .feed-animal--full { animation: feed-full 1.6s ease; }
 .feed-animal--hungry { animation: feed-hungry 1.4s ease; }
@@ -230,10 +230,13 @@
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.03, 0.98); }
 }
+/* Cheeks puff out, then a squashy chew */
 @keyframes feed-chomp {
   0%, 100% { transform: scale(1); }
-  30% { transform: scale(1.12, 0.88); }
-  60% { transform: scale(0.95, 1.06); }
+  20% { transform: scale(1.16, 0.86); }
+  40% { transform: scale(0.94, 1.07); }
+  60% { transform: scale(1.08, 0.94); }
+  80% { transform: scale(0.98, 1.02); }
 }
 @keyframes feed-shake {
   0%, 100% { transform: rotate(0); }
@@ -293,4 +296,14 @@
   .feed-food { width: 64px; height: 64px; font-size: 40px; border-radius: 20px; }
   /* "Here you go!" moves to the top-right corner so the pile gets the full width */
   .feed-give { position: fixed; top: 10px; right: 10px; z-index: 6; width: 76px; height: 76px; font-size: 40px; }
+}
+
+/* Food flying into the mouth */
+.feed-fly {
+  position: fixed;
+  z-index: 20;
+  font-size: clamp(44px, 9vh, 72px);
+  line-height: 1;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
 }

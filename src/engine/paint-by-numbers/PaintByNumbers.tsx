@@ -3,6 +3,7 @@ import type { ClipId, LearningItem, PaintByNumbersConfig, PaintRegion } from '..
 import type { Mechanic, RoundProps } from '../types';
 import { narrator } from '../../shared/audio/narrator';
 import { sfx } from '../../shared/audio/sfx';
+import { fx } from '../../shared/fx';
 import { SpeakerButton } from '../../shared/ui/SpeakerButton';
 import { PictureGallery } from '../../shared/ui/PictureGallery';
 import './paintByNumbers.css';
@@ -180,6 +181,9 @@ function Painting({ config, item, onCorrect, onRoundComplete }: RoundProps<Paint
     onCorrect(target);
     later(() => {
       sfx.fanfare();
+      sfx.sparkle();
+      fx.burstAt(document.querySelector('.pbn-picture'), 'sparkles', { count: 14, power: 2.5 });
+      fx.rain(50);
       void narrator.say(config.free ? ['pbn.free-done'] : ['pbn.you-painted', target.nameClip]);
     }, 400);
     later(onRoundComplete, 2800);
@@ -195,6 +199,14 @@ function Painting({ config, item, onCorrect, onRoundComplete }: RoundProps<Paint
     const pot = pots[i];
     const showNumber = !config.free && config.hints !== 'colour';
     void narrator.say(showNumber ? ['pbn.number', `numbers.name.${pot.number}`, pot.clip] : [pot.clip]);
+  };
+
+  /** A little splat of paint droplets where she tapped */
+  const tapPoint = useRef<{ x: number; y: number } | null>(null);
+  const splat = (_index: number, hex: string) => {
+    const p = tapPoint.current;
+    if (p) fx.burst(p.x, p.y, 'droplets', { colour: hex, count: 6, power: 0.45 });
+    fx.haptic(8);
   };
 
   const tapRegion = (index: number) => {
@@ -213,6 +225,7 @@ function Painting({ config, item, onCorrect, onRoundComplete }: RoundProps<Paint
 
     if (config.free) {
       sfx.pop();
+      splat(index, pot.hex);
       setPainted((list) => list.map((c, i) => (i === index ? pot.hex : c)));
       return;
     }
@@ -221,7 +234,9 @@ function Painting({ config, item, onCorrect, onRoundComplete }: RoundProps<Paint
 
     if (pot.hex === region.hex) {
       sfx.pop();
+      sfx.drip();
       misses.current = 0;
+      splat(index, pot.hex);
       const next = painted.map((c, i) => (i === index ? pot.hex : c));
       setPainted(next);
       // This colour is finished: stop hinting it
@@ -261,7 +276,10 @@ function Painting({ config, item, onCorrect, onRoundComplete }: RoundProps<Paint
               d={r.d}
               className={`pbn-region ${wobble === i ? 'pbn-region--wobble' : ''} ${hintHex === r.hex && !painted[i] ? 'pbn-region--hint' : ''}`}
               style={{ fill: painted[i] ?? '#ffffff' }}
-              onPointerDown={() => tapRegion(i)}
+              onPointerDown={(e) => {
+                tapPoint.current = { x: e.clientX, y: e.clientY };
+                tapRegion(i);
+              }}
             />
           ))}
           {Details && <Details />}

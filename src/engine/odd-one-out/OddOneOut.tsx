@@ -3,6 +3,7 @@ import type { LearningItem, OddOneOutConfig } from '../../types/learning';
 import type { Mechanic, RoundProps } from '../types';
 import { narrator } from '../../shared/audio/narrator';
 import { sfx } from '../../shared/audio/sfx';
+import { fx } from '../../shared/fx';
 import { SpeakerButton } from '../../shared/ui/SpeakerButton';
 import '../touch-it/touchIt.css';
 
@@ -44,11 +45,12 @@ function OddRound({ config, target, items, onCorrect, onWrong, onRoundComplete }
 
   const size = Math.floor(Math.min(200, (window.innerWidth - 50) / 2, (window.innerHeight - 170) / 2));
 
-  const tap = (item: LearningItem) => {
+  const tap = (item: LearningItem, el?: HTMLElement) => {
     if (found) return;
     if (item.key === d.odd.key) {
       setFound(true);
       sfx.pop();
+      fx.yay(el, { jump: 40 });
       void narrator.say(['odd.yes', d.odd.nameClip, 'odd.others-are', d.groupClip]);
       onCorrect(target);
       later(onRoundComplete, 3200);
@@ -79,7 +81,7 @@ function OddRound({ config, target, items, onCorrect, onWrong, onRoundComplete }
                 .filter(Boolean)
                 .join(' ')}
               style={{ width: size, height: size, animationDelay: `${i * 0.07}s` }}
-              onClick={() => tap(item)}
+              onClick={(e) => tap(item, e.currentTarget)}
               aria-label={narrator.allClips()[item.nameClip]}
             >
               <item.Display size={Math.round(size * 0.8)} />

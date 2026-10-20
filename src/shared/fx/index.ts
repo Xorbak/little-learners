@@ -13,6 +13,7 @@
  * so they stack on top of whatever transform the element already has.
  */
 import { progress } from '../progress/store';
+import { sfx } from '../audio/sfx';
 import { burst, rain, ring, setParticleDensity } from './particles';
 import type { BurstKind, BurstOptions } from './particles';
 import { bouncy, installSpringVars, jelly, soft } from './springs';
@@ -162,6 +163,16 @@ export const fx = {
       ],
       { duration: soft.duration, easing: soft.easing },
     );
+  },
+
+  /** A right answer: the thing jumps, stars and sparkles burst out, a twinkle and a buzz */
+  yay(el: Element | null | undefined, opts: { stars?: number; jump?: number; sound?: boolean } = {}) {
+    if (!el) return;
+    fx.jump(el, opts.jump ?? 30);
+    fx.burstAt(el, 'stars', { count: opts.stars ?? 8 });
+    fx.burstAt(el, 'sparkles', { count: 6, power: 1.2 });
+    if (opts.sound !== false) sfx.sparkle();
+    fx.haptic(15);
   },
 
   /** Little shove away from a point (neighbours of a pop) */

@@ -4,6 +4,7 @@ import type { LearningItem, PatternConfig } from '../../types/learning';
 import type { Mechanic, RoundProps } from '../types';
 import { narrator } from '../../shared/audio/narrator';
 import { sfx } from '../../shared/audio/sfx';
+import { fx } from '../../shared/fx';
 import { SpeakerButton } from '../../shared/ui/SpeakerButton';
 import './pattern.css';
 
@@ -74,10 +75,12 @@ function PatternRound({ config, target, items, onRoundComplete }: RoundProps<Pat
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const choose = (item: LearningItem) => {
+  const choose = (item: LearningItem, el?: HTMLElement) => {
     if (filled) return;
     if (item.key === p.answer.key) {
       sfx.pop();
+      fx.burstAt(el, 'stars', { count: 6 });
+      fx.haptic(12);
       setFilled(true);
       setHint(false);
       void narrator.say(['pattern.yes']);
@@ -118,7 +121,7 @@ function PatternRound({ config, target, items, onRoundComplete }: RoundProps<Pat
             key={c.key}
             type="button"
             className={`pat-choice ${wobble === c.key ? 'pat-choice--wobble' : ''} ${hint && c.key === p.answer.key ? 'pat-choice--hint' : ''} ${filled && c.key === p.answer.key ? 'pat-choice--used' : ''}`}
-            onClick={() => choose(c)}
+            onClick={(e) => choose(c, e.currentTarget)}
             aria-label={narrator.allClips()[c.nameClip]}
           >
             <c.Display size={80} />

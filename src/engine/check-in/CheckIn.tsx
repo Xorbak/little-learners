@@ -3,6 +3,7 @@ import type { CheckInConfig, LearningItem } from '../../types/learning';
 import type { Mechanic, RoundProps } from '../types';
 import { narrator } from '../../shared/audio/narrator';
 import { sfx } from '../../shared/audio/sfx';
+import { fx } from '../../shared/fx';
 import { progress } from '../../shared/progress/store';
 import { SpeakerButton } from '../../shared/ui/SpeakerButton';
 import './checkIn.css';
@@ -35,9 +36,11 @@ function CheckInRound({ config, items, onRoundComplete }: RoundProps<CheckInConf
   }, []);
   const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-  const choose = async (face: LearningItem) => {
+  const choose = async (face: LearningItem, el?: HTMLElement) => {
     if (chosen) return;
     sfx.pop();
+    fx.jump(el, 30);
+    fx.burstAt(el, 'hearts', { count: 5 });
     setChosen(face);
     progress.logFeeling(face.key);
     // Say the whole kind reply before anything else happens
@@ -71,7 +74,7 @@ function CheckInRound({ config, items, onRoundComplete }: RoundProps<CheckInConf
       {!chosen ? (
         <div className="ci-faces">
           {faces.map((f, i) => (
-            <button key={f.key} type="button" className="ci-face" style={{ animationDelay: `${i * 0.06}s` }} onClick={() => void choose(f)} aria-label={narrator.allClips()[f.nameClip]}>
+            <button key={f.key} type="button" className="ci-face" style={{ animationDelay: `${i * 0.06}s` }} onClick={(e) => void choose(f, e.currentTarget)} aria-label={narrator.allClips()[f.nameClip]}>
               <f.Display size={110} />
             </button>
           ))}

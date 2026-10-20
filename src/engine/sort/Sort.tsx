@@ -4,6 +4,7 @@ import type { SortConfig } from '../../types/learning';
 import type { Mechanic, RoundProps } from '../types';
 import { narrator } from '../../shared/audio/narrator';
 import { sfx } from '../../shared/audio/sfx';
+import { fx } from '../../shared/fx';
 import { SpeakerButton } from '../../shared/ui/SpeakerButton';
 import './sort.css';
 
@@ -79,9 +80,15 @@ function SortRound({ config, target, onCorrect, onRoundComplete }: RoundProps<So
       setPieces(next);
       setGlow(basketKey);
       later(() => setGlow((g) => (g === basketKey ? null : g)), 500);
+      const basketEl = document.querySelector(`[data-basket="${basketKey}"]`);
+      fx.squash(basketEl, 0.8);
+      fx.burstAt(basketEl, 'stars', { count: 5, power: 0.8 });
+      fx.haptic(10);
       if (next.every((p) => p.sortedInto)) {
         setDone(true);
         later(() => {
+          sfx.sparkle();
+          document.querySelectorAll('[data-basket]').forEach((b, i) => window.setTimeout(() => fx.jump(b, 28), i * 110));
           void narrator.say(['sort.all-sorted']);
           onCorrect(target);
         }, 400);
@@ -166,6 +173,7 @@ function SortRound({ config, target, onCorrect, onRoundComplete }: RoundProps<So
       <div className="sort-baskets">
         {set.baskets.map((b) => (
           <button
+            data-basket={b.key}
             key={b.key}
             ref={(el) => {
               basketRefs.current[b.key] = el;

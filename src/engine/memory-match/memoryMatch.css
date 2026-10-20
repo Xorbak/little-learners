@@ -71,6 +71,23 @@
 
 .mem-card--up .mem-card-inner {
   transform: rotateY(180deg);
+  animation: mem-flip-up 0.55s var(--spring-soft);
+}
+
+/* Turning over: the card lifts off the table as it flips, then settles */
+@keyframes mem-flip-up {
+  0% { transform: rotateY(0) scale(1); }
+  45% { transform: rotateY(100deg) scale(1.14) translateY(-6px); }
+  100% { transform: rotateY(180deg) scale(1); }
+}
+
+.mem-card--up .mem-face {
+  animation: mem-lift-shadow 0.55s ease-out;
+}
+
+@keyframes mem-lift-shadow {
+  0%, 100% { box-shadow: var(--shadow); }
+  45% { box-shadow: 0 16px 22px rgba(43, 45, 66, 0.25); }
 }
 
 .mem-face {
@@ -172,6 +189,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .mem-card-inner { transition-duration: 0.01s; }
+  .mem-card--up .mem-card-inner, .mem-card--up .mem-face { animation: none; }
   .mem-card--hint, .stink-puff { animation: none; }
 }
 

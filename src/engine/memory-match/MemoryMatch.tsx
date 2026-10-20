@@ -4,6 +4,7 @@ import type { Mechanic, RoundProps } from '../types';
 import { narrator } from '../../shared/audio/narrator';
 import { sfx } from '../../shared/audio/sfx';
 import { progress } from '../../shared/progress/store';
+import { fx } from '../../shared/fx';
 import { SpeakerButton } from '../../shared/ui/SpeakerButton';
 import { CardBack, StinkyCloud } from './pictures';
 import './memoryMatch.css';
@@ -138,6 +139,8 @@ function MemoryMatchRound({ config, target, items, onRoundComplete }: RoundProps
   const setStatus = (ids: number[], status: CardStatus) =>
     setCards((list) => list.map((c) => (ids.includes(c.id) ? { ...c, status } : c)));
 
+  const cardEl = (id: number) => document.querySelector<HTMLElement>(`[data-card-id="${id}"]`);
+
   const handleTap = (card: Card) => {
     if (peeking || busy || finished || card.status !== 'down') return;
     lastTapRef.current = Date.now();
@@ -176,6 +179,9 @@ function MemoryMatchRound({ config, target, items, onRoundComplete }: RoundProps
           sfx.fart('big');
           setStinkCloud(true);
           void narrator.say(['memory.stinky-match']);
+          pair.forEach((id) => fx.burstAt(cardEl(id), 'stink', { count: 8 }));
+          fx.shake(0.8);
+          fx.haptic([40, 30, 60]);
         }, 250);
         later(() => setStinkCloud(false), 2600);
         later(() => {
@@ -183,12 +189,21 @@ function MemoryMatchRound({ config, target, items, onRoundComplete }: RoundProps
           setBusy(false);
         }, 1600);
       } else {
-        sfx.pop();
         void narrator.say([nameOf(card.itemKey)]);
+        // A match: both cards jump for joy and sparkle
         later(() => {
+          sfx.pop();
+          sfx.sparkle();
           setStatus(pair, 'matched');
+          pair.forEach((id, i) => {
+            const el = cardEl(id);
+            window.setTimeout(() => fx.jump(el, 26), i * 90);
+            fx.burstAt(el, 'sparkles', { count: 7, power: 0.8 });
+            fx.burstAt(el, 'stars', { count: 4, power: 0.7 });
+          });
+          fx.haptic(16);
           setBusy(false);
-        }, 500);
+        }, 450);
       }
       return;
     }
@@ -250,6 +265,7 @@ function MemoryMatchRound({ config, target, items, onRoundComplete }: RoundProps
               <button
                 key={card.id}
                 type="button"
+                data-card-id={card.id}
                 className={classes}
                 onClick={() => handleTap(card)}
                 aria-label={faceUp ? narrator.allClips()[nameOf(card.itemKey)] : 'Card'}
