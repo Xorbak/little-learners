@@ -253,6 +253,8 @@ export interface JigsawConfig {
   rows: number;
   /** Show the picture faintly on the board as a guide */
   ghost: boolean;
+  /** Start with a gallery so she picks the picture (Today's lessons skips it) */
+  choose?: boolean;
 }
 
 export type ActivityConfig =

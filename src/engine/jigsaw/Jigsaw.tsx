@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { PointerEvent as ReactPointerEvent } from 'react';
-import type { JigsawConfig } from '../../types/learning';
+import type { JigsawConfig, LearningItem } from '../../types/learning';
+import { PictureGallery } from '../../shared/ui/PictureGallery';
 import type { Mechanic, RoundProps } from '../types';
 import { narrator } from '../../shared/audio/narrator';
 import { sfx } from '../../shared/audio/sfx';
@@ -99,6 +100,23 @@ function useSize(ref: React.RefObject<HTMLElement | null>) {
     return () => ro.disconnect();
   }, [ref]);
   return size;
+}
+
+/** Let her pick the picture first (unless it's a quick Today's lessons round) */
+function JigsawStart(props: RoundProps<JigsawConfig>) {
+  const { config, items, timesRight, daily } = props;
+  const [picked, setPicked] = useState<LearningItem | null>(config.choose && !daily && config.pool.length > 1 ? null : props.target);
+  if (!picked) {
+    return (
+      <PictureGallery
+        items={config.pool.map((key) => items[key])}
+        askClip="puzzle.choose"
+        isDone={(item) => timesRight(item) > 0}
+        onPick={setPicked}
+      />
+    );
+  }
+  return <JigsawRound {...props} target={picked} />;
 }
 
 function JigsawRound({ config, target, onCorrect, onRoundComplete }: RoundProps<JigsawConfig>) {
@@ -334,9 +352,10 @@ function JigsawRound({ config, target, onCorrect, onRoundComplete }: RoundProps<
 }
 
 export const jigsaw: Mechanic<JigsawConfig> = {
-  Round: JigsawRound,
+  Round: JigsawStart,
   clips: {
     'puzzle.title': 'Puzzles',
+    'puzzle.choose': 'Which puzzle do you want to make?',
     'puzzle.ask': "Let's make the picture! Put the pieces where they go.",
     'puzzle.done': 'You did it! You finished the puzzle!',
   },

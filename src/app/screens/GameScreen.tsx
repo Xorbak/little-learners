@@ -137,6 +137,7 @@ function LevelSession({ section, game, navigate, daily, onPlayAgain }: Props & {
           onRoundComplete={onRoundComplete}
           isKnown={isKnown}
           timesRight={timesRight}
+          daily={!!daily}
         />
       )}
 

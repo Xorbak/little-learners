@@ -193,14 +193,14 @@ const puzzleGame: Game = {
   titleClip: 'puzzle.title',
   icon: '🧩',
   levels: [
-    { id: '4', parentLabel: '4 pieces, picture shown faintly', rounds: 2, activity: { kind: 'jigsaw', pool: puzzles, cols: 2, rows: 2, ghost: true } },
-    { id: '6', parentLabel: '6 pieces, picture shown faintly', rounds: 2, activity: { kind: 'jigsaw', pool: puzzles, cols: 3, rows: 2, ghost: true } },
-    { id: '8', parentLabel: '8 pieces, picture shown faintly', rounds: 2, activity: { kind: 'jigsaw', pool: puzzles, cols: 4, rows: 2, ghost: true } },
-    { id: '12', parentLabel: '12 pieces, picture shown faintly', rounds: 1, activity: { kind: 'jigsaw', pool: puzzles, cols: 4, rows: 3, ghost: true } },
-    { id: '12-plain', parentLabel: '12 pieces, outlines only', rounds: 1, activity: { kind: 'jigsaw', pool: puzzles, cols: 4, rows: 3, ghost: false } },
-    { id: '15', parentLabel: '15 pieces', rounds: 1, activity: { kind: 'jigsaw', pool: puzzles, cols: 5, rows: 3, ghost: false } },
-    { id: '20', parentLabel: '20 pieces', rounds: 1, activity: { kind: 'jigsaw', pool: puzzles, cols: 5, rows: 4, ghost: false } },
-    { id: '24', parentLabel: '24 pieces', rounds: 1, activity: { kind: 'jigsaw', pool: puzzles, cols: 6, rows: 4, ghost: false } },
+    { id: '4', parentLabel: '4 pieces, picture shown faintly', rounds: 2, activity: { kind: 'jigsaw', pool: puzzles, cols: 2, rows: 2, ghost: true, choose: true } },
+    { id: '6', parentLabel: '6 pieces, picture shown faintly', rounds: 2, activity: { kind: 'jigsaw', pool: puzzles, cols: 3, rows: 2, ghost: true, choose: true } },
+    { id: '8', parentLabel: '8 pieces, picture shown faintly', rounds: 2, activity: { kind: 'jigsaw', pool: puzzles, cols: 4, rows: 2, ghost: true, choose: true } },
+    { id: '12', parentLabel: '12 pieces, picture shown faintly', rounds: 1, activity: { kind: 'jigsaw', pool: puzzles, cols: 4, rows: 3, ghost: true, choose: true } },
+    { id: '12-plain', parentLabel: '12 pieces, outlines only', rounds: 1, activity: { kind: 'jigsaw', pool: puzzles, cols: 4, rows: 3, ghost: false, choose: true } },
+    { id: '15', parentLabel: '15 pieces', rounds: 1, activity: { kind: 'jigsaw', pool: puzzles, cols: 5, rows: 3, ghost: false, choose: true } },
+    { id: '20', parentLabel: '20 pieces', rounds: 1, activity: { kind: 'jigsaw', pool: puzzles, cols: 5, rows: 4, ghost: false, choose: true } },
+    { id: '24', parentLabel: '24 pieces', rounds: 1, activity: { kind: 'jigsaw', pool: puzzles, cols: 6, rows: 4, ghost: false, choose: true } },
   ],
 };
 

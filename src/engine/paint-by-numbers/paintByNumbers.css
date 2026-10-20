@@ -160,59 +160,7 @@
   .pbn-region--hint, .pbn-picture--done { animation: none; }
 }
 
-/* ---------- Gallery ---------- */
-
-.pbn-gallery {
-  flex: 1;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-content: flex-start;
-  gap: 16px;
-  padding: 8px 16px 60px;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-.pbn-card {
-  position: relative;
-  display: grid;
-  place-items: center;
-  width: 170px;
-  height: 132px;
-  padding: 0;
-  border: 5px solid #fff;
-  border-radius: 24px;
-  background: #fff;
-  box-shadow: var(--shadow);
-  overflow: hidden;
-  cursor: pointer;
-  animation: tile-in 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.pbn-card:active { transform: scale(0.94); }
-
-.pbn-card svg { width: 100%; height: 100%; }
-
-.pbn-card-star {
-  position: absolute;
-  top: 4px;
-  right: 6px;
-  font-size: 26px;
-  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.25));
-}
-
-@media (max-aspect-ratio: 1/1) {
-  .pbn-card { width: 150px; height: 116px; }
-}
-
 /* ---------- Numbers / free switch ---------- */
-
-.pbn-top:has(.pbn-mode) {
-  align-items: center;
-  gap: 20px;
-}
 
 .pbn-mode {
   display: flex;
@@ -257,8 +205,6 @@
   .pbn-pot { width: 62px; height: 62px; border-width: 4px; }
   .pbn-pot-num { font-size: 28px; }
   .pbn-done { width: 72px; height: 72px; font-size: 38px; }
-  .pbn-gallery { gap: 10px; padding: 6px 10px 50px; }
-  .pbn-card { width: 140px; height: 108px; border-width: 4px; border-radius: 18px; }
 }
 /* Landscape phone: paint pots in a column on the right, picture gets the height */
 @media (max-height: 500px) and (orientation: landscape) {

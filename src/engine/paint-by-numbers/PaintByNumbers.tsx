@@ -4,6 +4,7 @@ import type { Mechanic, RoundProps } from '../types';
 import { narrator } from '../../shared/audio/narrator';
 import { sfx } from '../../shared/audio/sfx';
 import { SpeakerButton } from '../../shared/ui/SpeakerButton';
+import { PictureGallery } from '../../shared/ui/PictureGallery';
 import './paintByNumbers.css';
 
 /**
@@ -64,7 +65,6 @@ function useFitSize(aspect: number) {
   return width;
 }
 
-/** The gallery: she picks which picture to paint. Stars mark ones she has finished. */
 /** Remembers the free-paint switch between pictures (until the app is closed) */
 let freeChoice = false;
 
@@ -77,10 +77,6 @@ function Gallery({
   onFreeChange,
   onPick,
 }: RoundProps<PaintByNumbersConfig> & { free: boolean; onFreeChange: (free: boolean) => void; onPick: (item: LearningItem) => void }) {
-  useEffect(() => {
-    void narrator.say(['pbn.choose']);
-  }, []);
-
   const setMode = (next: boolean) => {
     if (next === free) return;
     sfx.pop();
@@ -88,56 +84,39 @@ function Gallery({
     void narrator.say([next ? 'pbn.mode-free' : 'pbn.mode-numbers']);
   };
 
-  return (
-    <div className="pbn-round">
-      <header className="pbn-top">
-        <SpeakerButton onPress={() => void narrator.say(['pbn.choose'])} />
-        <div className="pbn-mode" role="radiogroup" aria-label="How to paint">
-          <button
-            type="button"
-            role="radio"
-            aria-checked={!free}
-            className={`pbn-mode-btn ${!free ? 'pbn-mode-btn--on' : ''}`}
-            onClick={() => setMode(false)}
-            aria-label="Paint by numbers"
-          >
-            <span className="pbn-mode-icon">🔢</span>
-          </button>
-          <button
-            type="button"
-            role="radio"
-            aria-checked={free}
-            className={`pbn-mode-btn ${free ? 'pbn-mode-btn--on' : ''}`}
-            onClick={() => setMode(true)}
-            aria-label="Free painting"
-          >
-            <span className="pbn-mode-icon">🎨</span>
-          </button>
-        </div>
-      </header>
-      <div className="pbn-gallery">
-        {config.pool.map((key, i) => {
-          const item = items[key];
-          const done = timesRight(item) > 0;
-          return (
-            <button
-              key={key}
-              type="button"
-              className="pbn-card"
-              style={{ animationDelay: `${i * 0.04}s` }}
-              onClick={() => {
-                sfx.pop();
-                onPick(item);
-              }}
-              aria-label={narrator.allClips()[item.nameClip]}
-            >
-              <item.Display size={150} />
-              {done && <span className="pbn-card-star" aria-label="Painted before">⭐</span>}
-            </button>
-          );
-        })}
-      </div>
+  const modeSwitch = (
+    <div className="pbn-mode" role="radiogroup" aria-label="How to paint">
+      <button
+        type="button"
+        role="radio"
+        aria-checked={!free}
+        className={`pbn-mode-btn ${!free ? 'pbn-mode-btn--on' : ''}`}
+        onClick={() => setMode(false)}
+        aria-label="Paint by numbers"
+      >
+        <span className="pbn-mode-icon">🔢</span>
+      </button>
+      <button
+        type="button"
+        role="radio"
+        aria-checked={free}
+        className={`pbn-mode-btn ${free ? 'pbn-mode-btn--on' : ''}`}
+        onClick={() => setMode(true)}
+        aria-label="Free painting"
+      >
+        <span className="pbn-mode-icon">🎨</span>
+      </button>
     </div>
+  );
+
+  return (
+    <PictureGallery
+      items={config.pool.map((key) => items[key])}
+      askClip="pbn.choose"
+      isDone={(item) => timesRight(item) > 0}
+      onPick={onPick}
+      extra={modeSwitch}
+    />
   );
 }
 

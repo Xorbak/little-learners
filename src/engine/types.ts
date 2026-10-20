@@ -18,6 +18,8 @@ export interface RoundProps<C extends ActivityConfig> {
   isKnown: (item: LearningItem) => boolean;
   /** How many times she has got this item right (e.g. pictures she has finished) */
   timesRight: (item: LearningItem) => number;
+  /** Part of Today's lessons (keep it short: e.g. skip choosing a picture) */
+  daily?: boolean;
 }
 
 export interface Mechanic<C extends ActivityConfig> {
