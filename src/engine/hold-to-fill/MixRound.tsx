@@ -7,6 +7,8 @@ import { sfx } from '../../shared/audio/sfx';
 import { progress } from '../../shared/progress/store';
 import { SpeakerButton } from '../../shared/ui/SpeakerButton';
 import { Bucket, type BucketMood } from './Bucket';
+import { Stream } from './Stream';
+import { fx } from '../../shared/fx';
 import { checkRecipe, mixColour, nearestColour, type Amounts } from './mixing';
 
 /**
@@ -41,6 +43,9 @@ export function MixRound({ config, target, items, onCorrect, onWrong, onRoundCom
   const [bucketAt, setBucketAt] = useState(() => Math.floor(pipes.length / 2));
 
   const amountsRef = useRef<Amounts>({});
+  const roundRef = useRef<HTMLDivElement>(null);
+  /** The colour of the stream (kept after she lets go, while its tail falls) */
+  const [streamColour, setStreamColour] = useState('transparent');
   const heldRef = useRef<number | null>(null);
   const busyRef = useRef(false);
   const shoutedRef = useRef(false);
@@ -116,6 +121,8 @@ export function MixRound({ config, target, items, onCorrect, onWrong, onRoundCom
 
     if (lab) {
       setMood('proud');
+      sfx.sparkle();
+      fx.burstAt(roundRef.current?.querySelector('.bucket'), 'sparkles', { count: 10, power: 1.5 });
       void narrator.say(['mix.you-made', made.nameClip, 'mix.wow']);
       later(onRoundComplete, 2600);
       return;
@@ -124,6 +131,9 @@ export function MixRound({ config, target, items, onCorrect, onWrong, onRoundCom
     const result = checkRecipe(amountsRef.current, target);
     if (result.ok) {
       setMood('proud');
+      sfx.sparkle();
+      fx.burstAt(roundRef.current?.querySelector('.bucket'), 'stars', { count: 10 });
+      fx.haptic(20);
       void narrator.say(['mix.you-made', target.nameClip, 'mix.hooray']);
       onCorrect(target);
       later(onRoundComplete, 2400);
@@ -191,6 +201,7 @@ export function MixRound({ config, target, items, onCorrect, onWrong, onRoundCom
     }
     lastTapRef.current = Date.now();
     setBucketAt(index);
+    setStreamColour(colourOf(pipes[index]));
     grab(index);
   };
 
@@ -206,7 +217,7 @@ export function MixRound({ config, target, items, onCorrect, onWrong, onRoundCom
   const bucketLeft = `${((bucketAt + 0.5) / pipes.length) * 100}%`;
 
   return (
-    <div className="fill-round">
+    <div className="fill-round" ref={roundRef}>
       <header className="fill-top">
         <SpeakerButton onPress={sayPrompt} />
         {lab ? (
@@ -258,15 +269,12 @@ export function MixRound({ config, target, items, onCorrect, onWrong, onRoundCom
         ))}
       </div>
 
-      <div className="fill-gap">
-        {pouring && held !== null && (
-          <span className="fill-stream" style={{ left: bucketLeft, background: colourOf(pipes[held]) }} />
-        )}
-      </div>
+      <div className="fill-gap" />
+      <Stream rootRef={roundRef} active={pouring && held !== null} colour={streamColour} level={() => Math.min(1, total())} />
 
       <div className="fill-floor">
         <div className="fill-bucket-slot" style={{ left: bucketLeft }}>
-          <Bucket level={Math.min(1, level)} colour={mixColour(amounts)} mood={mood} halfLine={false} />
+          <Bucket level={Math.min(1, level)} colour={mixColour(amounts)} mood={mood} halfLine={false} pouring={pouring} at={bucketAt} incoming={pouring && held !== null && level > 0.06 ? colourOf(pipes[held]) : null} />
         </div>
       </div>
     </div>

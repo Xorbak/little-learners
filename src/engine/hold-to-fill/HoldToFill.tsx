@@ -7,6 +7,8 @@ import { sfx } from '../../shared/audio/sfx';
 import { progress } from '../../shared/progress/store';
 import { SpeakerButton } from '../../shared/ui/SpeakerButton';
 import { Bucket, type BucketMood } from './Bucket';
+import { Stream } from './Stream';
+import { fx } from '../../shared/fx';
 import { MixRound, mixClips } from './MixRound';
 import './holdToFill.css';
 
@@ -59,6 +61,9 @@ function PourRound({ config, target, items, onCorrect, onWrong, onRoundComplete 
   const [bucketAt, setBucketAt] = useState(() => Math.floor(pipes.length / 2));
 
   const levelRef = useRef(0);
+  const roundRef = useRef<HTMLDivElement>(null);
+  /** The colour of the stream (kept after she lets go, while its tail falls) */
+  const [streamColour, setStreamColour] = useState('transparent');
   /** Mirrors `held` so pointerup + lostpointercapture (which fire together) only release once */
   const heldRef = useRef<number | null>(null);
   const grab = (index: number | null) => {
@@ -119,6 +124,9 @@ function PourRound({ config, target, items, onCorrect, onWrong, onRoundComplete 
     busyRef.current = true;
     setMood('proud');
     void narrator.say(['paint.just-right']);
+    sfx.sparkle();
+    fx.burstAt(roundRef.current?.querySelector('.bucket'), 'stars', { count: 10 });
+    fx.haptic(20);
     if (config.pipes > 1) onCorrect(target);
     later(onRoundComplete, 1800);
   };
@@ -204,6 +212,7 @@ function PourRound({ config, target, items, onCorrect, onWrong, onRoundComplete 
     }
     lastTapRef.current = Date.now();
     setBucketAt(index);
+    setStreamColour(colourOf(pipes[index]));
     grab(index);
   };
 
@@ -223,10 +232,9 @@ function PourRound({ config, target, items, onCorrect, onWrong, onRoundComplete 
   };
 
   const bucketLeft = `${((bucketAt + 0.5) / pipes.length) * 100}%`;
-  const pourColour = held !== null ? colourOf(pipes[held]) : 'transparent';
 
   return (
-    <div className="fill-round">
+    <div className="fill-round" ref={roundRef}>
       <header className="fill-top">
         <SpeakerButton onPress={sayPrompt} />
         <div className="fill-target" aria-label="This colour">
@@ -255,13 +263,12 @@ function PourRound({ config, target, items, onCorrect, onWrong, onRoundComplete 
         ))}
       </div>
 
-      <div className="fill-gap">
-        {pouring && <span className="fill-stream" style={{ left: bucketLeft, background: pourColour }} />}
-      </div>
+      <div className="fill-gap" />
+      <Stream rootRef={roundRef} active={pouring} colour={streamColour} level={() => levelRef.current} />
 
       <div className="fill-floor">
         <div className="fill-bucket-slot" style={{ left: bucketLeft }}>
-          <Bucket level={level} colour={paint} mood={mood} halfLine={config.fillTo === 'half'} />
+          <Bucket level={level} colour={paint} mood={mood} halfLine={config.fillTo === 'half'} pouring={pouring} at={bucketAt} />
         </div>
       </div>
     </div>
