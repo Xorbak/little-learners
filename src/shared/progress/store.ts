@@ -58,6 +58,8 @@ export interface SavedData {
   voice: VoiceSettings;
   /** Farts and other silly noises. Missing means on (older saves don't have it). */
   sillySounds?: boolean;
+  /** Less motion (no screen shake, fewer particles). Missing means: follow the device setting. */
+  lessMotion?: boolean;
 }
 
 /** Today's date as YYYY-MM-DD in local time */
@@ -226,6 +228,15 @@ export const progress = {
 
   setSillySounds(on: boolean) {
     commit({ ...data, sillySounds: on });
+  },
+
+  /** undefined = not chosen (follow the device's reduce-motion setting) */
+  lessMotion(): boolean | undefined {
+    return data.lessMotion;
+  },
+
+  setLessMotion(on: boolean) {
+    commit({ ...data, lessMotion: on });
   },
 
   logFeeling(feeling: string) {

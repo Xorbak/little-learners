@@ -4,6 +4,7 @@ import type { Mechanic, RoundProps } from '../types';
 import { narrator } from '../../shared/audio/narrator';
 import { sfx } from '../../shared/audio/sfx';
 import { SpeakerButton } from '../../shared/ui/SpeakerButton';
+import { fx } from '../../shared/fx';
 import { Balloon, type BalloonState } from './Balloon';
 import './popBalloons.css';
 
@@ -108,15 +109,43 @@ function PopBalloonsRound({ config, target, items, onCorrect, onWrong, onRoundCo
   const setStatus = (id: number, status: BalloonState['status']) =>
     setBalloons((list) => list.map((b) => (b.id === id ? { ...b, status } : b)));
 
-  const handleTap = (balloon: BalloonState) => {
+  const targetRef = useRef<HTMLDivElement>(null);
+  const counterRef = useRef<HTMLDivElement>(null);
+
+  /** The pop itself: shards of rubber in the balloon's colour, a flash ring, a few stars */
+  const burstBalloon = (balloon: BalloonState, el: HTMLElement) => {
+    const r = el.getBoundingClientRect();
+    const x = r.left + r.width / 2;
+    const y = r.top + (r.height * 52) / 150;
+    sfx.pop();
+    sfx.snap();
+    fx.ring(x, y, '#fff', r.width / 110);
+    fx.burst(x, y, 'shards', { colour: balloon.colour, count: 14, power: r.width / 120 });
+    fx.burst(x, y, 'stars', { count: 5 });
+    fx.shake(0.6);
+    fx.haptic(18);
+    // The blast pushes the neighbours a little
+    el.closest('.pop-field')
+      ?.querySelectorAll('.balloon-body')
+      .forEach((other) => other !== el && fx.nudge(other, x, y, 24));
+  };
+
+  const handleTap = (balloon: BalloonState, el: HTMLElement) => {
     if (balloon.status !== 'flying' || finished) return;
     lastTapRef.current = Date.now();
     const item = items[balloon.itemKey];
 
     if (item.key === target.key) {
-      sfx.pop();
       void narrator.say([item.nameClip]);
-      setStatus(balloon.id, 'popped');
+      // Anticipation: a quick squish, then it bursts
+      const dot = popped;
+      setStatus(balloon.id, 'squish');
+      window.setTimeout(() => {
+        burstBalloon(balloon, el);
+        setStatus(balloon.id, 'popped');
+        fx.jump(targetRef.current, 22);
+        fx.pop(counterRef.current?.children[dot]);
+      }, 70);
       setPopped((p) => p + 1);
       onCorrect(item);
       // Replace it with a fresh balloon floating in from the bottom
@@ -126,7 +155,7 @@ function PopBalloonsRound({ config, target, items, onCorrect, onWrong, onRoundCo
             b.id === balloon.id ? { ...makeBalloon(randomDistractor(), b.lane, 0, config.riseSeconds), row: b.row } : b,
           ),
         );
-      }, 500);
+      }, 900);
     } else {
       sfx.boing();
       void narrator.say(['shared.thats', item.nameClip]);
@@ -140,10 +169,10 @@ function PopBalloonsRound({ config, target, items, onCorrect, onWrong, onRoundCo
     <div className="pop-round">
       <header className="pop-prompt">
         <SpeakerButton onPress={sayPrompt} />
-        <div className="pop-target" aria-label="Find this one">
+        <div className="pop-target" ref={targetRef} aria-label="Find this one">
           <target.Display size={84} />
         </div>
-        <div className="pop-counter" aria-label={`${popped} of ${config.targetsPerRound} popped`}>
+        <div className="pop-counter" ref={counterRef} aria-label={`${popped} of ${config.targetsPerRound} popped`}>
           {Array.from({ length: config.targetsPerRound }, (_, i) => (
             <span key={i} className={`pop-dot ${i < popped ? 'pop-dot--done' : ''}`} />
           ))}
@@ -164,7 +193,7 @@ function PopBalloonsRound({ config, target, items, onCorrect, onWrong, onRoundCo
               top={config.still ? `calc(${6 + (b.row ?? 0) * 48}% + ${nudge * 3}px)` : undefined}
               size={layout.size}
               Label={item.BalloonLabel}
-              onTap={() => handleTap(b)}
+              onTap={(el) => handleTap(b, el)}
             />
           );
         })}

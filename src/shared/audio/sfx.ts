@@ -31,6 +31,47 @@ function tone(freq: number, start: number, duration: number, type: OscillatorTyp
   osc.stop(a.currentTime + start + duration);
 }
 
+/** A burst of filtered noise (the building block for thuds, snaps and whooshes) */
+function noise(opts: { length: number; type: BiquadFilterType; freq: number; freqEnd?: number; q?: number; volume: number; decay?: number; at?: number }) {
+  const a = audio();
+  if (!a) return;
+  const t = a.currentTime + (opts.at ?? 0);
+  const length = Math.floor(a.sampleRate * opts.length);
+  const buffer = a.createBuffer(1, length, a.sampleRate);
+  const data = buffer.getChannelData(0);
+  const decay = opts.decay ?? 2;
+  for (let i = 0; i < length; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / length) ** decay;
+  const source = a.createBufferSource();
+  const filter = a.createBiquadFilter();
+  filter.type = opts.type;
+  filter.frequency.setValueAtTime(opts.freq, t);
+  if (opts.freqEnd) filter.frequency.exponentialRampToValueAtTime(opts.freqEnd, t + opts.length);
+  filter.Q.value = opts.q ?? 1;
+  const gain = a.createGain();
+  gain.gain.value = opts.volume;
+  source.buffer = buffer;
+  source.connect(filter).connect(gain).connect(a.destination);
+  source.start(t);
+}
+
+/** A pitch sweep (sine unless told otherwise) */
+function sweep(from: number, to: number, length: number, volume: number, type: OscillatorType = 'sine', at = 0) {
+  const a = audio();
+  if (!a) return;
+  const t = a.currentTime + at;
+  const osc = a.createOscillator();
+  const gain = a.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(from, t);
+  osc.frequency.exponentialRampToValueAtTime(to, t + length);
+  gain.gain.setValueAtTime(0.001, t);
+  gain.gain.exponentialRampToValueAtTime(volume, t + 0.008);
+  gain.gain.exponentialRampToValueAtTime(0.001, t + length);
+  osc.connect(gain).connect(a.destination);
+  osc.start(t);
+  osc.stop(t + length + 0.02);
+}
+
 export const sfx = {
   /** Call from the first tap to allow sound */
   unlock() {
@@ -269,6 +310,44 @@ export const sfx = {
     osc.connect(gain).connect(a.destination);
     osc.start();
     osc.stop(a.currentTime + 0.12);
+  },
+
+  /** Cardboard "thunk": a puzzle piece dropping into place */
+  thunk() {
+    sweep(150, 55, 0.14, 0.5);
+    noise({ length: 0.08, type: 'lowpass', freq: 900, volume: 0.5, decay: 3 });
+  },
+
+  /** Rubber snap: layered on top of a balloon pop */
+  snap() {
+    noise({ length: 0.05, type: 'highpass', freq: 2500, volume: 0.35, decay: 2 });
+    sweep(1400, 260, 0.06, 0.12, 'triangle');
+  },
+
+  /** Soft whoosh of something moving fast */
+  whoosh(up = true) {
+    noise({ length: 0.28, type: 'bandpass', freq: up ? 400 : 1600, freqEnd: up ? 1800 : 350, q: 1.4, volume: 0.28, decay: 0.8 });
+  },
+
+  /** Little twinkle for sparkles and matches */
+  sparkle() {
+    [2093, 2637, 3136, 4186].forEach((f, i) => tone(f, i * 0.05, 0.18, 'triangle', 0.05));
+  },
+
+  /** A water drip / droplet blip */
+  drip() {
+    sweep(700, 1500, 0.07, 0.15);
+  },
+
+  /** A light tap (pressing tiles and buttons) */
+  tap() {
+    sweep(520, 300, 0.05, 0.08, 'triangle');
+  },
+
+  /** A soft landing thud (stickers slapping on, things landing) */
+  thud() {
+    sweep(110, 45, 0.18, 0.55);
+    noise({ length: 0.06, type: 'lowpass', freq: 500, volume: 0.35, decay: 3 });
   },
 
   cheer() {

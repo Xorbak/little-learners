@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { narrator } from '../../shared/audio/narrator';
 import { masteryOf } from '../../shared/progress/adaptive';
+import { applyMotionSetting, lessMotion } from '../../shared/fx';
 import { progress, useProgress } from '../../shared/progress/store';
 import type { Navigate } from '../App';
 import { findSection, gameKey, sections } from '../registry';
@@ -184,6 +185,24 @@ export function ParentArea({ navigate }: { navigate: Navigate }) {
             onChange={(e) => progress.setSillySounds(e.target.checked)}
           />
           Farts on
+        </label>
+      </section>
+
+      <section className="parent-card">
+        <h2>Less motion</h2>
+        <p className="parent-hint">
+          Turns off screen shakes and uses fewer confetti and sparkles. Starts on if the phone is set to reduce motion.
+        </p>
+        <label className="voice-row">
+          <input
+            type="checkbox"
+            checked={saved.lessMotion ?? lessMotion()}
+            onChange={(e) => {
+              progress.setLessMotion(e.target.checked);
+              applyMotionSetting();
+            }}
+          />
+          Less motion
         </label>
       </section>
 

@@ -9,7 +9,7 @@ export interface BalloonState {
   colour: string;
   duration: number;
   delay: number;
-  status: 'flying' | 'wobble' | 'popped';
+  status: 'flying' | 'wobble' | 'squish' | 'popped';
 }
 
 interface Props {
@@ -19,7 +19,7 @@ interface Props {
   top?: string;
   size: number;
   Label?: FC<{ size: number }>;
-  onTap: () => void;
+  onTap: (el: HTMLElement) => void;
 }
 
 export function Balloon({ balloon, left, top, size, Label, onTap }: Props) {
@@ -39,14 +39,14 @@ export function Balloon({ balloon, left, top, size, Label, onTap }: Props) {
     >
       <div className="balloon-sway" style={{ animationDuration: `${2.5 + (balloon.id % 3) * 0.6}s` }}>
         {balloon.status === 'popped' ? (
-          <Burst colour={balloon.colour} size={size} />
+          <FallingString size={size} swing={balloon.id % 2 ? 1 : -1} />
         ) : (
           <button
             type="button"
-            className={`balloon-body ${balloon.status === 'wobble' ? 'balloon-body--wobble' : ''}`}
+            className={`balloon-body ${balloon.status === 'wobble' ? 'balloon-body--wobble' : ''} ${balloon.status === 'squish' ? 'balloon-body--squish' : ''}`}
             onPointerDown={(e) => {
               e.preventDefault();
-              onTap();
+              onTap(e.currentTarget);
             }}
             aria-label="balloon"
           >
@@ -68,16 +68,15 @@ export function Balloon({ balloon, left, top, size, Label, onTap }: Props) {
   );
 }
 
-function Burst({ colour, size }: { colour: string; size: number }) {
+/** After the pop: the string falls with gravity, swinging as it drops */
+function FallingString({ size, swing }: { size: number; swing: number }) {
+  const height = size * 1.5;
   return (
-    <div className="burst" style={{ width: size, height: size }}>
-      {Array.from({ length: 10 }, (_, i) => (
-        <span
-          key={i}
-          className="burst-bit"
-          style={{ background: colour, '--a': `${i * 36}deg` } as CSSProperties}
-        />
-      ))}
+    <div className="balloon-string-fall" style={{ width: size, height, '--swing': swing } as CSSProperties} aria-hidden="true">
+      <svg viewBox="0 0 100 150" width={size} height={height}>
+        <polygon points="44,104 56,104 50,96" fill="#8a8a8a" opacity="0.6" />
+        <path d="M50 104 Q42 122 52 134 Q60 144 48 150" stroke="#8a8a8a" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+      </svg>
     </div>
   );
 }

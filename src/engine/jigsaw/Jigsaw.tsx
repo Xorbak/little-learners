@@ -7,6 +7,7 @@ import { narrator } from '../../shared/audio/narrator';
 import { sfx } from '../../shared/audio/sfx';
 import { progress } from '../../shared/progress/store';
 import { SpeakerButton } from '../../shared/ui/SpeakerButton';
+import { fx } from '../../shared/fx';
 import './jigsaw.css';
 
 /**
@@ -35,6 +36,8 @@ type Piece = {
   fx?: number;
   fy?: number;
   misses: number;
+  /** Lies a little crooked in the tray, like real pieces on a table */
+  rot: number;
 };
 
 /** One side of a piece, from (x1,y1) to (x2,y2). dir 0 = flat, 1 = knob out, -1 = knob in. */
@@ -79,7 +82,7 @@ function cutPieces(cols: number, rows: number, W: number, H: number): Piece[] {
         edge(x0, y1, x0, y0, c > 0 ? -vt[r][c - 1] : 0, k),
         'Z',
       ].join(' ');
-      pieces.push({ id: r * cols + c, r, c, d, placed: false, spot: 0, jx: Math.random() - 0.5, jy: Math.random() - 0.5, misses: 0 });
+      pieces.push({ id: r * cols + c, r, c, d, placed: false, spot: 0, jx: Math.random() - 0.5, jy: Math.random() - 0.5, misses: 0, rot: Math.random() * 20 - 10 });
     }
   }
   // Each piece gets its own spot in the tray, in a random order
@@ -128,8 +131,15 @@ function JigsawRound({ config, target, onCorrect, onRoundComplete }: RoundProps<
   const [pieces, setPieces] = useState<Piece[]>([]);
   const [drag, setDrag] = useState<{ id: number; x: number; y: number; dx: number; dy: number; sx: number; sy: number } | null>(null);
   const [flash, setFlash] = useState<number | null>(null);
-  const [bounce, setBounce] = useState<number | null>(null);
   const [done, setDone] = useState(false);
+  /** Tilt while carrying a piece, from how fast it's moving sideways */
+  const [tilt, setTilt] = useState(0);
+  const lastMove = useRef<{ x: number; t: number } | null>(null);
+  const tiltTimer = useRef(0);
+  /** A piece flying back to the tray along an arc */
+  const [returning, setReturning] = useState<{ id: number; dx: number; dy: number } | null>(null);
+  const boardRef = useRef<HTMLDivElement>(null);
+  const pieceEl = (id: number) => stageRef.current?.querySelector<HTMLElement>(`[data-id="${id}"]`);
   const timers = useRef<number[]>([]);
   const later = (fn: () => void, ms: number) => timers.current.push(window.setTimeout(fn, ms));
   useEffect(() => () => timers.current.forEach(window.clearTimeout), []);
@@ -227,12 +237,24 @@ function JigsawRound({ config, target, onCorrect, onRoundComplete }: RoundProps<
       /* some browsers refuse; dragging still works while over the piece */
     }
     const pos = trayPos(p);
+    lastMove.current = { x: e.clientX, t: performance.now() };
+    setTilt(0);
     setDrag({ id: p.id, x: pos.x, y: pos.y, dx: e.clientX - pos.x, dy: e.clientY - pos.y, sx: e.clientX, sy: e.clientY });
   };
 
   const move = (e: ReactPointerEvent<HTMLDivElement>) => {
     if (!drag) return;
     setDrag({ ...drag, x: e.clientX - drag.dx, y: e.clientY - drag.dy });
+    // Tilt in the direction it's dragged, springing back when it slows down
+    const now = performance.now();
+    const prev = lastMove.current;
+    if (prev && now > prev.t) {
+      const vx = (e.clientX - prev.x) / (now - prev.t); // px per ms
+      setTilt(Math.max(-14, Math.min(14, vx * 9)));
+    }
+    lastMove.current = { x: e.clientX, t: now };
+    window.clearTimeout(tiltTimer.current);
+    tiltTimer.current = window.setTimeout(() => setTilt(0), 90);
   };
 
   const up = (e: ReactPointerEvent<HTMLDivElement>) => {
@@ -255,7 +277,15 @@ function JigsawRound({ config, target, onCorrect, onRoundComplete }: RoundProps<
       const next = pieces.map((q) => (q.id === p.id ? { ...q, placed: true } : q));
       setPieces(next);
       setFlash(null);
-      sfx.pop();
+      // It drops the last bit into its spot (CSS spring), then lands with a thunk
+      later(() => {
+        const el = pieceEl(p.id);
+        sfx.thunk();
+        fx.squash(el, 0.7);
+        fx.haptic(14);
+        const sr = stageRef.current!.getBoundingClientRect();
+        fx.burst(sr.left + slot.x + L.boxW / 2, sr.top + slot.y + L.boxH / 2, 'dust', { count: 8, power: L.boxW / 120 });
+      }, 170);
       if (next.every((q) => q.placed)) finish();
       return;
     }
@@ -267,27 +297,58 @@ function JigsawRound({ config, target, onCorrect, onRoundComplete }: RoundProps<
       // Wrong spot: back to the tray, gently
       if (progress.sillySounds()) sfx.fart('squeak');
       else sfx.boing();
-      setBounce(p.id);
-      later(() => setBounce((b) => (b === p.id ? null : b)), 500);
+      sfx.whoosh(false);
+      const home = trayPos(p);
+      setReturning({ id: p.id, dx: drag.x - home.x, dy: drag.y - home.y });
       setPieces(pieces.map((q) => (q.id === p.id ? { ...q, misses: q.misses + 1 } : q)));
       return;
     }
 
     // Dropped in the tray: it stays where she put it
-    const fx = L.tray.w > L.boxW ? (drag.x - L.tray.x) / (L.tray.w - L.boxW) : 0;
-    const fy = L.tray.h > L.boxH ? (drag.y - L.tray.y) / (L.tray.h - L.boxH) : 0;
+    const fracX = L.tray.w > L.boxW ? (drag.x - L.tray.x) / (L.tray.w - L.boxW) : 0;
+    const fracY = L.tray.h > L.boxH ? (drag.y - L.tray.y) / (L.tray.h - L.boxH) : 0;
     const clamp = (v: number) => Math.min(1, Math.max(0, v));
-    setPieces(pieces.map((q) => (q.id === p.id ? { ...q, fx: clamp(fx), fy: clamp(fy) } : q)));
+    setPieces(pieces.map((q) => (q.id === p.id ? { ...q, fx: clamp(fracX), fy: clamp(fracY) } : q)));
+    sfx.thunk();
+    fx.squash(pieceEl(p.id), 0.4);
   };
+
+  // Wrong spot: the piece arcs back to the tray (not a straight slide), then wobbles
+  useLayoutEffect(() => {
+    if (!returning) return;
+    const el = pieceEl(returning.id);
+    const { dx, dy } = returning;
+    const lift = Math.min(160, 60 + Math.hypot(dx, dy) * 0.25);
+    const frames: Keyframe[] = [];
+    for (let i = 0; i <= 10; i++) {
+      const t = i / 10;
+      const x = dx * (1 - t);
+      const y = dy * (1 - t) - 4 * lift * t * (1 - t);
+      frames.push({ translate: `${x.toFixed(1)}px ${y.toFixed(1)}px` });
+    }
+    const anim = el?.animate(frames, { duration: 520, easing: 'cubic-bezier(.3,.1,.3,1)' });
+    const t = window.setTimeout(() => {
+      fx.wobble(el);
+      setReturning(null);
+    }, 520);
+    return () => {
+      window.clearTimeout(t);
+      anim?.finish();
+    };
+  }, [returning]);
 
   const finish = () => {
     setDone(true);
     later(() => {
       sfx.fanfare();
+      sfx.sparkle();
       void narrator.say(['puzzle.done']);
+      fx.jump(stageRef.current, 26);
+      fx.rain(70);
+      fx.haptic([20, 60, 20]);
       onCorrect(target);
-    }, 400);
-    later(onRoundComplete, 2600);
+    }, 450);
+    later(onRoundComplete, 3000);
   };
 
   const left = pieces.filter((p) => !p.placed).length;
@@ -306,7 +367,7 @@ function JigsawRound({ config, target, onCorrect, onRoundComplete }: RoundProps<
       <div className="jigsaw-stage" ref={stageRef} onPointerMove={move} onPointerUp={up} onPointerCancel={up}>
         {layout && img && (
           <>
-            <div className={`jigsaw-board${done ? ' done' : ''}`} style={{ left: layout.board.x, top: layout.board.y, width: layout.board.w, height: layout.board.h }}>
+            <div ref={boardRef} className={`jigsaw-board${done ? ' done' : ''}`} style={{ left: layout.board.x, top: layout.board.y, width: layout.board.w, height: layout.board.h }}>
               <svg viewBox={`0 0 ${img.W} ${img.H}`} width="100%" height="100%">
                 {config.ghost && <image href={url} width={img.W} height={img.H} opacity={0.28} preserveAspectRatio="none" />}
                 {pieces.map((p) => (
@@ -322,14 +383,18 @@ function JigsawRound({ config, target, onCorrect, onRoundComplete }: RoundProps<
               const vy = p.r * layout.ch - layout.t;
               const vw = layout.cw + 2 * layout.t;
               const vh = layout.ch + 2 * layout.t;
-              const cls = ['jigsaw-piece', p.placed && 'placed', isDrag && 'dragging', bounce === p.id && 'bounce', done && 'done'].filter(Boolean).join(' ');
+              const isBack = returning?.id === p.id;
+              const cls = ['jigsaw-piece', p.placed && 'placed', isDrag && 'dragging', isBack && 'returning', done && 'done'].filter(Boolean).join(' ');
+              const transform = p.placed ? 'none' : isDrag ? `scale(1.1) rotate(${tilt.toFixed(1)}deg)` : `rotate(${p.rot.toFixed(1)}deg)`;
+              const bevel = 1.6 / layout.s;
               return (
                 <div
                   key={p.id}
                   className={cls}
+                  data-id={p.id}
                   data-r={p.r}
                   data-c={p.c}
-                  style={{ left: pos.x, top: pos.y, width: layout.boxW, height: layout.boxH }}
+                  style={{ left: pos.x, top: pos.y, width: layout.boxW, height: layout.boxH, transform }}
                   onPointerDown={(e) => down(e, p)}
                 >
                   <svg viewBox={`${vx} ${vy} ${vw} ${vh}`} width="100%" height="100%">
@@ -339,11 +404,19 @@ function JigsawRound({ config, target, onCorrect, onRoundComplete }: RoundProps<
                       </clipPath>
                     </defs>
                     <image href={url} width={img.W} height={img.H} preserveAspectRatio="none" clipPath={`url(#${uid}-${p.id})`} />
+                    {/* Cardboard thickness: light along the top-left of the cut, shade along the bottom-right */}
+                    <g clipPath={`url(#${uid}-${p.id})`} className="jigsaw-bevel">
+                      <path d={p.d} transform={`translate(${bevel} ${bevel})`} className="jigsaw-bevel-light" vectorEffect="non-scaling-stroke" />
+                      <path d={p.d} transform={`translate(${-bevel} ${-bevel})`} className="jigsaw-bevel-dark" vectorEffect="non-scaling-stroke" />
+                    </g>
                     <path d={p.d} className="jigsaw-edge" vectorEffect="non-scaling-stroke" />
                   </svg>
                 </div>
               );
             })}
+            {done && (
+              <div className="jigsaw-shimmer" style={{ left: layout.board.x, top: layout.board.y, width: layout.board.w, height: layout.board.h }} />
+            )}
           </>
         )}
       </div>
