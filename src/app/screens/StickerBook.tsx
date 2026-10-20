@@ -59,7 +59,7 @@ export function StickerBook({ navigate }: { navigate: Navigate }) {
           );
         })}
       </div>
-      {showing && <StickerStage key={showing.emoji} emoji={showing.emoji} from={showing.from} onClose={() => setShowing(null)} />}
+      {showing && <StickerStage key={showing.emoji} emoji={showing.emoji} from={showing.from} why={saved.profiles[saved.activeProfileId].stickerWhy?.[showing.emoji]} onClose={() => setShowing(null)} />}
     </main>
   );
 }

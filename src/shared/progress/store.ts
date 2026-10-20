@@ -38,6 +38,8 @@ export interface ChildProfile {
   feelings?: { date: string; feeling: string }[];
   /** Stickers she has earned (emoji), in the order she got them */
   stickers?: string[];
+  /** Why she got each sticker (the latest time she got it) */
+  stickerWhy?: Record<string, StickerWhy>;
   /** Today's lessons: which steps are done, per day (kept for two weeks) */
   daily?: Record<string, { done: string[]; trophy?: boolean }>;
 }
@@ -50,6 +52,17 @@ export const STICKERS = [
   '⚽', '🎨', '🎵', '🧸', '🪁', '🏰', '🌙', '☀️', '🍄', '🐳', '🦒', '🦓',
 ].filter((s, i, all) => all.indexOf(s) === i);
 export const TROPHY = '🏆';
+
+/** What she did to earn a sticker */
+export interface StickerWhy {
+  /** YYYY-MM-DD */
+  date: string;
+  /** The game she finished a level of */
+  sectionId?: string;
+  gameId?: string;
+  /** All of Today's lessons (trophies) */
+  today?: boolean;
+}
 
 export interface SavedData {
   version: number;
@@ -181,11 +194,19 @@ export const progress = {
   },
 
   /** Gives her a sticker (a new one if there are any left) and returns it */
-  awardSticker(sticker?: string): string {
+  stickerWhy(sticker: string): StickerWhy | undefined {
+    return this.profile().stickerWhy?.[sticker];
+  },
+
+  awardSticker(sticker?: string, why?: Omit<StickerWhy, 'date'>): string {
     const have = new Set(this.profile().stickers ?? []);
     const fresh = STICKERS.filter((s) => !have.has(s));
     const pick = sticker ?? (fresh.length ? fresh : STICKERS)[Math.floor(Math.random() * (fresh.length || STICKERS.length))];
-    updateProfile((p) => ({ ...p, stickers: [...(p.stickers ?? []), pick] }));
+    updateProfile((p) => ({
+      ...p,
+      stickers: [...(p.stickers ?? []), pick],
+      stickerWhy: { ...(p.stickerWhy ?? {}), [pick]: { date: today(), ...why } },
+    }));
     return pick;
   },
 

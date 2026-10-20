@@ -2,14 +2,51 @@ import { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 import { narrator } from '../../shared/audio/narrator';
 import { sfx } from '../../shared/audio/sfx';
 import { fx, lessMotion } from '../../shared/fx';
+import { TROPHY, today, type StickerWhy } from '../../shared/progress/store';
+import type { ClipId } from '../../types/learning';
+import { findSection } from '../registry';
 import { stickerInfo, type StickerAction } from '../stickers';
+
+/** "You got this one today, in Numbers, for finishing Pop the balloons!" */
+function whyClips(emoji: string, why?: StickerWhy): ClipId[] {
+  if (emoji === TROPHY) return [why?.date === today() ? 'sticker.why.trophy-today' : 'sticker.why.trophy'];
+  const section = why?.sectionId ? findSection(why.sectionId) : undefined;
+  const game = section?.games.find((g) => g.id === why?.gameId);
+  if (!why || !section || !game) return ['sticker.why.unknown'];
+  const y = new Date();
+  y.setDate(y.getDate() - 1);
+  const yesterday = `${y.getFullYear()}-${String(y.getMonth() + 1).padStart(2, '0')}-${String(y.getDate()).padStart(2, '0')}`;
+  const when = why.date === today() ? 'sticker.when.today' : why.date === yesterday ? 'sticker.when.yesterday' : 'sticker.when.before';
+  return [when, 'sticker.why.in', section.titleClip, 'sticker.why.for', game.titleClip];
+}
+
+/** Pictures of where she got it, for a child who can't read yet: the section tile and the game */
+function WhyCard({ emoji, why }: { emoji: string; why?: StickerWhy }) {
+  if (emoji === TROPHY || why?.today) {
+    return (
+      <div className="sticker-why" aria-hidden="true">
+        <span className="sticker-why-tile" style={{ background: '#fab005' }}>☀️</span>
+      </div>
+    );
+  }
+  const section = why?.sectionId ? findSection(why.sectionId) : undefined;
+  const game = section?.games.find((g) => g.id === why?.gameId);
+  if (!section || !game) return null;
+  return (
+    <div className="sticker-why" aria-hidden="true">
+      <span className="sticker-why-tile" style={{ background: section.colour }}>{section.icon}</span>
+      <span className="sticker-why-arrow">→</span>
+      <span className="sticker-why-tile sticker-why-tile--game">{game.icon}</span>
+    </div>
+  );
+}
 
 /**
  * A sticker from the book, big in the middle of the screen, doing its thing:
  * the puppy hops and says woof, the rocket blasts off, the cupcake gets eaten.
  * Tap the sticker to see it again; tap anywhere else to put it back in the book.
  */
-export function StickerStage({ emoji, from, onClose }: { emoji: string; from: DOMRect | null; onClose: () => void }) {
+export function StickerStage({ emoji, from, why, onClose }: { emoji: string; from: DOMRect | null; why?: StickerWhy; onClose: () => void }) {
   const flyRef = useRef<HTMLDivElement>(null);
   const actorRef = useRef<HTMLDivElement>(null);
   const timers = useRef<number[]>([]);
@@ -39,9 +76,9 @@ export function StickerStage({ emoji, from, onClose }: { emoji: string; from: DO
     if (!actor) return;
     clearTimers();
     actor.getAnimations().forEach((a) => a.cancel());
-    void narrator.say([`sticker.do.${info.key}`]);
+    void narrator.say([`sticker.do.${info.key}`, ...whyClips(emoji, why)]);
     perform(info.action, actor, (fn, ms) => timers.current.push(window.setTimeout(fn, ms)));
-  }, [info]);
+  }, [info, emoji, why]);
 
   // Fly out of the book to the middle, then do its thing
   useLayoutEffect(() => {
@@ -92,6 +129,7 @@ export function StickerStage({ emoji, from, onClose }: { emoji: string; from: DO
           {emoji}
         </div>
       </div>
+      <WhyCard emoji={emoji} why={why} />
     </div>
   );
 }

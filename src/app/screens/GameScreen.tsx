@@ -97,14 +97,14 @@ function LevelSession({ section, game, navigate, daily, onPlayAgain }: Props & {
         const result = daily
           ? progress.addRounds(key, sessionRounds, level.rounds, levelIndex, game.levels.length)
           : { completed: true, unlocked: progress.completeLevel(key, levelIndex, game.levels.length) };
-        const won = result.completed ? progress.awardSticker() : null;
+        const won = result.completed ? progress.awardSticker(undefined, { sectionId: section.id, gameId: game.id }) : null;
         setSticker(won);
         setUnlockedNext(result.unlocked);
         setPhase('done');
         sfx.fanfare();
         const lines = daily ? ['shared.well-done-step'] : ['shared.level-done'];
         if (result.unlocked) lines.push('shared.something-new');
-        if (won) lines.push('sticker.got');
+        if (won) lines.push('sticker.got-for', game.titleClip);
         void narrator.say(lines);
       } else {
         setTargetKey(pickAdaptive(section.id, level.activity.pool, targetRef.current));
@@ -216,7 +216,7 @@ function LevelSession({ section, game, navigate, daily, onPlayAgain }: Props & {
           </div>
         </div>
       )}
-      {sticker && showSticker && <StickerStage emoji={sticker} from={showSticker} onClose={() => setShowSticker(null)} />}
+      {sticker && showSticker && <StickerStage emoji={sticker} from={showSticker} why={progress.stickerWhy(sticker)} onClose={() => setShowSticker(null)} />}
     </main>
   );
 }

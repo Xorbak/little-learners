@@ -99,7 +99,7 @@ export const STICKER_INFO: Record<string, StickerInfo> = {
   '🍄': { key: 'mushroom', says: 'A mushroom pops up!', action: 'grow' },
   '🦒': { key: 'giraffe', says: 'The giraffe has a long, long neck! Stretch!', action: 'stretch' },
   '🦓': { key: 'zebra', says: 'The zebra gallops!', action: 'gallop' },
-  '🏆': { key: 'trophy', says: "A trophy! You did all of today's games!", action: 'sparkle' },
+  '🏆': { key: 'trophy', says: 'A shiny gold trophy!', action: 'sparkle' },
 };
 
 export const stickerInfo = (emoji: string): StickerInfo => STICKER_INFO[emoji] ?? { key: 'sticker', says: 'A sticker!', action: 'wiggle' };

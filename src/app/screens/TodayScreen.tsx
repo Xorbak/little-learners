@@ -25,7 +25,7 @@ export function TodayScreen({ navigate, justFinished }: { navigate: Navigate; ju
     if (justFinished) {
       const first = progress.markDaily(justFinished, requiredSteps(plan));
       if (first) {
-        progress.awardSticker(TROPHY);
+        progress.awardSticker(TROPHY, { today: true });
         setTrophy(true);
         sfx.fanfare();
         void narrator.say(['today.all-done']);
