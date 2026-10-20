@@ -7,6 +7,7 @@ import type { ClipId } from '../../types/learning';
 import { findSection } from '../registry';
 import { stickerInfo, type StickerAction } from '../stickers';
 import { missionById } from '../missions';
+import { Tag } from '../../shared/ui/Tag';
 
 /** "You got this one today, in Numbers, for finishing Pop the balloons!" */
 function whyClips(emoji: string, why?: StickerWhy): ClipId[] {
@@ -25,33 +26,36 @@ function whenClip(date: string): ClipId {
   return date === today() ? 'sticker.when.today' : date === yesterday ? 'sticker.when.yesterday' : 'sticker.when.before';
 }
 
-/** Pictures of where she got it, for a child who can't read yet: the section tile and the game */
+/** Pictures of where she got it (for her: section tile → game), with the words for a grown-up */
 function WhyCard({ emoji, why }: { emoji: string; why?: StickerWhy }) {
+  const text = [stickerInfo(emoji).says, whyClips(emoji, why).map((c) => narrator.allClips()[c] ?? '').join(' ')].join(' ').replace(/ ,/g, ',');
   const mission = why?.mission ? missionById(why.mission) : undefined;
+  const section = why?.sectionId ? findSection(why.sectionId) : undefined;
+  const game = section?.games.find((g) => g.id === why?.gameId);
+  let pictures = null;
   if (mission) {
-    return (
-      <div className="sticker-why" aria-hidden="true">
+    pictures = (
+      <>
         <span className="sticker-why-tile" style={{ background: '#20c997' }}>🔍</span>
         <span className="sticker-why-arrow">→</span>
         <span className="sticker-why-tile sticker-why-tile--game">{mission.picture[0]}</span>
-      </div>
+      </>
+    );
+  } else if (emoji === TROPHY || why?.today) {
+    pictures = <span className="sticker-why-tile" style={{ background: '#fab005' }}>☀️</span>;
+  } else if (section && game) {
+    pictures = (
+      <>
+        <span className="sticker-why-tile" style={{ background: section.colour }}>{section.icon}</span>
+        <span className="sticker-why-arrow">→</span>
+        <span className="sticker-why-tile sticker-why-tile--game">{game.icon}</span>
+      </>
     );
   }
-  if (emoji === TROPHY || why?.today) {
-    return (
-      <div className="sticker-why" aria-hidden="true">
-        <span className="sticker-why-tile" style={{ background: '#fab005' }}>☀️</span>
-      </div>
-    );
-  }
-  const section = why?.sectionId ? findSection(why.sectionId) : undefined;
-  const game = section?.games.find((g) => g.id === why?.gameId);
-  if (!section || !game) return null;
   return (
     <div className="sticker-why" aria-hidden="true">
-      <span className="sticker-why-tile" style={{ background: section.colour }}>{section.icon}</span>
-      <span className="sticker-why-arrow">→</span>
-      <span className="sticker-why-tile sticker-why-tile--game">{game.icon}</span>
+      {pictures && <div className="sticker-why-pics">{pictures}</div>}
+      <Tag className="tag--line tag--why">{text}</Tag>
     </div>
   );
 }

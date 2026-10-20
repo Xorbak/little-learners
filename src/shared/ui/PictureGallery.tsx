@@ -5,6 +5,7 @@ import { narrator } from '../audio/narrator';
 import { sfx } from '../audio/sfx';
 import { SpeakerButton } from './SpeakerButton';
 import './pictureGallery.css';
+import { Tag, words } from './Tag';
 
 /**
  * A gallery of pictures to choose from (Paint by Numbers, Puzzles).
@@ -50,6 +51,7 @@ export function PictureGallery({
             aria-label={narrator.allClips()[item.nameClip]}
           >
             {item.photo ? <img src={item.photo} alt="" draggable={false} /> : <item.Display size={150} />}
+            <Tag className="tag--card">{words(item.nameClip)}</Tag>
             {isDone(item) && (
               <span className="gallery-star" aria-label="Done before">
                 ⭐

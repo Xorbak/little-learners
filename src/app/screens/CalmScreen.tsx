@@ -9,6 +9,7 @@ import type { Navigate } from '../App';
 import { BreathGuide } from '../calm/BreathGuide';
 import { makeScene } from '../calm/scene';
 import { CALM_THEMES, type CalmTheme } from '../calm/themes';
+import { Tag } from '../../shared/ui/Tag';
 
 /** One breath: in for 3.5 s, out for 4.5 s */
 const IN = 3.5;
@@ -64,6 +65,7 @@ export function CalmScreen({ navigate }: { navigate: Navigate }) {
             aria-label={t.name}
           >
             <span className="calm-pick-icon">{t.icon}</span>
+            <Tag>{t.name}</Tag>
           </button>
         ))}
       </div>

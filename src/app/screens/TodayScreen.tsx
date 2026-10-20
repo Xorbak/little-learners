@@ -9,6 +9,7 @@ import type { Navigate } from '../App';
 import { dayNumber, requiredSteps, todaysPlan } from '../daily';
 import { missionFor } from '../missions';
 import { findSection } from '../registry';
+import { Tag, words } from '../../shared/ui/Tag';
 
 /**
  * Today's lessons: a trail of stops, one per subject. A tick on each one she has
@@ -90,6 +91,7 @@ export function TodayScreen({ navigate, justFinished }: { navigate: Navigate; ju
                   <span className="today-step-icon">🤸</span>
                   {isDone && <span className="today-tick">✓</span>}
                 </button>
+                <Tag className="tag--step">{words('move.title')}</Tag>
               </li>
             );
           }
@@ -108,6 +110,7 @@ export function TodayScreen({ navigate, justFinished }: { navigate: Navigate; ju
                 <span className="today-step-icon">{game.icon}</span>
                 {isDone && <span className="today-tick">✓</span>}
               </button>
+              <Tag className="tag--step">{words(game.titleClip)}</Tag>
             </li>
           );
         })}

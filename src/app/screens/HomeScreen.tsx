@@ -5,6 +5,7 @@ import { progress, useProgress } from '../../shared/progress/store';
 import { requiredSteps, todaysPlan } from '../daily';
 import type { Navigate } from '../App';
 import { sections } from '../registry';
+import { Tag, words } from '../../shared/ui/Tag';
 
 export function HomeScreen({ navigate }: { navigate: Navigate }) {
   useProgress();
@@ -56,6 +57,7 @@ export function HomeScreen({ navigate }: { navigate: Navigate }) {
           aria-label={narrator.allClips()['today.title']}
         >
           <span className="tile-icon">☀️</span>
+          <Tag>{words('today.title')}</Tag>
           <span className="today-dots" aria-hidden="true">
             {required.map((id, i) => (
               <span key={id} className={`today-dot ${i < done ? 'today-dot--done' : ''}`} />
@@ -76,6 +78,7 @@ export function HomeScreen({ navigate }: { navigate: Navigate }) {
             aria-label={narrator.allClips()[section.titleClip]}
           >
             <span className="tile-icon">{section.icon}</span>
+            <Tag>{words(section.titleClip)}</Tag>
           </button>
         ))}
         <button
@@ -89,6 +92,7 @@ export function HomeScreen({ navigate }: { navigate: Navigate }) {
           aria-label={narrator.allClips()['calm.title']}
         >
           <span className="tile-icon">🌙</span>
+          <Tag>{words('calm.title')}</Tag>
         </button>
       </div>
     </main>

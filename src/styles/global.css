@@ -567,7 +567,7 @@ button {
 .tile-grid--home .tile-icon { font-size: calc(var(--tile) * 0.42); }
 
 @media (orientation: portrait) {
-  .tile-grid--home { --cols: 3; --rows: 3; }
+  .tile-grid--home { --cols: 3; --rows: 4; }
 }
 
 .tile--today {
@@ -796,14 +796,17 @@ button {
 @keyframes sticker-stage-in { from { opacity: 0; } }
 .sticker-stage-fly { display: grid; place-items: center; }
 
-/* Where she got it: section tile → game */
+/* Where she got it: section tile → game, with the words underneath */
 .sticker-why {
   position: absolute;
   left: 50%;
-  bottom: max(6vh, 24px);
+  bottom: max(5vh, 20px);
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
+  width: max-content;
+  max-width: calc(100vw - 32px);
   padding: 10px 16px;
   border-radius: 28px;
   background: #fff;
@@ -813,6 +816,7 @@ button {
   pointer-events: none;
 }
 @keyframes sticker-why-in { from { transform: translateX(-50%) scale(0); } to { transform: translateX(-50%) scale(1); } }
+.sticker-why-pics { display: flex; align-items: center; gap: 12px; }
 .sticker-why-tile {
   display: grid;
   place-items: center;
@@ -863,7 +867,7 @@ button {
 
 /* Phone held upright: two big columns, with Today as a wide banner on top */
 @media (orientation: portrait) and (max-width: 560px) {
-  .tile-grid--home { --cols: 2; --rows: 5; }
+  .tile-grid--home { --cols: 2; --rows: 6; }
   .tile-grid--home .tile--today {
     grid-column: span 2;
     width: auto;
@@ -1223,3 +1227,104 @@ button {
 .calm-music--off { opacity: 0.45; filter: grayscale(1); }
 .screen--calm .corner-left .round-btn { background: rgba(255, 255, 255, 0.55); }
 [data-less-motion] .jelly-tentacles { animation: none; }
+
+/* ---------- Words under the pictures (for grown-ups) ---------- */
+.tag {
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+  pointer-events: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+[data-no-labels] .tag { display: none !important; }
+
+/* On tiles: white words along the bottom; the icon moves up a little */
+.tile { position: relative; }
+.tile > .tag {
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  bottom: 7%;
+  text-align: center;
+  color: #fff;
+  font-size: clamp(11px, calc(var(--tile, 150px) * 0.085), 17px);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+.tile--game > .tag { color: var(--ink); text-shadow: none; }
+html:not([data-no-labels]) .tile > .tile-icon { translate: 0 -9%; }
+html:not([data-no-labels]) .tile--today .today-dots { bottom: 26%; }
+.tile--today > .tag { color: #6b4e00; text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6); }
+
+/* Calm places */
+.calm-pick { position: relative; }
+.calm-pick > .tag {
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  bottom: 8%;
+  text-align: center;
+  color: #fff;
+  font-size: clamp(11px, 3.2vw, 16px);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+html:not([data-no-labels]) .calm-pick-icon { translate: 0 -10%; }
+
+/* Today's stops: the game's name under each */
+.today-stop { display: flex; flex-direction: column; align-items: center; gap: 12px; width: calc(var(--stop) + 14px); }
+.tag--step {
+  max-width: 100%;
+  text-align: center;
+  margin-top: -2px;
+  font-size: clamp(11px, calc(var(--stop) * 0.12), 14px);
+  color: var(--ink-soft);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Gallery pictures */
+.tag--card {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 3px 6px 4px;
+  background: rgba(255, 255, 255, 0.88);
+  color: var(--ink);
+  font-size: 13px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* A line of words under a picture */
+.tag--line {
+  display: block;
+  max-width: min(92vw, 640px);
+  margin: 0 auto;
+  padding: 6px 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--ink);
+  font-size: clamp(13px, 3.4vw, 17px);
+  text-align: center;
+}
+.tag--mission { margin: -2vh auto 2vh; font-size: clamp(15px, 4vw, 20px); }
+.tag--exercise { margin: 0 auto 10px; }
+.tag--rest { position: relative; background: rgba(255, 255, 255, 0.15); color: #fff; }
+.tag--why { background: transparent; padding: 0 4px; font-size: clamp(12px, 3.3vw, 16px); }
+.tag--sticker {
+  position: absolute;
+  top: calc(100% + 18px);
+  left: 50%;
+  width: max-content;
+  max-width: 80vw;
+  translate: -50% 0;
+}
+@media (max-height: 500px) {
+  .tag--sticker { top: auto; bottom: calc(100% + 8px); }
+  .tag--exercise { margin-bottom: 4px; padding: 3px 10px; font-size: 12px; }
+}

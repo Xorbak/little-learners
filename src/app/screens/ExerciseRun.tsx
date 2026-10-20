@@ -7,6 +7,7 @@ import type { ClipId } from '../../types/learning';
 import type { Exercise, MoveBeat } from '../exercises';
 import { KidFigure, kidBeat, kidBeatMs } from './KidFigure';
 import { perform } from './StickerStage';
+import { Tag } from '../../shared/ui/Tag';
 
 /**
  * Runs a few exercises: each is shown first (the drawn kid or the animal does
@@ -107,6 +108,7 @@ export function ExerciseRun({
           )}
         </div>
       </div>
+      <Tag className="tag--line tag--exercise">{ex.says}</Tag>
       <div className="move-count" aria-label={`${count} of ${ex.count}`}>
         {Array.from({ length: ex.count }, (_, i) => (
           <span key={`${ex.key}-${i}`} className={`move-dot ${i < count ? 'move-dot--on' : ''}`}>

@@ -38,6 +38,11 @@ export function App() {
     narrator.setVoice(saved.voice);
   }, [saved.voice]);
 
+  // Words under the pictures for grown-ups (can be switched off)
+  useEffect(() => {
+    document.documentElement.toggleAttribute('data-no-labels', saved.showLabels === false);
+  }, [saved.showLabels]);
+
   // Her name, so the narrator can greet her (record it as shared.child-name if you like)
   const childName = saved.profiles[saved.activeProfileId].name;
   useEffect(() => {

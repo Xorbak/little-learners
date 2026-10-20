@@ -3,6 +3,7 @@ import { narrator } from '../../shared/audio/narrator';
 import { sfx } from '../../shared/audio/sfx';
 import { HomeIcon, RoundButton } from '../../shared/ui/RoundButton';
 import type { Navigate } from '../App';
+import { Tag, words } from '../../shared/ui/Tag';
 
 /** The games inside one section. She taps a game and it starts at her current level. */
 export function SectionScreen({ section, navigate }: { section: Section; navigate: Navigate }) {
@@ -28,6 +29,7 @@ export function SectionScreen({ section, navigate }: { section: Section; navigat
             aria-label={narrator.allClips()[game.titleClip]}
           >
             <span className="tile-icon">{game.icon}</span>
+            <Tag>{words(game.titleClip)}</Tag>
           </button>
         ))}
       </div>

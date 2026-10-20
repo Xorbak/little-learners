@@ -6,6 +6,7 @@ import { HoldButton } from '../../shared/ui/HoldButton';
 import { EXERCISES, pickExercises } from '../exercises';
 import { MISSIONS } from '../missions';
 import { ExerciseRun } from './ExerciseRun';
+import { Tag, words } from '../../shared/ui/Tag';
 
 /**
  * Screens that cover whatever she is playing when play time says so:
@@ -87,6 +88,9 @@ export function TimeUp({ fresh, onUnlocked }: { fresh: boolean; onUnlocked: () =
           <span key={i}>{p}</span>
         ))}
       </button>
+      <Tag className="tag--line tag--rest">
+        {words('guard.idea')} {words(`mission.${idea.id}`)}
+      </Tag>
       {time && <p className="rest-time">Play time again at {time}</p>}
 
       {grownUp && (

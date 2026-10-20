@@ -236,6 +236,18 @@ export function ParentArea({ navigate }: { navigate: Navigate }) {
       </section>
 
       <section className="parent-card">
+        <h2>Words under pictures</h2>
+        <p className="parent-hint">
+          Short labels under the tiles, Today's games, gallery pictures, stickers, missions, exercises and calm places, so you can read along. They are
+          never shown on the answers inside the games.
+        </p>
+        <label className="voice-row">
+          <input type="checkbox" checked={saved.showLabels !== false} onChange={(e) => progress.setShowLabels(e.target.checked)} />
+          Show words
+        </label>
+      </section>
+
+      <section className="parent-card">
         <h2>Less motion</h2>
         <p className="parent-hint">
           Turns off screen shakes and uses fewer confetti and sparkles. Starts on if the phone is set to reduce motion.

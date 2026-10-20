@@ -13,6 +13,7 @@ import { StickerStage } from './StickerStage';
 import { HomeIcon, BackIcon, PlayIcon, RoundButton } from '../../shared/ui/RoundButton';
 import type { Navigate } from '../App';
 import { gameKey } from '../registry';
+import { Tag, words } from '../../shared/ui/Tag';
 
 interface Props {
   section: Section;
@@ -183,6 +184,9 @@ function LevelSession({ section, game, navigate, daily, onPlayAgain }: Props & {
               <span className="sticker-won-face" style={showSticker ? { opacity: 0 } : undefined}>
                 {sticker}
               </span>
+              <Tag className="tag--line tag--sticker">
+                {words('sticker.got-for')} {words(game.titleClip)}
+              </Tag>
             </button>
           )}
           <div className="level-done-buttons">

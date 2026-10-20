@@ -9,6 +9,7 @@ import { SpeakerButton } from '../../shared/ui/SpeakerButton';
 import type { Navigate } from '../App';
 import { missionById } from '../missions';
 import { StickerStage } from './StickerStage';
+import { Tag, words } from '../../shared/ui/Tag';
 
 /**
  * A mission to do away from the screen ("Find three red things!").
@@ -73,6 +74,7 @@ export function MissionScreen({ navigate, day, fresh }: { navigate: Navigate; da
         ))}
         {done && <span className="mission-tick">✓</span>}
       </div>
+      <Tag className="tag--line tag--mission">{words(`mission.${mission.id}`)}</Tag>
 
       {!done && (
         <div className="mission-grownup">
