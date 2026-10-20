@@ -8,6 +8,7 @@ import { masteryOf, pickAdaptive } from '../../shared/progress/adaptive';
 import { progress } from '../../shared/progress/store';
 import { Celebration } from '../../shared/ui/Celebration';
 import { fx } from '../../shared/fx';
+import { safePoint } from '../../shared/playtime';
 import { StickerStage } from './StickerStage';
 import { HomeIcon, BackIcon, PlayIcon, RoundButton } from '../../shared/ui/RoundButton';
 import type { Navigate } from '../App';
@@ -79,6 +80,8 @@ function LevelSession({ section, game, navigate, daily, onPlayAgain }: Props & {
   }, []);
 
   const onRoundComplete = useCallback(() => {
+    // Between rounds is a good moment for a play-time break
+    safePoint();
     setPhase('cheer');
     sfx.cheer();
     const startedAt = Date.now();

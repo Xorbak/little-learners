@@ -1,6 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { narrator } from '../shared/audio/narrator';
 import { useProgress } from '../shared/progress/store';
+import { onSafePoint, playClock } from '../shared/playtime';
+import { PlayBreak, TimeUp } from './screens/PlayGuard';
 import { StartScreen } from './screens/StartScreen';
 import { HomeScreen } from './screens/HomeScreen';
 import { SectionScreen } from './screens/SectionScreen';
@@ -40,38 +42,121 @@ export function App() {
     narrator.registerClips({ 'shared.child-name': hasName(childName) ? childName : '' });
   }, [childName]);
 
+  // ---- Play time: exercise breaks and the end of the session ----
+  const [guard, setGuard] = useState<null | 'break' | 'rest'>(null);
+  const [restFresh, setRestFresh] = useState(false);
+  const pendingSince = useRef<number | null>(null);
+  const screenRef = useRef(screen.name);
+  screenRef.current = screen.name;
+  const guardRef = useRef(guard);
+  guardRef.current = guard;
+
+  /** Show a break / time's up if one is due. `now`: even in the middle of something. */
+  const check = useCallback((now: boolean) => {
+    if (guardRef.current || screenRef.current === 'start' || screenRef.current === 'parent') return;
+    const state = playClock.state();
+    if (state === 'locked') {
+      setRestFresh(false);
+      setGuard('rest');
+      return;
+    }
+    if (state === 'soon') {
+      if (now) {
+        playClock.markWarned();
+        void narrator.idle().then(() => narrator.say(['guard.soon']));
+      }
+      return;
+    }
+    if (state !== 'break' && state !== 'stop') {
+      pendingSince.current = null;
+      return;
+    }
+    pendingSince.current ??= Date.now();
+    // Wait for a good moment (between rounds), but not for ever
+    if (!now && Date.now() - pendingSince.current < 90000) return;
+    pendingSince.current = null;
+    narrator.setQuiet(true);
+    if (state === 'break') setGuard('break');
+    else {
+      playClock.lock();
+      setRestFresh(true);
+      setGuard('rest');
+    }
+  }, []);
+
+  useEffect(() => {
+    const t = window.setInterval(() => {
+      const counting = !guardRef.current && !['start', 'parent', 'move'].includes(screenRef.current) && document.visibilityState === 'visible';
+      if (counting) playClock.tick(1000);
+      check(false);
+    }, 1000);
+    const off = onSafePoint(() => check(true));
+    return () => {
+      window.clearInterval(t);
+      off();
+    };
+  }, [check]);
+
+  const closeGuard = () => {
+    narrator.setQuiet(false);
+    setGuard(null);
+  };
+
   const navigate: Navigate = (next) => {
     narrator.stop();
     setScreen(next);
+    // Moving to another screen is a good moment for a break
+    window.setTimeout(() => check(true), 0);
   };
 
-  switch (screen.name) {
-    case 'start':
-      return <StartScreen navigate={navigate} />;
-    case 'home':
-      return <HomeScreen navigate={navigate} />;
-    case 'parent':
-      return <ParentArea navigate={navigate} />;
-    case 'today':
-      return <TodayScreen key={screen.justFinished ?? 'today'} navigate={navigate} justFinished={screen.justFinished} />;
-    case 'stickers':
-      return <StickerBook navigate={navigate} />;
-    case 'move':
-      return <MoveBreak key={screen.stepId} navigate={navigate} stepId={screen.stepId} n={screen.n} />;
-    case 'mission':
-      return <MissionScreen key={screen.day} navigate={navigate} day={screen.day} fresh={screen.fresh} />;
-    case 'section': {
-      const section = findSection(screen.sectionId);
-      return section ? <SectionScreen section={section} navigate={navigate} /> : <HomeScreen navigate={navigate} />;
-    }
-    case 'play': {
-      const section = findSection(screen.sectionId);
-      const game = section?.games.find((g) => g.id === screen.gameId);
-      return section && game ? (
-        <GameScreen key={`${screen.sectionId}/${screen.gameId}/${screen.daily?.stepId ?? ''}`} section={section} game={game} navigate={navigate} daily={screen.daily} />
-      ) : (
-        <HomeScreen navigate={navigate} />
-      );
+  const overlay =
+    guard === 'break' ? (
+      <PlayBreak
+        onDone={(keys) => {
+          playClock.breakDone(keys);
+          closeGuard();
+        }}
+      />
+    ) : guard === 'rest' ? (
+      <TimeUp fresh={restFresh} onUnlocked={closeGuard} />
+    ) : null;
+
+  return (
+    <>
+      {renderScreen()}
+      {overlay}
+    </>
+  );
+
+  function renderScreen() {
+    switch (screen.name) {
+      case 'start':
+        return <StartScreen navigate={navigate} />;
+      case 'home':
+        return <HomeScreen navigate={navigate} />;
+      case 'parent':
+        return <ParentArea navigate={navigate} />;
+      case 'today':
+        return <TodayScreen key={screen.justFinished ?? 'today'} navigate={navigate} justFinished={screen.justFinished} />;
+      case 'stickers':
+        return <StickerBook navigate={navigate} />;
+      case 'move':
+        return <MoveBreak key={screen.stepId} navigate={navigate} stepId={screen.stepId} n={screen.n} />;
+      case 'mission':
+        return <MissionScreen key={screen.day} navigate={navigate} day={screen.day} fresh={screen.fresh} />;
+      case 'section': {
+        const section = findSection(screen.sectionId);
+        return section ? <SectionScreen section={section} navigate={navigate} /> : <HomeScreen navigate={navigate} />;
+      }
+      case 'play': {
+        const section = findSection(screen.sectionId);
+        const game = section?.games.find((g) => g.id === screen.gameId);
+        return section && game ? (
+          <GameScreen key={`${screen.sectionId}/${screen.gameId}/${screen.daily?.stepId ?? ''}`} section={section} game={game} navigate={navigate} daily={screen.daily} />
+        ) : (
+          <HomeScreen navigate={navigate} />
+        );
+      }
     }
   }
 }

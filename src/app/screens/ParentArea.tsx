@@ -8,6 +8,8 @@ import { findSection, gameKey, sections } from '../registry';
 import { hasName } from '../name';
 import { todaysPlan } from '../daily';
 import { missionById } from '../missions';
+import { EXERCISES } from '../exercises';
+import { playClock, UNTIL_TOMORROW } from '../../shared/playtime';
 import { soundExamples } from '../../sections/letters/words';
 
 /**
@@ -50,6 +52,8 @@ export function ParentArea({ navigate }: { navigate: Navigate }) {
           onBlur={(e) => progress.setName(e.target.value.trim() || 'My little one')}
         />
       </section>
+
+      <PlayTimeCard />
 
       <section className="parent-card">
         <h2>Today's lessons this week</h2>
@@ -336,3 +340,96 @@ export function ParentArea({ navigate }: { navigate: Navigate }) {
     </main>
   );
 }
+
+/** Play-time limits: session length, exercise breaks, rest time, which exercises */
+function PlayTimeCard() {
+  useProgress();
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const off = playClock.subscribe(() => setTick((t) => t + 1));
+    const t = window.setInterval(() => setTick((n) => n + 1), 5000);
+    return () => {
+      off();
+      window.clearInterval(t);
+    };
+  }, []);
+  const set = playClock.settings();
+  const until = playClock.lockedUntil();
+  const toggle = (key: string, on: boolean) =>
+    progress.setPlayTime({ exercisesOff: on ? set.exercisesOff.filter((k) => k !== key) : [...set.exercisesOff, key] });
+
+  return (
+    <section className="parent-card">
+      <h2>Play time</h2>
+      <p className="parent-hint">
+        How long she can play in one go, how often she stops to move, and how long she rests before playing again. Only time playing counts (not the
+        start screen, this area or the exercise breaks). When time is up she sees a sleepy owl and the app stays closed until the rest time is over or
+        you unlock it (hold the ⚙️ on that screen).
+      </p>
+      <div className="voice-row">
+        <label>
+          Play time
+          <select value={set.sessionMin} onChange={(e) => progress.setPlayTime({ sessionMin: Number(e.target.value) })}>
+            {[10, 15, 20, 30, 45, 60].map((m) => (
+              <option key={m} value={m}>
+                {m} minutes
+              </option>
+            ))}
+            <option value={0}>No limit</option>
+          </select>
+        </label>
+        <label>
+          Exercise break every
+          <select value={set.breakEveryMin} onChange={(e) => progress.setPlayTime({ breakEveryMin: Number(e.target.value) })}>
+            {[5, 7, 10, 15].map((m) => (
+              <option key={m} value={m}>
+                {m} minutes
+              </option>
+            ))}
+            <option value={0}>No breaks</option>
+          </select>
+        </label>
+        <label>
+          Rest before playing again
+          <select value={set.restMin} onChange={(e) => progress.setPlayTime({ restMin: Number(e.target.value) })}>
+            <option value={30}>30 minutes</option>
+            <option value={60}>1 hour</option>
+            <option value={120}>2 hours</option>
+            <option value={UNTIL_TOMORROW}>Until tomorrow</option>
+          </select>
+        </label>
+      </div>
+
+      <p className="playtime-status">
+        {until
+          ? `Resting until ${new Date(until).toLocaleString(undefined, { weekday: 'short', hour: '2-digit', minute: '2-digit' })}.`
+          : `Played ${playClock.usedMin()} min this session${set.sessionMin ? ` of ${set.sessionMin}` : ''}.`}
+      </p>
+      <div className="voice-row">
+        {until && (
+          <button type="button" className="parent-btn" onClick={() => playClock.unlock()}>
+            Unlock now
+          </button>
+        )}
+        {!until && (
+          <button type="button" className="parent-btn" onClick={() => playClock.unlock()}>
+            Start a new session
+          </button>
+        )}
+      </div>
+
+      <h3 className="playtime-sub">Exercises in the breaks</h3>
+      <p className="parent-hint">Two are picked for each break. The wheelbarrow needs a grown-up to hold her legs, so switch it off if nobody is around.</p>
+      <div className="exercise-grid">
+        {EXERCISES.map((e) => (
+          <label key={e.key} className="exercise-pick">
+            <input type="checkbox" checked={!set.exercisesOff.includes(e.key)} onChange={(ev) => toggle(e.key, ev.target.checked)} />
+            <span className="exercise-pick-icon">{e.icon}</span>
+            {e.name}
+          </label>
+        ))}
+      </div>
+    </section>
+  );
+}
+

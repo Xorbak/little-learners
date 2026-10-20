@@ -5,6 +5,11 @@
 
 let ctx: AudioContext | null = null;
 
+/** The shared audio context (also used by the calm music) */
+export function audioContext(): AudioContext | null {
+  return audio();
+}
+
 function audio(): AudioContext | null {
   if (!ctx) {
     try {

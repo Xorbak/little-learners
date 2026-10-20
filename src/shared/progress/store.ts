@@ -77,6 +77,8 @@ export interface SavedData {
   sillySounds?: boolean;
   /** Less motion (no screen shake, fewer particles). Missing means: follow the device setting. */
   lessMotion?: boolean;
+  /** Play-time limits chosen by grown-ups (missing values use the defaults in shared/playtime.ts) */
+  playTime?: { sessionMin?: number; breakEveryMin?: number; restMin?: number; exercisesOff?: string[] };
 }
 
 /** Today's date as YYYY-MM-DD in local time */
@@ -284,6 +286,14 @@ export const progress = {
 
   setSillySounds(on: boolean) {
     commit({ ...data, sillySounds: on });
+  },
+
+  playTime(): NonNullable<SavedData['playTime']> {
+    return data.playTime ?? {};
+  },
+
+  setPlayTime(change: Partial<NonNullable<SavedData['playTime']>>) {
+    commit({ ...data, playTime: { ...data.playTime, ...change } });
   },
 
   /** undefined = not chosen (follow the device's reduce-motion setting) */

@@ -24,6 +24,7 @@ for (const [path, url] of Object.entries(recordingFiles)) {
 }
 
 let clips: ClipTable = {};
+let quiet = false;
 
 export interface VoiceSettings {
   voiceURI?: string;
@@ -84,7 +85,9 @@ export const narrator = {
    * Say a phrase. Interrupts anything already playing.
    * Resolves when finished (or when interrupted).
    */
-  say(ids: ClipId[]): Promise<void> {
+  say(ids: ClipId[], opts: { force?: boolean } = {}): Promise<void> {
+    // Kept quiet while a play-time screen covers the game (the game underneath can't talk over it)
+    if (quiet && !opts.force) return Promise.resolve();
     // The same phrase asked for again straight away (a double tap, or React's
     // development mode running things twice): keep going rather than stutter
     const key = ids.join('|');
@@ -104,6 +107,12 @@ export const narrator = {
       }
     })();
     return current;
+  },
+
+  /** While on, only say(…, { force: true }) speaks (play-time breaks cover the screen underneath) */
+  setQuiet(on: boolean) {
+    quiet = on;
+    if (on) this.stop();
   },
 
   /** Waits until the narrator has finished what it is saying now */

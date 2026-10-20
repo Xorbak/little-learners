@@ -3,7 +3,8 @@ import { mechanics } from '../engine';
 import { narrator } from '../shared/audio/narrator';
 import { sharedClips } from '../shared/audio/sharedClips';
 import { stickerClips } from './stickers';
-import { moveClips } from './moves';
+import { exerciseClips } from './exercises';
+import { guardClips } from './guardClips';
 import { missionClips } from './missions';
 
 /**
@@ -26,7 +27,8 @@ export const gameKey = (sectionId: string, gameId: string) => `${sectionId}/${ga
 // Give the narrator every clip in the app
 narrator.registerClips(sharedClips);
 narrator.registerClips(stickerClips);
-narrator.registerClips(moveClips);
+narrator.registerClips(exerciseClips);
+narrator.registerClips(guardClips);
 narrator.registerClips(missionClips);
 for (const m of Object.values(mechanics)) narrator.registerClips(m.clips);
 for (const s of sections) narrator.registerClips(s.clips);

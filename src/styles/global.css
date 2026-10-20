@@ -1082,3 +1082,65 @@ button {
   .move-bottom { position: absolute; right: 16px; bottom: 16px; min-height: 0; padding: 0; }
   .mission-pic { font-size: 22vh; }
 }
+
+/* ---------- Play time (grown-ups) ---------- */
+.playtime-status { margin: 12px 0 6px; font-weight: 600; }
+.playtime-sub { margin: 18px 0 4px; font-size: 16px; }
+.exercise-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 6px 14px; word-break: normal; }
+.exercise-pick { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+.exercise-pick-icon { font-size: 22px; }
+
+/* ---------- Play-time screens over the app ---------- */
+.guard {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  display: flex;
+  flex-direction: column;
+  animation: sticker-stage-in 0.35s ease-out both;
+}
+.guard--break { background: linear-gradient(180deg, #e6fcf5 0%, #c5f6fa 70%, #b2f2bb 100%); }
+.guard--rest {
+  align-items: center;
+  justify-content: center;
+  gap: 4vh;
+  background: linear-gradient(180deg, #1c1b4d 0%, #3b2a6b 70%, #5f3dc4 100%);
+  color: #fff;
+}
+.rest-sky { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.rest-star { position: absolute; color: #fff3bf; font-size: 18px; animation: rest-twinkle 2.8s ease-in-out infinite; }
+@keyframes rest-twinkle { 0%, 100% { opacity: 0.25; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.15); } }
+.rest-owl { position: relative; font-size: min(40vw, 30vh); line-height: 1; animation: fx-breathe 4s ease-in-out infinite; }
+.rest-zzz { position: absolute; right: -0.5em; top: 0; font-size: 0.18em; font-weight: 700; color: #d0bfff; animation: rest-zzz 3s ease-in-out infinite; }
+@keyframes rest-zzz { 0% { transform: translate(0, 10px); opacity: 0; } 30% { opacity: 1; } 100% { transform: translate(14px, -30px); opacity: 0; } }
+.rest-idea {
+  position: relative;
+  display: flex;
+  gap: 12px;
+  padding: 14px 22px;
+  border: 0;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: var(--shadow);
+  font-size: min(12vw, 9vh);
+  cursor: pointer;
+}
+.rest-time { position: relative; margin: 0; font-family: system-ui, sans-serif; font-size: 14px; opacity: 0.8; }
+.rest-panel {
+  position: absolute;
+  inset: auto 16px 16px;
+  z-index: 2;
+  padding: 16px;
+  border-radius: 16px;
+  background: #fff;
+  color: var(--ink);
+  font-family: system-ui, sans-serif;
+  box-shadow: var(--shadow);
+}
+.rest-panel p { margin: 0 0 10px; }
+.rest-panel-buttons { display: flex; flex-wrap: wrap; gap: 8px; }
+.move-actor--kid { width: min(70vw, 40vh); font-size: 0; }
+.move-actor--wide { width: min(92vw, 60vh); }
+.move-actor--kid .kid { display: block; width: 100%; height: auto; overflow: visible; }
+.move-grownup { position: absolute; right: -6%; top: -6%; font-size: min(12vw, 7vh); }
+.move-actor { position: relative; }
