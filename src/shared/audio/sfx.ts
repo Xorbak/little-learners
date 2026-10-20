@@ -344,6 +344,34 @@ export const sfx = {
     sweep(520, 300, 0.05, 0.08, 'triangle');
   },
 
+  /** A bee's buzz */
+  buzz(length = 0.9) {
+    const a = audio();
+    if (!a) return;
+    const t = a.currentTime;
+    const osc = a.createOscillator();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(210, t);
+    const wob = a.createOscillator();
+    const depth = a.createGain();
+    wob.frequency.value = 9;
+    depth.gain.value = 25;
+    wob.connect(depth).connect(osc.frequency);
+    const filter = a.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 1200;
+    const gain = a.createGain();
+    gain.gain.setValueAtTime(0.001, t);
+    gain.gain.exponentialRampToValueAtTime(0.12, t + 0.05);
+    gain.gain.setValueAtTime(0.12, t + length - 0.15);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + length);
+    osc.connect(filter).connect(gain).connect(a.destination);
+    osc.start(t);
+    wob.start(t);
+    osc.stop(t + length);
+    wob.stop(t + length);
+  },
+
   /** A soft landing thud (stickers slapping on, things landing) */
   thud() {
     sweep(110, 45, 0.18, 0.55);

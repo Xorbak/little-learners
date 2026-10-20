@@ -8,6 +8,7 @@ import { masteryOf, pickAdaptive } from '../../shared/progress/adaptive';
 import { progress } from '../../shared/progress/store';
 import { Celebration } from '../../shared/ui/Celebration';
 import { fx } from '../../shared/fx';
+import { StickerStage } from './StickerStage';
 import { HomeIcon, BackIcon, PlayIcon, RoundButton } from '../../shared/ui/RoundButton';
 import type { Navigate } from '../App';
 import { gameKey } from '../registry';
@@ -114,7 +115,9 @@ function LevelSession({ section, game, navigate, daily, onPlayAgain }: Props & {
   }, [key, levelIndex, level, game.levels.length, section.id, sessionRounds, daily]);
 
   // The sticker slaps down: thud, squash, stars and one screen shake
-  const stickerRef = useRef<HTMLDivElement>(null);
+  const stickerRef = useRef<HTMLButtonElement>(null);
+  /** Tapping the new sticker shows what it does */
+  const [showSticker, setShowSticker] = useState<DOMRect | null>(null);
   useEffect(() => {
     if (!sticker) return;
     const t = window.setTimeout(() => {
@@ -164,9 +167,20 @@ function LevelSession({ section, game, navigate, daily, onPlayAgain }: Props & {
         <div className="level-done">
           <Celebration big />
           {sticker && (
-            <div className="sticker-won" ref={stickerRef} aria-label="You got a sticker">
-              <span className="sticker-won-face">{sticker}</span>
-            </div>
+            <button
+              type="button"
+              className="sticker-won"
+              ref={stickerRef}
+              aria-label="You got a sticker"
+              onClick={(e) => {
+                sfx.pop();
+                setShowSticker(e.currentTarget.getBoundingClientRect());
+              }}
+            >
+              <span className="sticker-won-face" style={showSticker ? { opacity: 0 } : undefined}>
+                {sticker}
+              </span>
+            </button>
           )}
           <div className="level-done-buttons">
             {daily ? (
@@ -202,6 +216,7 @@ function LevelSession({ section, game, navigate, daily, onPlayAgain }: Props & {
           </div>
         </div>
       )}
+      {sticker && showSticker && <StickerStage emoji={sticker} from={showSticker} onClose={() => setShowSticker(null)} />}
     </main>
   );
 }

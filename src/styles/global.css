@@ -713,6 +713,7 @@ button {
 .sticker-won--landed {
   animation: sticker-land 0.9s var(--spring-jelly) both;
 }
+.sticker-won { border: 0; padding: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .sticker-won-face { font-size: min(28vw, 18vh, 130px); line-height: 1; }
 
 /* The sticker is slapped down: it comes in big from above the screen and lands */
@@ -744,7 +745,7 @@ button {
   padding: 10px 12px 0 80px;
 }
 .book-title { font-size: 52px; }
-.book-trophies { font-size: 30px; font-weight: 700; color: #e67700; }
+.book-trophies { font-size: 30px; font-weight: 700; color: #e67700; border: 0; background: none; padding: 4px 8px; font-family: inherit; cursor: pointer; }
 
 .book-page {
   flex: 1;
@@ -777,7 +778,30 @@ button {
   box-shadow: 0 3px 0 rgba(0, 0, 0, 0.08);
   cursor: pointer;
 }
-.book-slot--wiggle { animation: pbn-wobble 0.55s ease; }
+.book-slot--out > span { opacity: 0; }
+
+/* A sticker out of the book, showing what it does */
+.sticker-stage {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.92) 0 30%, rgba(255, 240, 246, 0.85) 70%);
+  animation: sticker-stage-in 0.3s ease-out both;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+@keyframes sticker-stage-in { from { opacity: 0; } }
+.sticker-stage-fly { display: grid; place-items: center; }
+.sticker-stage-actor {
+  font-size: min(42vw, 36vh);
+  line-height: 1;
+  filter: drop-shadow(0 12px 14px rgba(43, 45, 66, 0.22));
+  user-select: none;
+  -webkit-user-select: none;
+}
 
 /* ---------- Grown-ups extras ---------- */
 

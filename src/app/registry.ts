@@ -2,6 +2,7 @@ import type { Section } from '../types/learning';
 import { mechanics } from '../engine';
 import { narrator } from '../shared/audio/narrator';
 import { sharedClips } from '../shared/audio/sharedClips';
+import { stickerClips } from './stickers';
 
 /**
  * Finds every section automatically: any folder in src/sections with an index.ts
@@ -22,5 +23,6 @@ export const gameKey = (sectionId: string, gameId: string) => `${sectionId}/${ga
 
 // Give the narrator every clip in the app
 narrator.registerClips(sharedClips);
+narrator.registerClips(stickerClips);
 for (const m of Object.values(mechanics)) narrator.registerClips(m.clips);
 for (const s of sections) narrator.registerClips(s.clips);

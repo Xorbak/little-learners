@@ -4,13 +4,19 @@ import { sfx } from '../../shared/audio/sfx';
 import { STICKERS, TROPHY, useProgress } from '../../shared/progress/store';
 import { HomeIcon, RoundButton } from '../../shared/ui/RoundButton';
 import type { Navigate } from '../App';
+import { StickerStage } from './StickerStage';
 
 /** Her sticker book: every sticker she has earned, and empty spots for ones still to find. */
 export function StickerBook({ navigate }: { navigate: Navigate }) {
   const saved = useProgress();
   const mine = saved.profiles[saved.activeProfileId].stickers ?? [];
   const trophies = mine.filter((s) => s === TROPHY).length;
-  const [wiggle, setWiggle] = useState<string | null>(null);
+  /** The sticker that has come out of the book to show what it does */
+  const [showing, setShowing] = useState<{ emoji: string; from: DOMRect } | null>(null);
+  const show = (emoji: string, el: HTMLElement) => {
+    sfx.pop();
+    setShowing({ emoji, from: el.getBoundingClientRect() });
+  };
 
   useEffect(() => {
     void narrator.say([mine.length ? 'sticker.book' : 'sticker.empty']);
@@ -27,9 +33,14 @@ export function StickerBook({ navigate }: { navigate: Navigate }) {
       <header className="book-top">
         <span className="book-title" aria-hidden="true">📒</span>
         {trophies > 0 && (
-          <span className="book-trophies" aria-label={`${trophies} trophies`}>
-            {TROPHY} × {trophies}
-          </span>
+          <button
+            type="button"
+            className={`book-trophies ${showing?.emoji === TROPHY ? 'book-slot--out' : ''}`}
+            onClick={(e) => show(TROPHY, e.currentTarget)}
+            aria-label={`${trophies} trophies`}
+          >
+            <span>{TROPHY}</span> × {trophies}
+          </button>
         )}
       </header>
       <div className="book-page">
@@ -39,20 +50,16 @@ export function StickerBook({ navigate }: { navigate: Navigate }) {
             <button
               key={s}
               type="button"
-              className={`book-slot ${have ? 'book-slot--have' : ''} ${wiggle === s ? 'book-slot--wiggle' : ''}`}
-              onClick={() => {
-                if (!have) return;
-                sfx.pop();
-                setWiggle(s);
-                window.setTimeout(() => setWiggle((w) => (w === s ? null : w)), 600);
-              }}
+              className={`book-slot ${have ? 'book-slot--have' : ''} ${showing?.emoji === s ? 'book-slot--out' : ''}`}
+              onClick={(e) => have && show(s, e.currentTarget)}
               aria-label={have ? 'Sticker' : 'Empty spot'}
             >
-              {have ? s : ''}
+              {have ? <span>{s}</span> : ''}
             </button>
           );
         })}
       </div>
+      {showing && <StickerStage key={showing.emoji} emoji={showing.emoji} from={showing.from} onClose={() => setShowing(null)} />}
     </main>
   );
 }
