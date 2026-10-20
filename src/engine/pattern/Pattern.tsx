@@ -80,7 +80,7 @@ function PatternRound({ config, target, items, onRoundComplete }: RoundProps<Pat
     if (item.key === p.answer.key) {
       sfx.pop();
       fx.burstAt(el, 'stars', { count: 6 });
-      fx.haptic(12);
+      fx.haptic('right');
       setFilled(true);
       setHint(false);
       void narrator.say(['pattern.yes']);

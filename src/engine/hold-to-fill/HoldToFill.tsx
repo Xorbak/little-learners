@@ -126,7 +126,7 @@ function PourRound({ config, target, items, onCorrect, onWrong, onRoundComplete 
     void narrator.say(['paint.just-right']);
     sfx.sparkle();
     fx.burstAt(roundRef.current?.querySelector('.bucket'), 'stars', { count: 10 });
-    fx.haptic(20);
+    fx.haptic('right');
     if (config.pipes > 1) onCorrect(target);
     later(onRoundComplete, 1800);
   };

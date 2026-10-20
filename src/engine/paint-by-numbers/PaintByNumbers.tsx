@@ -208,7 +208,7 @@ function Painting({ config, item, onCorrect, onRoundComplete }: RoundProps<Paint
   const splat = (_index: number, hex: string) => {
     const p = tapPoint.current;
     if (p) fx.burst(p.x, p.y, 'droplets', { colour: hex, count: 6, power: 0.45 });
-    fx.haptic(8);
+    fx.haptic('pop');
   };
 
   const tapRegion = (index: number) => {

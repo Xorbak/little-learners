@@ -5,6 +5,8 @@
 
 let ctx: AudioContext | null = null;
 
+import { haptic, type HapticKind } from '../haptics';
+
 /** The shared audio context (also used by the calm music) */
 export function audioContext(): AudioContext | null {
   return audio();
@@ -77,6 +79,9 @@ function sweep(from: number, to: number, length: number, volume: number, type: O
   osc.stop(t + length + 0.02);
 }
 
+/** Every sound has a matching feel on phones that vibrate */
+const feel = (kind: HapticKind) => haptic(kind);
+
 export const sfx = {
   /** Call from the first tap to allow sound */
   unlock() {
@@ -84,6 +89,7 @@ export const sfx = {
   },
 
   pop() {
+    feel('pop');
     const a = audio();
     if (!a) return;
     const length = Math.floor(a.sampleRate * 0.12);
@@ -103,6 +109,7 @@ export const sfx = {
 
   /** Gentle, friendly "boing" for a wrong tap: never harsh */
   boing() {
+    feel('oops');
     const a = audio();
     if (!a) return;
     const osc = a.createOscillator();
@@ -122,6 +129,7 @@ export const sfx = {
    * little toot, 'big' is the long trumpeting one for the stinky pair.
    */
   fart(kind: 'pfft' | 'squeak' | 'big' = 'pfft') {
+    feel('silly');
     const a = audio();
     if (!a) return;
     const t = a.currentTime;
@@ -187,6 +195,7 @@ export const sfx = {
 
   /** Crunchy nom: two quick bites */
   munch() {
+    feel('pop');
     const a = audio();
     if (!a) return;
     [0, 0.16].forEach((start) => {
@@ -209,6 +218,7 @@ export const sfx = {
 
   /** A big silly burp */
   burp() {
+    feel('thud');
     const a = audio();
     if (!a) return;
     const t = a.currentTime;
@@ -242,6 +252,7 @@ export const sfx = {
 
   /** One "glug" of paint; the pitch rises as the bucket fills, like filling a bottle */
   glug(level = 0) {
+    feel('texture');
     const a = audio();
     if (!a) return;
     const t = a.currentTime;
@@ -262,6 +273,7 @@ export const sfx = {
 
   /** A wet splash */
   splash() {
+    feel('splash');
     const a = audio();
     if (!a) return;
     const length = Math.floor(a.sampleRate * 0.7);
@@ -282,6 +294,7 @@ export const sfx = {
 
   /** A bright xylophone note. `step` counts notes up the scale from middle C (0 = C4). */
   note(step: number, length = 0.9) {
+    feel('texture');
     const a = audio();
     if (!a) return;
     const scale = [0, 2, 4, 5, 7, 9, 11];
@@ -303,6 +316,7 @@ export const sfx = {
 
   /** Card turning over */
   flip() {
+    feel('tap');
     const a = audio();
     if (!a) return;
     const osc = a.createOscillator();
@@ -319,6 +333,7 @@ export const sfx = {
 
   /** Cardboard "thunk": a puzzle piece dropping into place */
   thunk() {
+    feel('thud');
     sweep(150, 55, 0.14, 0.5);
     noise({ length: 0.08, type: 'lowpass', freq: 900, volume: 0.5, decay: 3 });
   },
@@ -341,11 +356,13 @@ export const sfx = {
 
   /** A water drip / droplet blip */
   drip() {
+    feel('texture');
     sweep(700, 1500, 0.07, 0.15);
   },
 
   /** A light tap (pressing tiles and buttons) */
   tap() {
+    feel('tap');
     sweep(520, 300, 0.05, 0.08, 'triangle');
   },
 
@@ -379,15 +396,18 @@ export const sfx = {
 
   /** A soft landing thud (stickers slapping on, things landing) */
   thud() {
+    feel('thud');
     sweep(110, 45, 0.18, 0.55);
     noise({ length: 0.06, type: 'lowpass', freq: 500, volume: 0.35, decay: 3 });
   },
 
   cheer() {
+    feel('win');
     [523, 659, 784, 1047].forEach((f, i) => tone(f, i * 0.09, 0.35, 'triangle', 0.15));
   },
 
   fanfare() {
+    feel('big-win');
     [523, 659, 784, 659, 784, 1047].forEach((f, i) => tone(f, i * 0.12, 0.4, 'triangle', 0.15));
   },
 };

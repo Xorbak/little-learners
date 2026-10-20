@@ -282,7 +282,7 @@ function JigsawRound({ config, target, onCorrect, onRoundComplete }: RoundProps<
         const el = pieceEl(p.id);
         sfx.thunk();
         fx.squash(el, 0.7);
-        fx.haptic(14);
+        fx.haptic('thud');
         const sr = stageRef.current!.getBoundingClientRect();
         fx.burst(sr.left + slot.x + L.boxW / 2, sr.top + slot.y + L.boxH / 2, 'dust', { count: 8, power: L.boxW / 120 });
       }, 170);
@@ -345,7 +345,7 @@ function JigsawRound({ config, target, onCorrect, onRoundComplete }: RoundProps<
       void narrator.say(['puzzle.done']);
       fx.jump(stageRef.current, 26);
       fx.rain(70);
-      fx.haptic([20, 60, 20]);
+      fx.haptic('big-win');
       onCorrect(target);
     }, 450);
     later(onRoundComplete, 3000);

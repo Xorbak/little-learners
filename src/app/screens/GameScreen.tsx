@@ -131,7 +131,7 @@ function LevelSession({ section, game, navigate, daily, onPlayAgain }: Props & {
       sfx.thud();
       fx.burstAt(el, 'stars', { count: 12, power: 1.4 });
       fx.shake(1.2);
-      fx.haptic(30);
+      fx.haptic('thud');
     }, 1150);
     return () => window.clearTimeout(t);
   }, [sticker]);

@@ -6,7 +6,7 @@
  *   fx.burst(x, y, 'stars')       particles from a screen point
  *   fx.burstAt(el, 'confetti')    …from the middle of an element
  *   fx.shake(1)                   short decaying shake of the game screen
- *   fx.haptic(15)                 a tiny buzz on phones that support it
+ *   fx.haptic('right')            a buzz on phones that can vibrate (see shared/haptics.ts)
  *   fx.jump(el) / fx.pop(el) / fx.squash(el) / fx.wobble(el) / fx.press(el)
  *
  * Animate transform and opacity only. Element animations use composite: 'add'
@@ -14,6 +14,7 @@
  */
 import { progress } from '../progress/store';
 import { sfx } from '../audio/sfx';
+import { haptic, installTouchHaptics, shakeHaptic, type HapticKind } from '../haptics';
 import { burst, rain, ring, setParticleDensity } from './particles';
 import type { BurstKind, BurstOptions } from './particles';
 import { bouncy, installSpringVars, jelly, soft } from './springs';
@@ -38,6 +39,7 @@ export function applyMotionSetting() {
 
 export function initFx() {
   installSpringVars();
+  installTouchHaptics();
   applyMotionSetting();
 }
 
@@ -72,6 +74,8 @@ export const fx = {
 
   /** Short decaying shake of the whole game screen. 1 = a bump, 2 = a big splash. */
   shake(intensity = 1, el?: Element | null) {
+    // Phones feel every shake (even with Less motion, which only stops the screen moving)
+    shakeHaptic(intensity);
     if (lessMotion()) return;
     const target = el ?? document.querySelector('main.screen');
     const frames: Keyframe[] = [];
@@ -87,12 +91,8 @@ export const fx = {
   },
 
   /** A tiny buzz (Android phones; does nothing elsewhere) */
-  haptic(pattern: number | number[] = 12) {
-    try {
-      navigator.vibrate?.(pattern);
-    } catch {
-      /* not allowed here */
-    }
+  haptic(kind: HapticKind | number | number[] = 'tap') {
+    haptic(kind);
   },
 
   /** Springs in from nothing, with overshoot */
@@ -172,7 +172,7 @@ export const fx = {
     fx.burstAt(el, 'stars', { count: opts.stars ?? 8 });
     fx.burstAt(el, 'sparkles', { count: 6, power: 1.2 });
     if (opts.sound !== false) sfx.sparkle();
-    fx.haptic(15);
+    fx.haptic('right');
   },
 
   /** Little shove away from a point (neighbours of a pop) */

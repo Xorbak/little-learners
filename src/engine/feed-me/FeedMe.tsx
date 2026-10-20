@@ -185,7 +185,7 @@ function FeedMeRound({ config, target, items, onCorrect, onWrong, onRoundComplet
       fx.burst(m.x, m.y - 40, 'hearts', { count: 7 });
       fx.burst(m.x, m.y - 40, 'stars', { count: 8 });
       sfx.sparkle();
-      fx.haptic(20);
+      fx.haptic('big-win');
       onCorrect(target);
     }, 450 + FLY_MS);
     later(onRoundComplete, 2300 + FLY_MS);
@@ -227,7 +227,7 @@ function FeedMeRound({ config, target, items, onCorrect, onWrong, onRoundComplet
       setMood('chomp');
       sfx.munch();
       fx.burst(m.x, m.y + 10, 'crumbs', { count: 7, colour: crumbColour(piece.food) });
-      fx.haptic(10);
+      fx.haptic('pop');
       const countClip = items[String(count)]?.nameClip;
       if (countClip) void narrator.say([countClip]);
     }, FLY_MS);

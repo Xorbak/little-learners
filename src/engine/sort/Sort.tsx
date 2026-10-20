@@ -83,7 +83,7 @@ function SortRound({ config, target, onCorrect, onRoundComplete }: RoundProps<So
       const basketEl = document.querySelector(`[data-basket="${basketKey}"]`);
       fx.squash(basketEl, 0.8);
       fx.burstAt(basketEl, 'stars', { count: 5, power: 0.8 });
-      fx.haptic(10);
+      fx.haptic('right');
       if (next.every((p) => p.sortedInto)) {
         setDone(true);
         later(() => {

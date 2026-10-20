@@ -15,6 +15,7 @@ import { MissionScreen } from './screens/MissionScreen';
 import { CalmScreen } from './screens/CalmScreen';
 import { findSection } from './registry';
 import { hasName } from './name';
+import { setHapticsEnabled } from '../shared/haptics';
 
 export type Screen =
   | { name: 'start' }
@@ -37,6 +38,11 @@ export function App() {
   useEffect(() => {
     narrator.setVoice(saved.voice);
   }, [saved.voice]);
+
+  // Vibration feedback (can be switched off)
+  useEffect(() => {
+    setHapticsEnabled(saved.vibration !== false);
+  }, [saved.vibration]);
 
   // Words under the pictures for grown-ups (can be switched off)
   useEffect(() => {

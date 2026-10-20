@@ -133,7 +133,7 @@ export function MixRound({ config, target, items, onCorrect, onWrong, onRoundCom
       setMood('proud');
       sfx.sparkle();
       fx.burstAt(roundRef.current?.querySelector('.bucket'), 'stars', { count: 10 });
-      fx.haptic(20);
+      fx.haptic('right');
       void narrator.say(['mix.you-made', target.nameClip, 'mix.hooray']);
       onCorrect(target);
       later(onRoundComplete, 2400);

@@ -11,6 +11,7 @@ import { missionById } from '../missions';
 import { EXERCISES } from '../exercises';
 import { playClock, UNTIL_TOMORROW } from '../../shared/playtime';
 import { soundExamples } from '../../sections/letters/words';
+import { haptic, setHapticsEnabled } from '../../shared/haptics';
 
 /**
  * Grown-ups only (behind the hold-to-enter button).
@@ -232,6 +233,26 @@ export function ParentArea({ navigate }: { navigate: Navigate }) {
             onChange={(e) => progress.setSillySounds(e.target.checked)}
           />
           Farts on
+        </label>
+      </section>
+
+      <section className="parent-card">
+        <h2>Vibration</h2>
+        <p className="parent-hint">
+          On phones that can vibrate: a tiny tick on every tap, two happy taps for a right answer, a soft double for a miss, a little drum roll when
+          she finishes, and a buzz with every screen shake. (iPhones only allow a light tick on taps.)
+        </p>
+        <label className="voice-row">
+          <input
+            type="checkbox"
+            checked={saved.vibration !== false}
+            onChange={(e) => {
+              progress.setVibration(e.target.checked);
+              setHapticsEnabled(e.target.checked);
+              if (e.target.checked) haptic('right');
+            }}
+          />
+          Vibrate
         </label>
       </section>
 

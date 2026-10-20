@@ -77,6 +77,8 @@ export interface SavedData {
   sillySounds?: boolean;
   /** Less motion (no screen shake, fewer particles). Missing means: follow the device setting. */
   lessMotion?: boolean;
+  /** Vibration feedback on phones (missing = on) */
+  vibration?: boolean;
   /** Words under the pictures for grown-ups (missing = on) */
   showLabels?: boolean;
   /** Play-time limits chosen by grown-ups (missing values use the defaults in shared/playtime.ts) */
@@ -288,6 +290,10 @@ export const progress = {
 
   setSillySounds(on: boolean) {
     commit({ ...data, sillySounds: on });
+  },
+
+  setVibration(on: boolean) {
+    commit({ ...data, vibration: on });
   },
 
   showLabels(): boolean {

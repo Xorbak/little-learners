@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { narrator } from '../../shared/audio/narrator';
 import { sfx } from '../../shared/audio/sfx';
 import { fx } from '../../shared/fx';
+import { haptic } from '../../shared/haptics';
 import { PlayIcon, RoundButton } from '../../shared/ui/RoundButton';
 import type { ClipId } from '../../types/learning';
 import type { Exercise, MoveBeat } from '../exercises';
@@ -65,6 +66,7 @@ export function ExerciseRun({
         for (let i = 1; i <= ex.count && alive.current; i++) {
           setCount(i);
           beat(ex, actorRef.current);
+          haptic('count');
           await say([`numbers.name.${i}`]);
           // Time to actually do the move before the next number
           const pause = { jump: 750, stomp: 750, stretch: 900, balance: 900, sway: 600, shake: 550 }[ex.beat];

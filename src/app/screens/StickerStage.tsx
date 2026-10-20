@@ -248,7 +248,7 @@ export function perform(action: StickerAction, el: HTMLElement, later: Later) {
       later(() => {
         sfx.thud();
         fx.shake(1.4);
-        fx.haptic(40);
+        fx.haptic('thud');
         const p = at('centre');
         fx.ring(p.x, p.y, '#fff', 3);
       }, 1800 * 0.3);
@@ -264,7 +264,7 @@ export function perform(action: StickerAction, el: HTMLElement, later: Later) {
         later(() => {
           sfx.thud();
           fx.shake(1.2);
-          fx.haptic(30);
+          fx.haptic('thud');
           const p = at('feet');
           fx.burst(p.x, p.y, 'dust', { count: 12, power: 1.6 });
         }, t * 1900),
@@ -388,7 +388,7 @@ export function perform(action: StickerAction, el: HTMLElement, later: Later) {
       later(() => {
         sfx.whoosh();
         fx.shake(1.5);
-        fx.haptic([30, 30, 60]);
+        fx.haptic([30, 30, 30, 30, 120]);
         fx.burst(at('feet').x, at('feet').y, 'dust', { count: 14, power: 2, colour: '#ffd8a8' });
       }, 900);
       later(() => fx.rain(30), 1700);
@@ -503,7 +503,7 @@ export function perform(action: StickerAction, el: HTMLElement, later: Later) {
         sfx.sparkle();
         fx.burstAt(el, 'confetti', { count: 50, power: 1.4 });
         fx.burstAt(el, 'stars', { count: 10 });
-        fx.haptic(25);
+        fx.haptic('right');
       }, 2200 * 0.66);
       break;
     case 'bounce': {

@@ -88,7 +88,7 @@ export function Bucket({
       fx.burst(r.left + r.width * 0.2, rimY, 'droplets', { colour, count: 8, angle: -120, spread: 60 });
       fx.burst(r.left + r.width * 0.8, rimY, 'droplets', { colour, count: 8, angle: -60, spread: 60 });
       fx.shake(1.6);
-      fx.haptic([30, 40, 30]);
+      fx.haptic('splash');
     }
     if (mood === 'oops') {
       fx.burst(r.left + r.width / 2, r.top + r.height * (paintYFor(0.15) / 210), 'droplets', { colour, count: 10, power: 0.7 });

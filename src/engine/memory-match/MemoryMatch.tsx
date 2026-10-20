@@ -181,7 +181,7 @@ function MemoryMatchRound({ config, target, items, onRoundComplete }: RoundProps
           void narrator.say(['memory.stinky-match']);
           pair.forEach((id) => fx.burstAt(cardEl(id), 'stink', { count: 8 }));
           fx.shake(0.8);
-          fx.haptic([40, 30, 60]);
+          fx.haptic('silly');
         }, 250);
         later(() => setStinkCloud(false), 2600);
         later(() => {
@@ -201,7 +201,7 @@ function MemoryMatchRound({ config, target, items, onRoundComplete }: RoundProps
             fx.burstAt(el, 'sparkles', { count: 7, power: 0.8 });
             fx.burstAt(el, 'stars', { count: 4, power: 0.7 });
           });
-          fx.haptic(16);
+          fx.haptic('right');
           setBusy(false);
         }, 450);
       }

@@ -123,7 +123,7 @@ function PopBalloonsRound({ config, target, items, onCorrect, onWrong, onRoundCo
     fx.burst(x, y, 'shards', { colour: balloon.colour, count: 14, power: r.width / 120 });
     fx.burst(x, y, 'stars', { count: 5 });
     fx.shake(0.6);
-    fx.haptic(18);
+    fx.haptic('right');
     // The blast pushes the neighbours a little
     el.closest('.pop-field')
       ?.querySelectorAll('.balloon-body')
