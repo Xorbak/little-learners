@@ -47,7 +47,7 @@ function dealChoices(config: TouchItConfig, target: LearningItem, items: Record<
   }));
 }
 
-function useChoiceSize(count: number) {
+export function useChoiceSize(count: number) {
   const measure = useCallback(() => {
     const w = window.innerWidth - 32;
     const h = window.innerHeight - 130;

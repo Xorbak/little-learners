@@ -2,6 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import { narrator } from '../../shared/audio/narrator';
 import { masteryOf } from '../../shared/progress/adaptive';
 import { applyMotionSetting, lessMotion } from '../../shared/fx';
+import { afrikaansWords } from '../../sections/afrikaans/words';
+import { LEARNED_BOX, choicesFor, isLearned } from '../../shared/progress/spaced';
+import { today } from '../../shared/progress/store';
 import { hasTrack, musicProblems, playSong, type SongHandle } from '../../shared/audio/music';
 import { audioState } from '../../shared/audio/sfx';
 import { progress, useProgress } from '../../shared/progress/store';
@@ -237,6 +240,10 @@ export function ParentArea({ navigate }: { navigate: Navigate }) {
           Farts on
         </label>
       </section>
+
+      <AfrikaansCard />
+
+      <BackupCard />
 
       <section className="parent-card">
         <h2>Listen first</h2>
@@ -568,5 +575,127 @@ function MusicCheck() {
         )}
       </p>
     </>
+  );
+}
+
+/** Afrikaans: which voice says the words, and where each word is in its spaced repetition */
+function AfrikaansCard() {
+  useProgress();
+  const voice = narrator.languageVoice('af');
+  const day = today();
+  const rows = afrikaansWords.map((w) => ({ ...w, s: progress.item(`afrikaans/${w.key}`) }));
+  const learned = rows.filter((r) => isLearned(r.s)).length;
+  const met = rows.filter((r) => r.s?.box).length;
+  const when = (due?: string) => {
+    if (!due || due <= day) return 'today';
+    const days = Math.round((new Date(due).getTime() - new Date(day).getTime()) / 86400000);
+    return days === 1 ? 'tomorrow' : `in ${days} days`;
+  };
+  return (
+    <section className="parent-card">
+      <h2>Afrikaans</h2>
+      <p className="parent-hint">
+        Touch the word, run by spaced repetition: a new word comes on its own with its meaning, then comes back after longer and longer gaps
+        (same day, next day, 2 days, 4, a week, 2 weeks). It counts as learned once she gets it right on {LEARNED_BOX} different days. Up to 2 new
+        words a day, and none while 3 are still being learned. She chooses from {choicesFor(learned)} picture{choicesFor(learned) > 1 ? 's' : ''}{' '}
+        now (2 from 3 learned words, 3 from 6, 4 from 10). It's in Today's lessons every day.
+      </p>
+      <p className="parent-hint">
+        Voice for the words:{' '}
+        {voice.match === 'own'
+          ? `${voice.name} (Afrikaans).`
+          : voice.match === 'close'
+            ? `${voice.name}: Dutch, the closest this phone has. Recording the words yourself will sound best.`
+            : 'none on this phone, so please record the words.'}{' '}
+        To record a word, save it as <code>src/recordings/af.word.&lt;word&gt;.mp3</code>, e.g. <code>af.word.hond.mp3</code> (🎙️ = recorded; voël is{' '}
+        <code>af.word.voel.mp3</code>).
+      </p>
+      <p className="parent-hint">
+        Met {met} of {rows.length} words, learned {learned}.
+      </p>
+      <table className="clip-table">
+        <thead>
+          <tr>
+            <th />
+            <th>Word, and where she is</th>
+            <th>File name</th>
+            <th />
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr key={r.key}>
+              <td>{r.emoji}</td>
+              <td>
+                <b>{r.af}</b> ({r.en}) {narrator.hasRecording(`af.word.${r.key}`) ? '🎙️' : ''}
+                <br />
+                <span className={isLearned(r.s) ? 'af-learned' : 'af-status'}>
+                  {!r.s?.box ? 'not met yet' : isLearned(r.s) ? `✓ learned (box ${r.s.box}), next ${when(r.s.due)}` : `learning (box ${r.s.box}), next ${when(r.s.due)}`}
+                </span>
+              </td>
+              <td>
+                <code>af.word.{r.key}.mp3</code>
+              </td>
+              <td>
+                <button type="button" className="parent-btn parent-btn--small" onClick={() => void narrator.say([`af.word.${r.key}`])}>
+                  Play
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </section>
+  );
+}
+
+/** Save all her progress to a file, and bring it back (new phone, cleared browser) */
+function BackupCard() {
+  const [message, setMessage] = useState('');
+  const KEYS = ['little-learners', 'little-learners-clock'];
+  const save = () => {
+    const data: Record<string, unknown> = { app: 'little-learners', saved: new Date().toISOString() };
+    for (const k of KEYS) {
+      const v = localStorage.getItem(k);
+      if (v) data[k] = JSON.parse(v);
+    }
+    const blob = new Blob([JSON.stringify(data, null, 1)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `little-learners-backup-${today()}.json`;
+    a.click();
+    window.setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+    setMessage('Backup saved to your downloads.');
+  };
+  const restore = async (file: File | undefined) => {
+    if (!file) return;
+    try {
+      const data = JSON.parse(await file.text());
+      if (data.app !== 'little-learners' || !data['little-learners']?.profiles) throw new Error('not a Little Learners backup');
+      for (const k of KEYS) if (data[k]) localStorage.setItem(k, JSON.stringify(data[k]));
+      setMessage('Restored. Starting again…');
+      window.setTimeout(() => window.location.reload(), 800);
+    } catch (e) {
+      setMessage(`Couldn't restore that file (${e instanceof Error ? e.message : 'unreadable'}).`);
+    }
+  };
+  return (
+    <section className="parent-card">
+      <h2>Backup</h2>
+      <p className="parent-hint">
+        Everything she has done (progress, stickers, Afrikaans words, settings) is kept on this phone, in the browser. The app asks the
+        browser never to clear it, but clearing Chrome's data would. Save a backup now and then; restore it on a new phone or after clearing.
+      </p>
+      <div className="rest-panel-buttons">
+        <button type="button" className="parent-btn" onClick={save}>
+          Save a backup
+        </button>
+        <label className="parent-btn">
+          Restore from a backup
+          <input type="file" accept="application/json,.json" hidden onChange={(e) => void restore(e.target.files?.[0])} />
+        </label>
+      </div>
+      {message && <p className="parent-hint">{message}</p>}
+    </section>
   );
 }

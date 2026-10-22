@@ -1,0 +1,23 @@
+/* Learn Words: how many words she has learned, and a sparkle for a new word */
+.learn-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 12px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: var(--shadow);
+  font-weight: 700;
+  font-size: 18px;
+}
+.learn-new {
+  position: absolute;
+  left: 50%;
+  top: 92px;
+  translate: -50% 0;
+  font-size: 36px;
+  animation: fx-bob 1.4s ease-in-out infinite;
+  pointer-events: none;
+}
+.learn-choice { background: #fff; }

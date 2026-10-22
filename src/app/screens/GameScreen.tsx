@@ -18,7 +18,7 @@ import { gameKey } from '../registry';
 import { Tag, words } from '../../shared/ui/Tag';
 
 /** Games where she picks one answer: the cards wait until the question has been asked ("listen first") */
-const LISTEN_FIRST = new Set(['touch-it', 'match-it', 'odd-one-out', 'pattern']);
+const LISTEN_FIRST = new Set(['touch-it', 'match-it', 'odd-one-out', 'pattern', 'learn-words']);
 
 interface Props {
   section: Section;
@@ -61,6 +61,7 @@ function LevelSession({ section, game, navigate, daily, onPlayAgain }: Props & {
     (item: LearningItem) => progress.recordAnswer(`${section.id}/${item.key}`, true),
     [section.id],
   );
+  const stats = useCallback((item: LearningItem) => progress.item(`${section.id}/${item.key}`), [section.id]);
   const timesRight = useCallback((item: LearningItem) => progress.item(`${section.id}/${item.key}`)?.correct ?? 0, [section.id]);
   const isKnown = useCallback((item: LearningItem) => masteryOf(section.id, item.key) === 'knows', [section.id]);
   const onWrong = useCallback(
@@ -189,6 +190,7 @@ function LevelSession({ section, game, navigate, daily, onPlayAgain }: Props & {
           onRoundComplete={onRoundComplete}
           isKnown={isKnown}
           timesRight={timesRight}
+          stats={stats}
           daily={!!daily}
         />
       )}

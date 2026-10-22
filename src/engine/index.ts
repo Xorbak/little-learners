@@ -15,6 +15,7 @@ import { music } from './music/Music';
 import { trace } from './trace/Trace';
 import { jigsaw } from './jigsaw/Jigsaw';
 import { matchIt } from './match-it/MatchIt';
+import { learnWords } from './learn-words/LearnWords';
 import { waitForIt } from './wait-for-it/WaitForIt';
 
 /**
@@ -42,6 +43,7 @@ export const mechanics: { [K in ActivityConfig['kind']]: Mechanic<Extract<Activi
   trace,
   jigsaw,
   'match-it': matchIt,
+  'learn-words': learnWords,
   'wait-for-it': waitForIt,
 };
 

@@ -558,7 +558,7 @@ button {
   gap: var(--gap);
   justify-content: center;
   align-content: center;
-  --cols: 5;
+  --cols: 6;
   --rows: 2;
   --gap: clamp(10px, 2.4vw, 24px);
   --tile: min(200px, calc((100vw - 32px - (var(--cols) - 1) * var(--gap)) / var(--cols)), calc((100dvh - 130px - (var(--rows) - 1) * var(--gap)) / var(--rows)));
@@ -1485,3 +1485,7 @@ html[data-less-motion] .song-notes { display: none; }
   .listen-guard { padding-top: 10px; }
 }
 html[data-less-motion] .listen-ear { animation: none; }
+
+/* Grown-ups → Afrikaans */
+.af-status { font-size: 12px; color: var(--ink-soft); }
+.af-learned { font-size: 12px; color: var(--good); font-weight: 600; }

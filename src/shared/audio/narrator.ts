@@ -42,7 +42,27 @@ let currentAudio: HTMLAudioElement | null = null;
 // Keeps a reference so Chrome doesn't garbage-collect the utterance mid-sentence
 let currentUtterance: SpeechSynthesisUtterance | null = null;
 
-type Segment = { type: 'recording'; url: string } | { type: 'tts'; text: string };
+type Segment = { type: 'recording'; url: string } | { type: 'tts'; text: string; lang?: string };
+
+/** Clips in another language (e.g. 'af.word.' → Afrikaans), spoken with a voice for that language */
+const clipLanguages: [prefix: string, lang: string][] = [];
+const langOf = (id: ClipId) => clipLanguages.find(([prefix]) => id.startsWith(prefix))?.[1];
+
+/** When a phone has no voice for a language, the closest one that sounds right enough */
+const CLOSE_LANGUAGES: Record<string, string[]> = { af: ['nl'] };
+
+/** The voice for a language: its own, a close one (Dutch for Afrikaans), or none */
+function voiceForLanguage(lang: string): { voice: SpeechSynthesisVoice | null; match: 'own' | 'close' | 'none' } {
+  if (!('speechSynthesis' in window)) return { voice: null, match: 'none' };
+  const all = speechSynthesis.getVoices();
+  const own = all.find((v) => v.lang.toLowerCase().replace('_', '-').startsWith(lang));
+  if (own) return { voice: own, match: 'own' };
+  for (const close of CLOSE_LANGUAGES[lang] ?? []) {
+    const v = all.find((x) => x.lang.toLowerCase().replace('_', '-').startsWith(close));
+    if (v) return { voice: v, match: 'close' };
+  }
+  return { voice: null, match: 'none' };
+}
 
 // Background music listens, to go quieter while the narrator talks
 const speakingListeners = new Set<(on: boolean) => void>();
@@ -91,6 +111,17 @@ export const narrator = {
     setSpeaking(false);
   },
 
+  /** Speak clips starting with `prefix` in another language (e.g. ('af.word.', 'af')) */
+  setClipLanguage(prefix: string, lang: string) {
+    if (!clipLanguages.some(([p]) => p === prefix)) clipLanguages.push([prefix, lang]);
+  },
+
+  /** Which voice a language gets on this device (for the grown-ups area) */
+  languageVoice(lang: string): { name: string; match: 'own' | 'close' | 'none' } {
+    const { voice, match } = voiceForLanguage(lang);
+    return { name: voice ? `${voice.name} (${voice.lang})` : '', match };
+  },
+
   /** Is the narrator talking right now? */
   isSpeaking(): boolean {
     return speakingNow;
@@ -127,7 +158,7 @@ export const narrator = {
       for (const segment of toSegments(ids)) {
         if (token !== playToken) return;
         if (segment.type === 'recording') await playRecording(segment.url);
-        else await speak(segment.text);
+        else await speak(segment.text, segment.lang);
       }
       if (token === playToken) setSpeaking(false);
     })();
@@ -158,9 +189,11 @@ function toSegments(ids: ClipId[]): Segment[] {
       console.warn(`[narrator] Unknown clip "${id}"`);
       continue;
     }
+    // Neighbouring clips in the same language are said as one sentence
+    const lang = langOf(id);
     const last = segments[segments.length - 1];
-    if (last?.type === 'tts') last.text += ' ' + text;
-    else segments.push({ type: 'tts', text });
+    if (last?.type === 'tts' && last.lang === lang) last.text += ' ' + text;
+    else segments.push({ type: 'tts', text, lang });
   }
   return segments;
 }
@@ -176,16 +209,23 @@ function playRecording(url: string): Promise<void> {
   });
 }
 
-function speak(text: string): Promise<void> {
+function speak(text: string, lang?: string): Promise<void> {
   return new Promise((resolve) => {
     if (!('speechSynthesis' in window)) return resolve();
 
     const utterance = new SpeechSynthesisUtterance(text);
-    const voices = narrator.voices();
-    utterance.voice =
-      voices.find((v) => v.voiceURI === voiceSettings.voiceURI) ?? voices[0] ?? null;
-    utterance.lang = utterance.voice?.lang ?? 'en-GB';
-    utterance.rate = voiceSettings.rate;
+    if (lang) {
+      // Another language: its own voice (or the closest), a little slower
+      const { voice } = voiceForLanguage(lang);
+      utterance.voice = voice;
+      utterance.lang = voice?.lang ?? lang;
+      utterance.rate = Math.min(voiceSettings.rate, 0.8);
+    } else {
+      const voices = narrator.voices();
+      utterance.voice = voices.find((v) => v.voiceURI === voiceSettings.voiceURI) ?? voices[0] ?? null;
+      utterance.lang = utterance.voice?.lang ?? 'en-GB';
+      utterance.rate = voiceSettings.rate;
+    }
     utterance.pitch = voiceSettings.pitch;
 
     // Some browsers occasionally never fire `onend`; don't let the game hang.

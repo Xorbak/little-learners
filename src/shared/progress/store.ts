@@ -8,6 +8,8 @@ import type { VoiceSettings } from '../audio/narrator';
  * so her progress survives updates.
  */
 
+import { srNext } from './spaced';
+
 const STORAGE_KEY = 'little-learners';
 const SCHEMA_VERSION = 1;
 
@@ -15,6 +17,11 @@ export interface ItemStats {
   correct: number;
   wrong: number;
   lastSeen: number;
+  /** Spaced repetition (see spaced.ts): box 1–6, next due day, last day it moved, day she first met it */
+  box?: number;
+  due?: string;
+  day?: string;
+  intro?: string;
 }
 
 export interface GameProgress {
@@ -161,15 +168,16 @@ export const progress = {
 
   recordAnswer(itemKey: string, wasCorrect: boolean) {
     updateProfile((p) => {
-      const s = p.items[itemKey] ?? { correct: 0, wrong: 0, lastSeen: 0 };
+      const s = p.items[itemKey];
       return {
         ...p,
         items: {
           ...p.items,
           [itemKey]: {
-            correct: s.correct + (wasCorrect ? 1 : 0),
-            wrong: s.wrong + (wasCorrect ? 0 : 1),
+            correct: (s?.correct ?? 0) + (wasCorrect ? 1 : 0),
+            wrong: (s?.wrong ?? 0) + (wasCorrect ? 0 : 1),
             lastSeen: Date.now(),
+            ...srNext(s, wasCorrect, today()),
           },
         },
       };

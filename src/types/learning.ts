@@ -298,6 +298,16 @@ export interface MatchItConfig {
   ways: MatchWay[];
 }
 
+export interface LearnWordsConfig {
+  kind: 'learn-words';
+  /** Word keys, in the order she meets them */
+  pool: string[];
+  /** Don't bring in a new word while she is still learning this many (not yet learned) */
+  maxLearning: number;
+  /** New words a day, at most */
+  newPerDay: number;
+}
+
 export interface WaitForItConfig {
   kind: 'wait-for-it';
   /** Not used; keep empty */
@@ -319,6 +329,7 @@ export interface WaitForItConfig {
 
 export type ActivityConfig =
   | MatchItConfig
+  | LearnWordsConfig
   | WaitForItConfig
   | JigsawConfig
   | TraceConfig

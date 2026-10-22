@@ -1,5 +1,6 @@
 import type { FC } from 'react';
 import type { ActivityConfig, ClipTable, LearningItem } from '../types/learning';
+import type { ItemStats } from '../shared/progress/store';
 
 /** What every game mechanic receives for one round */
 export interface RoundProps<C extends ActivityConfig> {
@@ -18,6 +19,8 @@ export interface RoundProps<C extends ActivityConfig> {
   isKnown: (item: LearningItem) => boolean;
   /** How many times she has got this item right (e.g. pictures she has finished) */
   timesRight: (item: LearningItem) => number;
+  /** Her saved answers for an item, including spaced-repetition boxes (spaced.ts) */
+  stats?: (item: LearningItem) => ItemStats | undefined;
   /** Part of Today's lessons (keep it short: e.g. skip choosing a picture) */
   daily?: boolean;
 }

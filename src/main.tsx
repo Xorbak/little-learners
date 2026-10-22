@@ -8,6 +8,9 @@ import { initFx } from './shared/fx';
 
 initFx();
 
+// Her progress lives in the browser: ask it never to clear it to free up space
+void navigator.storage?.persist?.().catch(() => {});
+
 // Offline support once built and installed (needs https, or localhost)
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
   window.addEventListener('load', () => void navigator.serviceWorker.register('./sw.js'));
