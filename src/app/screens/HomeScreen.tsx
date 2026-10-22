@@ -15,7 +15,7 @@ export function HomeScreen({ navigate }: { navigate: Navigate }) {
   const open = progress.openMission();
 
   return (
-    <main className="screen screen--home">
+    <main className="screen screen--scroll screen--home">
       <div className="corner-left">
         <button
           type="button"

@@ -79,6 +79,8 @@ export interface SavedData {
   lessMotion?: boolean;
   /** Vibration feedback on phones (missing = on) */
   vibration?: boolean;
+  /** Choosing games wait until the question has been asked before cards can be tapped (missing = on) */
+  listenFirst?: boolean;
   /** Background music from src/music on menus and in some games (missing = on) */
   backgroundMusic?: boolean;
   /** Words under the pictures for grown-ups (missing = on) */
@@ -296,6 +298,10 @@ export const progress = {
 
   setVibration(on: boolean) {
     commit({ ...data, vibration: on });
+  },
+
+  setListenFirst(on: boolean) {
+    commit({ ...data, listenFirst: on });
   },
 
   setBackgroundMusic(on: boolean) {

@@ -132,6 +132,10 @@ export const wordsFor = (letters: string) => wordList.filter((w) => letters.incl
 // Letters on their own, named by their sound (phonics first): "Touch the sss"
 // ---------------------------------------------------------------------------
 
+const INK = '#2b2d42';
+/** Pictures that start with this letter */
+const picturesFor = (letter: string) => wordList.filter((w) => w.letter === letter);
+
 const LETTER_COLOURS = ['#f03e3e', '#1c7ed6', '#2f9e44', '#f08c00', '#9c36b5', '#0c8599', '#d6336c', '#e8590c'];
 
 function Glyph({ letter, size, colour }: { letter: string; size: number; colour?: string }) {
@@ -154,6 +158,23 @@ export const letterItems: Record<string, LearningItem> = Object.fromEntries(
       Display: ({ size }: { size: number }) => <Glyph letter={l} size={size} colour={LETTER_COLOURS[i % LETTER_COLOURS.length]} />,
       Plain: ({ size }: { size: number }) => <Glyph letter={l} size={size} />,
       BalloonLabel: ({ size }: { size: number }) => <Glyph letter={l} size={size} colour="#fff" />,
+      // Match It: capital, small letter, or a picture that starts with it (all in one ink colour, so colour gives nothing away)
+      faces: {
+        upper: () => ({ View: ({ size }) => <Glyph letter={l.toUpperCase()} size={size * 0.72} colour={INK} /> }),
+        lower: () => ({ View: ({ size }) => <Glyph letter={l} size={size * 0.72} colour={INK} /> }),
+        ...(picturesFor(l).length
+          ? {
+              picture: (seed: number) => {
+                const list = picturesFor(l);
+                const w = list[seed % list.length];
+                return {
+                  clip: `letters.word.${keyOf(w.word)}`,
+                  View: ({ size }: { size: number }) => <Picture word={keyOf(w.word)} emoji={w.emoji} size={size * 0.8} />,
+                };
+              },
+            }
+          : {}),
+      },
     } satisfies LearningItem,
   ]),
 );

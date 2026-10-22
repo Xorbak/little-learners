@@ -45,7 +45,7 @@ export function CalmScreen({ navigate }: { navigate: Navigate }) {
   if (theme) return <CalmPlace theme={theme} onBack={() => setTheme(null)} />;
 
   return (
-    <main className="screen screen--calm-pick">
+    <main className="screen screen--scroll screen--calm-pick">
       <div className="corner-left">
         <RoundButton label="Home" variant="home" onPress={() => navigate({ name: 'home' })}>
           <HomeIcon />

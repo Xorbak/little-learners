@@ -239,6 +239,19 @@ export function ParentArea({ navigate }: { navigate: Navigate }) {
       </section>
 
       <section className="parent-card">
+        <h2>Listen first</h2>
+        <p className="parent-hint">
+          For the excited tapper: in the choosing games (Touch it, Match it, Odd one out, Patterns) the cards go sleepy and an 👂 shows while the
+          question is being asked, and wake up when it's finished. Taps before then do nothing, so she learns to listen, then choose. The 🚦 Wait
+          for it game in Thinking practises waiting on its own.
+        </p>
+        <label className="voice-row">
+          <input type="checkbox" checked={saved.listenFirst !== false} onChange={(e) => progress.setListenFirst(e.target.checked)} />
+          Listen first
+        </label>
+      </section>
+
+      <section className="parent-card">
         <h2>Music and songs</h2>
         <p className="parent-hint">
           Songs you make (with Suno, say) go in <code>src/music/</code> with the names below; see the README there. Background music plays

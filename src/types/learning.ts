@@ -47,7 +47,24 @@ export interface LearningItem {
   sortSet?: SortSet;
   /** A photo or drawing (URL), used by the jigsaw puzzle */
   photo?: string;
+  /**
+   * Other ways of showing this item, for Match It: a number as a numeral or as a
+   * group of things, a letter as a capital, small letter or picture, a colour as
+   * a thing of that colour, a shape as a thing that shape.
+   */
+  faces?: Record<string, Face>;
 }
+
+/**
+ * One way of showing an item. `seed` picks a variety (which picture, which
+ * objects) and is the same for every card in a round, so only the item differs.
+ * `counting` (amounts only): how many of the objects are lit up while counting.
+ */
+export type Face = (seed: number) => {
+  View: FC<{ size: number; counting?: number }>;
+  /** What the narrator calls this face if it isn't the item's name (e.g. "cat" for the c picture) */
+  clip?: ClipId;
+};
 
 /** Baskets and the things that go in them */
 export interface SortSet {
@@ -259,7 +276,50 @@ export interface JigsawConfig {
   choose?: boolean;
 }
 
+/** One way round for Match It: what is shown at the top, and what the cards show */
+export interface MatchWay {
+  /** Face at the top ('display' = the item's own picture) */
+  show: string;
+  /** Face on the cards */
+  pick: string;
+  /** Said to ask; '$name' is replaced by the target's name, e.g. ['match.find', '$name'] */
+  ask: ClipId[];
+  /** Said when right, e.g. ['match.yes', '$name']. '$count' counts the things out loud (amounts). */
+  yes: ClipId[];
+}
+
+export interface MatchItConfig {
+  kind: 'match-it';
+  /** Item keys (each needs the faces the ways use) */
+  pool: string[];
+  /** Cards to choose from (target included) */
+  choices: number;
+  /** The ways round it can go; each round picks one (two ways = it goes back and forth) */
+  ways: MatchWay[];
+}
+
+export interface WaitForItConfig {
+  kind: 'wait-for-it';
+  /** Not used; keep empty */
+  pool: string[];
+  /**
+   * 'light': tap the frog only when the light turns green.
+   * 'bear': tap the bunnies that pop up, but not the sleeping bear.
+   */
+  mode: 'light' | 'bear';
+  /** Seconds to wait before green (or between pop-ups), from–to */
+  wait: [number, number];
+  /** Good taps to finish the round */
+  taps: number;
+  /** 'light': sometimes the light goes amber and back to red (a tease) */
+  teases?: boolean;
+  /** 'bear': how often the bear comes instead of a bunny (0–1) */
+  bearChance?: number;
+}
+
 export type ActivityConfig =
+  | MatchItConfig
+  | WaitForItConfig
   | JigsawConfig
   | TraceConfig
   | MusicConfig

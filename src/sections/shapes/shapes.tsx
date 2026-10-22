@@ -1,3 +1,4 @@
+import { thingFace, type Thing } from '../../shared/ui/faces';
 import type { ReactNode } from 'react';
 import type { LearningItem } from '../../types/learning';
 
@@ -142,6 +143,35 @@ function ShapeSvg({ draw, size }: { draw: ReactNode; size: number }) {
   );
 }
 
+/** Everyday things with a clear shape, for Match It ("What shape is the clock?") */
+export const SHAPE_THINGS: Record<string, Thing[]> = {
+  circle: [
+    { emoji: '🕐', clip: 'things.clock' },
+    { emoji: '🍪', clip: 'things.biscuit' },
+    { emoji: '🍩', clip: 'things.doughnut' },
+  ],
+  square: [
+    { emoji: '🪟', clip: 'things.window' },
+    { emoji: '🎁', clip: 'things.present' },
+    { emoji: '🧇', clip: 'things.waffle' },
+  ],
+  triangle: [
+    { emoji: '🍕', clip: 'things.pizza-slice' },
+    { emoji: '⛺', clip: 'things.tent' },
+    { emoji: '🧀', clip: 'things.cheese' },
+  ],
+  rectangle: [
+    { emoji: '🚪', clip: 'things.door' },
+    { emoji: '📱', clip: 'things.phone' },
+    { emoji: '📺', clip: 'things.tv' },
+  ],
+  oval: [
+    { emoji: '🥚', clip: 'things.egg' },
+    { emoji: '🏉', clip: 'things.rugby-ball' },
+  ],
+  diamond: [{ emoji: '🪁', clip: 'things.kite' }],
+};
+
 export const shapeItems: Record<string, LearningItem> = Object.fromEntries(
   shapeList.map(({ key, colour, draw }) => [
     key,
@@ -155,6 +185,8 @@ export const shapeItems: Record<string, LearningItem> = Object.fromEntries(
           <ShapeSvg draw={draw} size={size} />
         </span>
       ),
+      // Match It: a thing that is this shape
+      ...(SHAPE_THINGS[key] ? { faces: { thing: thingFace(SHAPE_THINGS[key]) } } : {}),
       // White shape on a balloon
       BalloonLabel: ({ size }: { size: number }) => (
         <span style={{ color: '#fff', display: 'inline-flex', filter: 'drop-shadow(0 2px 0 rgba(0,0,0,0.25))' }}>
@@ -169,5 +201,6 @@ export const shapeClips = Object.fromEntries(
   shapeList.flatMap(({ key, name, plural }) => [
     [`shapes.name.${key}`, name],
     [`shapes.plural.${key}`, plural],
+    [`shapes.a.${key}`, `${/^[aeiou]/.test(name) ? 'an' : 'a'} ${name}`],
   ]),
 );

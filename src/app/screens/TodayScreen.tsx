@@ -64,7 +64,7 @@ export function TodayScreen({ navigate, justFinished }: { navigate: Navigate; ju
   };
 
   return (
-    <main className="screen screen--today">
+    <main className="screen screen--scroll screen--today">
       <div className="corner-left">
         <RoundButton label="Home" variant="home" onPress={() => navigate({ name: 'home' })}>
           <HomeIcon />

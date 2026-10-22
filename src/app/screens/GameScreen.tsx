@@ -6,7 +6,8 @@ import { sfx } from '../../shared/audio/sfx';
 import { fanfare } from '../../shared/audio/music';
 import { randomPraise } from '../../shared/audio/sharedClips';
 import { masteryOf, pickAdaptive } from '../../shared/progress/adaptive';
-import { progress } from '../../shared/progress/store';
+import { progress, useProgress } from '../../shared/progress/store';
+import { useSpeaking } from '../../shared/audio/useSpeaking';
 import { Celebration } from '../../shared/ui/Celebration';
 import { fx } from '../../shared/fx';
 import { safePoint } from '../../shared/playtime';
@@ -15,6 +16,9 @@ import { HomeIcon, BackIcon, PlayIcon, RoundButton } from '../../shared/ui/Round
 import type { Navigate } from '../App';
 import { gameKey } from '../registry';
 import { Tag, words } from '../../shared/ui/Tag';
+
+/** Games where she picks one answer: the cards wait until the question has been asked ("listen first") */
+const LISTEN_FIRST = new Set(['touch-it', 'match-it', 'odd-one-out', 'pattern']);
 
 interface Props {
   section: Section;
@@ -137,8 +141,31 @@ function LevelSession({ section, game, navigate, daily, onPlayAgain }: Props & {
     return () => window.clearTimeout(t);
   }, [sticker]);
 
+  // Listen first: in choosing games the cards wait (sleepy, with an ear) until the question has been asked
+  const saved = useProgress();
+  const speaking = useSpeaking();
+  const listening = saved.listenFirst !== false && LISTEN_FIRST.has(level.activity.kind) && speaking && phase === 'playing';
+  const earRef = useRef<HTMLSpanElement>(null);
+
   return (
-    <main className="screen screen--game">
+    <main className={`screen screen--game ${listening ? 'screen--listening' : ''}`}>
+      {listening && (
+        <div
+          className="listen-guard"
+          onPointerDown={(e) => {
+            // Tapped before the question was finished: the ear wiggles, nothing else happens
+            e.preventDefault();
+            e.stopPropagation();
+            fx.wobble(earRef.current);
+            fx.haptic('tap');
+          }}
+          aria-label="Listen first"
+        >
+          <span ref={earRef} className="listen-ear" aria-hidden="true">
+            👂
+          </span>
+        </div>
+      )}
       <div className="corner-left">
         <RoundButton label="Back" variant="home" onPress={goBack}>
           <BackIcon />

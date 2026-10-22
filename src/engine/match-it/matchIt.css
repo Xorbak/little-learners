@@ -1,0 +1,65 @@
+/* Match It: a picture at the top, cards to match it with underneath (side by side when wide) */
+.match-round {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 0 16px 24px;
+}
+.match-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 84px;
+  padding-top: 10px;
+}
+.match-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(16px, 4vh, 36px);
+  min-height: 0;
+}
+.match-round--wide .match-body { flex-direction: row; gap: clamp(20px, 5vw, 56px); }
+.match-round--wide .match-header { position: absolute; left: 0; right: 0; top: 0; }
+.match-round--wide { padding-top: 64px; }
+
+.match-top {
+  display: grid;
+  place-items: center;
+  border-radius: 32px;
+  background: #fff;
+  box-shadow: 0 0 0 6px #ffd43b, var(--shadow);
+  animation: fx-pop-in 0.5s var(--spring, ease-out) both;
+}
+.match-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: center;
+}
+.match-card {
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 26px;
+  background: #fff;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  touch-action: manipulation;
+  animation: tile-in 0.45s var(--spring, ease-out) both;
+  transition: opacity 0.3s, filter 0.3s, scale 0.08s;
+  -webkit-tap-highlight-color: transparent;
+}
+.match-card:active { scale: 0.94 0.9; }
+.match-card--found { box-shadow: 0 0 0 6px var(--good), var(--shadow); }
+.match-card--fade { opacity: 0.3; filter: grayscale(0.6); }
+.match-card--hint { animation: match-hint 1.2s ease-in-out infinite; }
+@keyframes match-hint {
+  0%, 100% { box-shadow: var(--shadow); }
+  50% { box-shadow: 0 0 0 6px #ffd43b, var(--shadow); }
+}

@@ -36,7 +36,7 @@ export function SongsScreen({ navigate }: { navigate: Navigate }) {
     );
 
   return (
-    <main className="screen screen--songs">
+    <main className="screen screen--scroll screen--songs">
       <div className="corner-left">
         <RoundButton label="Back" variant="home" onPress={() => navigate({ name: 'section', sectionId: 'art' })}>
           <BackIcon />

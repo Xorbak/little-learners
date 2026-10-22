@@ -1,0 +1,42 @@
+/* Match It faces: things to count, and pictures of things */
+.amount {
+  position: relative;
+  display: inline-block;
+}
+.amount-thing {
+  position: absolute;
+  translate: -50% -50%;
+  line-height: 1;
+  transition: scale 0.25s var(--spring-soft, ease-out), filter 0.25s;
+}
+.amount-thing--counted {
+  scale: 1.25;
+  filter: drop-shadow(0 0 6px rgba(255, 212, 59, 0.95));
+}
+.amount-num {
+  position: absolute;
+  left: 50%;
+  top: -0.55em;
+  translate: -50% 0;
+  font-size: 0.55em;
+  font-weight: 700;
+  color: #2b2d42;
+  background: #fff;
+  border-radius: 999px;
+  padding: 0 0.3em;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  animation: fx-pop-in 0.35s var(--spring, ease-out) both;
+}
+.amount-none {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  border: 4px dashed #ced4da;
+  border-radius: 50%;
+}
+.thing {
+  display: inline-block;
+  line-height: 1;
+  filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.15));
+}

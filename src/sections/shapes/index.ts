@@ -1,9 +1,11 @@
 import type { Section } from '../../types/learning';
-import { shapeClips, shapeItems } from './shapes';
+import { SHAPE_THINGS, shapeClips, shapeItems } from './shapes';
 import { touchShape } from './games/touchShape';
 import { popBalloonsShapes } from './games/popBalloons';
 import { memoryMatchShapes } from './games/memoryMatch';
 import { traceShape } from './games/traceShape';
+import { matchItShapes } from './games/matchIt';
+import { thingClips } from '../../shared/ui/faces';
 
 /**
  * Shapes: from circle, square and triangle up to hexagons, parallelograms and
@@ -19,8 +21,13 @@ const shapes: Section = {
   clips: {
     'shapes.title': 'Shapes',
     ...shapeClips,
+    ...thingClips(SHAPE_THINGS),
+    'shapes.match-title': 'Match the shape!',
+    'shapes.match-find': 'Find something shaped like',
+    'shapes.match-what-shape': 'What shape is the',
   },
-  games: [touchShape, traceShape, popBalloonsShapes, memoryMatchShapes],
+  // Every subject has the same first games in the same order: Touch, Balloons, Match, Memory, then its own
+  games: [touchShape, popBalloonsShapes, matchItShapes, memoryMatchShapes, traceShape],
 };
 
 export default shapes;

@@ -14,6 +14,8 @@ import { oddOneOut } from './odd-one-out/OddOneOut';
 import { music } from './music/Music';
 import { trace } from './trace/Trace';
 import { jigsaw } from './jigsaw/Jigsaw';
+import { matchIt } from './match-it/MatchIt';
+import { waitForIt } from './wait-for-it/WaitForIt';
 
 /**
  * Every game mechanic, keyed by its activity `kind`.
@@ -39,6 +41,8 @@ export const mechanics: { [K in ActivityConfig['kind']]: Mechanic<Extract<Activi
   music,
   trace,
   jigsaw,
+  'match-it': matchIt,
+  'wait-for-it': waitForIt,
 };
 
 export function mechanicFor<C extends ActivityConfig>(config: C): Mechanic<C> {

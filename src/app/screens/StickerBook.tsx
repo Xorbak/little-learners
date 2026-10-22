@@ -24,7 +24,7 @@ export function StickerBook({ navigate }: { navigate: Navigate }) {
   }, []);
 
   return (
-    <main className="screen screen--stickers">
+    <main className="screen screen--scroll screen--stickers">
       <div className="corner-left">
         <RoundButton label="Home" variant="home" onPress={() => navigate({ name: 'home' })}>
           <HomeIcon />

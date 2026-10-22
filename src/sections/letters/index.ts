@@ -4,6 +4,7 @@ import { flashCardsLetters } from './games/flashCards';
 import { touchLetter } from './games/touchLetter';
 import { popBalloonsLetters } from './games/popBalloons';
 import { memoryMatchLetters } from './games/memoryMatch';
+import { matchItLetters } from './games/matchIt';
 
 /**
  * Letters and Sounds. Phonics first: flash cards now; find-the-letter, first-sound
@@ -23,9 +24,17 @@ const letters: Section = {
     'letters.touch-the-letter': 'Touch the letter',
     'letters.yes-letter': "Yes! That's the letter",
     'letters.oops-letter': "Oops! That's the letter",
+    'letters.match-title': 'Match the letter!',
+    'letters.match-small': 'Find the small',
+    'letters.match-big': 'Find the big',
+    'letters.match-starts': 'What starts with',
+    'letters.match-which': 'Which letter does',
+    'letters.match-start': 'start with?',
+    'letters.starts-with': 'starts with',
     ...wordClips,
   },
-  games: [flashCardsLetters, touchLetter, popBalloonsLetters, memoryMatchLetters],
+  // Every subject has the same first games in the same order: Touch, Balloons, Match, Memory, then its own
+  games: [touchLetter, popBalloonsLetters, matchItLetters, memoryMatchLetters, flashCardsLetters],
 };
 
 export default letters;

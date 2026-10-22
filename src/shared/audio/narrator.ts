@@ -91,10 +91,17 @@ export const narrator = {
     setSpeaking(false);
   },
 
+  /** Is the narrator talking right now? */
+  isSpeaking(): boolean {
+    return speakingNow;
+  },
+
   /** Told when the narrator starts and stops talking */
   onSpeaking(listener: (on: boolean) => void): () => void {
     speakingListeners.add(listener);
-    return () => speakingListeners.delete(listener);
+    return () => {
+      speakingListeners.delete(listener);
+    };
   },
 
   /**

@@ -204,6 +204,20 @@ const puzzleGame: Game = {
   ],
 };
 
+/** Wait for It: waiting before tapping (for the excited tapper). Traffic light first, then go/no-go with the sleeping bear. */
+const waitGame: Game = {
+  id: 'wait-for-it',
+  titleClip: 'think.wait-title',
+  icon: '🚦',
+  levels: [
+    { id: 'green-light', parentLabel: 'Traffic light: short waits (1½–3 s), 4 hops', rounds: 2, activity: { kind: 'wait-for-it', pool: [], mode: 'light', wait: [1.5, 3], taps: 4 } },
+    { id: 'longer', parentLabel: 'Traffic light: longer waits (3–6 s), 5 hops', rounds: 2, activity: { kind: 'wait-for-it', pool: [], mode: 'light', wait: [3, 6], taps: 5 } },
+    { id: 'teases', parentLabel: 'Traffic light: amber sometimes goes back to red', rounds: 2, activity: { kind: 'wait-for-it', pool: [], mode: 'light', wait: [2, 5], taps: 5, teases: true } },
+    { id: 'bear', parentLabel: "Bunnies, but don't wake the sleeping bear", rounds: 2, activity: { kind: 'wait-for-it', pool: [], mode: 'bear', wait: [0.8, 1.8], taps: 6, bearChance: 0.3 } },
+    { id: 'bear-fast', parentLabel: 'Bunnies and bear, quicker, more bears', rounds: 2, activity: { kind: 'wait-for-it', pool: [], mode: 'bear', wait: [0.5, 1.2], taps: 8, bearChance: 0.4 } },
+  ],
+};
+
 const thinking: Section = {
   id: 'thinking',
   order: 7,
@@ -215,6 +229,7 @@ const thinking: Section = {
     ...thingClips,
     ...puzzleClips,
     'think.title': 'Thinking',
+    'think.wait-title': 'Wait for it!',
     'sort.ask.red-blue': 'Put the red things in the red basket, and the blue things in the blue basket!',
     'sort.ask.big-small': 'Big things go with the big elephant. Little things go with the little mouse!',
     'sort.ask.animals-food': 'Animals go in the paw basket. Food goes in the plate basket!',
@@ -230,7 +245,7 @@ const thinking: Section = {
     'sort.basket.land': 'the land basket',
     'sort.basket.sea': 'the sea basket',
   },
-  games: puzzles.length ? [puzzleGame, sortGame, patternGame, oddGame] : [sortGame, patternGame, oddGame],
+  games: puzzles.length ? [puzzleGame, sortGame, patternGame, oddGame, waitGame] : [sortGame, patternGame, oddGame, waitGame],
   trackProgress: false,
 };
 

@@ -1,3 +1,4 @@
+import { thingFace, type Thing } from '../../shared/ui/faces';
 import type { LearningItem } from '../../types/learning';
 
 /**
@@ -19,6 +20,47 @@ export const colourList: { key: string; hex: string; word?: string; recipe?: str
   { key: 'light-blue', hex: '#74c0fc', word: 'light blue', recipe: ['blue', 'white'] },
   { key: 'dark-blue', hex: '#1b3a6b', word: 'dark blue', recipe: ['blue', 'black'] },
 ];
+
+/** Things that are clearly one colour, for Match It ("Find something red!") */
+export const COLOUR_THINGS: Record<string, Thing[]> = {
+  red: [
+    { emoji: '🍎', clip: 'things.apple' },
+    { emoji: '🍓', clip: 'things.strawberry' },
+    { emoji: '🚒', clip: 'things.fire-engine' },
+  ],
+  blue: [
+    { emoji: '🧢', clip: 'things.cap' },
+    { emoji: '🐳', clip: 'things.whale' },
+  ],
+  yellow: [
+    { emoji: '🍌', clip: 'things.banana' },
+    { emoji: '🌻', clip: 'things.sunflower' },
+    { emoji: '🐥', clip: 'things.chick' },
+  ],
+  green: [
+    { emoji: '🥦', clip: 'things.broccoli' },
+    { emoji: '🐸', clip: 'things.frog' },
+    { emoji: '🍀', clip: 'things.clover' },
+  ],
+  orange: [
+    { emoji: '🍊', clip: 'things.orange' },
+    { emoji: '🥕', clip: 'things.carrot' },
+    { emoji: '🎃', clip: 'things.pumpkin' },
+  ],
+  purple: [
+    { emoji: '🍇', clip: 'things.bunch-of-grapes' },
+    { emoji: '🍆', clip: 'things.brinjal' },
+  ],
+  pink: [
+    { emoji: '🌸', clip: 'things.flower' },
+    { emoji: '🐷', clip: 'things.pig' },
+    { emoji: '🦩', clip: 'things.flamingo' },
+  ],
+  brown: [
+    { emoji: '🐻', clip: 'things.bear' },
+    { emoji: '🍫', clip: 'things.chocolate' },
+  ],
+};
 
 function Splat({ hex, size }: { hex: string; size: number }) {
   return (
@@ -45,6 +87,8 @@ export const colourItems: Record<string, LearningItem> = Object.fromEntries(
       hex,
       recipe,
       Display: ({ size }: { size: number }) => <Splat hex={hex} size={size} />,
+      // Match It: a thing that is this colour
+      ...(COLOUR_THINGS[key] ? { faces: { thing: thingFace(COLOUR_THINGS[key]) } } : {}),
     } satisfies LearningItem,
   ]),
 );

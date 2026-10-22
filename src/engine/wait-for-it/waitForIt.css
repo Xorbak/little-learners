@@ -1,0 +1,168 @@
+/* Wait for It: traffic light + frog, and bunnies with a sleeping bear */
+.wait-round {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 0 16px 24px;
+}
+.wait-top {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  min-height: 84px;
+  padding: 10px 70px 0;
+}
+.wait-stars { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
+.wait-star { font-size: 26px; color: #dee2e6; text-shadow: 0 2px 0 rgba(0, 0, 0, 0.08); transition: color 0.3s, scale 0.3s var(--spring, ease-out); }
+.wait-star--on { color: #fcc419; scale: 1.15; }
+
+.wait-stage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(16px, 4vh, 40px);
+  min-height: 0;
+}
+@media (orientation: landscape) {
+  .wait-stage { flex-direction: row; gap: clamp(30px, 8vw, 100px); }
+}
+
+/* The traffic light */
+.wait-light {
+  --lamp: clamp(54px, min(13vh, 20vw), 110px);
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--lamp) * 0.16);
+  padding: calc(var(--lamp) * 0.18);
+  border-radius: calc(var(--lamp) * 0.4);
+  background: #343a40;
+  box-shadow: 0 8px 0 #212529, var(--shadow);
+}
+@media (orientation: landscape) and (max-height: 500px) {
+  .wait-light { --lamp: clamp(48px, 18vh, 80px); }
+}
+.wait-lamp {
+  width: var(--lamp);
+  height: var(--lamp);
+  border-radius: 50%;
+  background: #495057;
+  transition: background 0.25s, box-shadow 0.25s;
+}
+.wait-light--red .wait-lamp--red { background: #ff4d4f; box-shadow: 0 0 calc(var(--lamp) * 0.4) #ff6b6b; }
+.wait-light--amber .wait-lamp--amber { background: #ffb020; box-shadow: 0 0 calc(var(--lamp) * 0.4) #ffc078; }
+.wait-light--green .wait-lamp--green { background: #40c057; box-shadow: 0 0 calc(var(--lamp) * 0.5) #8ce99a; }
+.wait-light--shake { animation: wait-shake 0.45s ease-out; }
+@keyframes wait-shake {
+  0%, 100% { translate: 0 0; }
+  20% { translate: -8px 0; }
+  40% { translate: 7px 0; }
+  60% { translate: -5px 0; }
+  80% { translate: 3px 0; }
+}
+
+/* The frog on its lily pad */
+.wait-frog {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: clamp(150px, min(34vh, 52vw), 260px);
+  aspect-ratio: 1;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.wait-pad {
+  position: absolute;
+  left: 4%;
+  right: 4%;
+  bottom: 6%;
+  height: 34%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #8ce99a, #2f9e44);
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.12);
+}
+.wait-frog-face {
+  position: relative;
+  font-size: clamp(90px, min(22vh, 32vw), 170px);
+  line-height: 1;
+  translate: 0 -12%;
+  transition: filter 0.3s, scale 0.3s;
+}
+.wait-frog--red .wait-frog-face { filter: saturate(0.7); }
+.wait-frog--green .wait-frog-face { scale: 1.08; animation: wait-ready 0.5s ease-in-out infinite alternate; }
+@keyframes wait-ready { to { translate: 0 -18%; } }
+
+/* Bunnies and the bear */
+.wait-meadow {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  align-items: end;
+  gap: clamp(8px, 3vw, 30px);
+  width: min(100%, 760px);
+  margin: 0 auto;
+  padding-bottom: 12vh;
+}
+.wait-hole-wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: clamp(150px, 40vh, 300px);
+  overflow: hidden;
+}
+.wait-hole {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 200px;
+  aspect-ratio: 3 / 1;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 50% 40%, #3b2f2f 40%, #6f4518 70%, #8d5524);
+  box-shadow: 0 6px 0 #5c3d1e;
+}
+.wait-critter {
+  position: absolute;
+  bottom: 18%;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  max-width: 190px;
+  aspect-ratio: 1;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  touch-action: manipulation;
+  animation: wait-pop-up 0.35s var(--spring, ease-out) both;
+  -webkit-tap-highlight-color: transparent;
+}
+.wait-critter-face { font-size: clamp(72px, min(18vh, 22vw), 140px); line-height: 1; }
+.wait-critter--got { animation: wait-duck 0.4s ease-in forwards; }
+.wait-critter--bear .wait-critter-face { filter: saturate(0.85); }
+.wait-critter--woke .wait-critter-face { animation: wait-shake 0.45s ease-out; }
+.wait-zzz {
+  position: absolute;
+  right: 4%;
+  top: 2%;
+  font-size: clamp(28px, 6vh, 44px);
+  animation: fx-bob 1.6s ease-in-out infinite;
+}
+@keyframes wait-pop-up {
+  from { translate: 0 100%; }
+  to { translate: 0 0; }
+}
+@keyframes wait-duck {
+  to { translate: 0 100%; opacity: 0; }
+}
+html[data-less-motion] .wait-frog--green .wait-frog-face { animation: none; }

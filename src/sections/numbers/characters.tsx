@@ -1,3 +1,4 @@
+import { amountFace } from '../../shared/ui/faces';
 import type { LearningItem } from '../../types/learning';
 
 /**
@@ -61,6 +62,17 @@ export const numberItems: Record<string, LearningItem> = Object.fromEntries(
           {c.value}
         </span>
       ),
+      // Match It: the numeral, or that many things to count
+      faces: {
+        numeral: () => ({
+          View: ({ size }) => (
+            <span className="numeral" style={{ fontSize: (c.value === 10 ? 0.62 : 0.78) * size, color: c.colour }}>
+              {c.value}
+            </span>
+          ),
+        }),
+        amount: amountFace(c.value),
+      },
     } satisfies LearningItem,
   ]),
 );

@@ -9,7 +9,7 @@ import { availableSongs } from '../songs';
 /** The games inside one section. She taps a game and it starts at her current level. */
 export function SectionScreen({ section, navigate }: { section: Section; navigate: Navigate }) {
   return (
-    <main className="screen" style={{ background: `color-mix(in srgb, ${section.colour} 25%, var(--sky))` }}>
+    <main className="screen screen--scroll" style={{ background: `color-mix(in srgb, ${section.colour} 25%, var(--sky))` }}>
       <div className="corner-left">
         <RoundButton label="Home" variant="home" onPress={() => navigate({ name: 'home' })}>
           <HomeIcon />

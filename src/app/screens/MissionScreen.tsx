@@ -79,7 +79,7 @@ export function MissionScreen({ navigate, day, fresh }: { navigate: Navigate; da
   if (!mission) return null;
 
   return (
-    <main className="screen screen--mission">
+    <main className="screen screen--scroll screen--mission">
       <div className="corner-left">
         <RoundButton label="Home" variant="home" onPress={() => navigate({ name: 'home' })}>
           <HomeIcon />
