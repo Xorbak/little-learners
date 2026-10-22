@@ -17,9 +17,16 @@ export interface DailyStep {
   move?: number;
 }
 
-const SUBJECTS = ['numbers', 'colours', 'shapes', 'letters', 'stories', 'afrikaans', 'world', 'thinking'];
+/** Every day: numbers, stories and Afrikaans (spaced repetition needs a little every day) */
+const CORE = ['numbers', 'stories', 'afrikaans'];
+/** Four of these each day, taking turns (each comes up four days out of six) */
+const ROTATE = ['colours', 'shapes', 'world', 'me', 'thinking', 'letters'];
+const subjectsFor = (day: number) => {
+  const r = Array.from({ length: 4 }, (_, i) => ROTATE[(day + i) % ROTATE.length]);
+  return [CORE[0], r[0], r[1], CORE[1], r[2], CORE[2], r[3]];
+};
 /** Games left out of the daily rotation (free play and long-form games) */
-const SKIP = new Set(['colours/mix-paint', 'numbers/memory-match', 'colours/memory-match', 'shapes/memory-match', 'letters/memory-match']);
+const SKIP = new Set(['colours/mix-paint', 'numbers/memory-match', 'colours/memory-match', 'shapes/memory-match', 'letters/memory-match', 'me/take-turns', 'me/about-me', 'me/family']);
 
 /** Games where one round is already a good little session */
 const ONE_ROUND = new Set(['sort', 'puzzle', 'story-time', 'share']);
@@ -34,6 +41,7 @@ export function todaysPlan(): DailyStep[] {
   const steps: DailyStep[] = [];
   if (findSection('feelings')) steps.push({ id: 'feelings/check-in', sectionId: 'feelings', gameId: 'check-in', rounds: 1 });
   let subjects = 0;
+  const SUBJECTS = subjectsFor(day);
   SUBJECTS.forEach((sectionId, i) => {
     const section = findSection(sectionId);
     if (!section) return;

@@ -61,6 +61,17 @@ export function ParentArea({ navigate }: { navigate: Navigate }) {
         />
       </section>
 
+      <section className="parent-card">
+        <h2>📋 Ready for Grade R</h2>
+        <p className="parent-hint">
+          A report in the NCF's own words: the six learning areas and their aims, what her games show, things you've seen her do, and the stage she is at.
+          Print it or save it as a PDF for her school.
+        </p>
+        <button type="button" className="parent-btn" onClick={() => navigate({ name: 'report' })}>
+          Open the report
+        </button>
+      </section>
+
       <AboutHerCard />
 
       <FamilyCard />

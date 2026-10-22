@@ -17,6 +17,7 @@ import { SongsScreen } from './screens/SongsScreen';
 import { findSection } from './registry';
 import { hasName } from './name';
 import { aboutMeClips } from './aboutMe';
+import { ReportScreen } from './screens/ReportScreen';
 import { useFamily } from '../shared/family';
 import { setHapticsEnabled } from '../shared/haptics';
 import { preloadMusic, setBackgroundMusic, setBed } from '../shared/audio/music';
@@ -32,7 +33,8 @@ export type Screen =
   | { name: 'mission'; day: string; fresh?: boolean }
   | { name: 'calm' }
   | { name: 'songs' }
-  | { name: 'parent' };
+  | { name: 'parent' }
+  | { name: 'report' };
 
 export type Navigate = (screen: Screen) => void;
 
@@ -170,6 +172,8 @@ export function App() {
         return <HomeScreen navigate={navigate} />;
       case 'parent':
         return <ParentArea navigate={navigate} />;
+      case 'report':
+        return <ReportScreen navigate={navigate} />;
       case 'today':
         return <TodayScreen key={screen.justFinished ?? 'today'} navigate={navigate} justFinished={screen.justFinished} />;
       case 'stickers':

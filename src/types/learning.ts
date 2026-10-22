@@ -220,6 +220,8 @@ export interface MemoryMatchConfig {
   peekSeconds?: number;
   /** Hide one bonus pair of stinky cards on the board */
   stinkyPair?: boolean;
+  /** Take turns with a grown-up: a miss passes the turn; each finds pairs for their own pile */
+  turns?: boolean;
 }
 
 export interface FeedMeConfig {

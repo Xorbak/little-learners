@@ -1,6 +1,7 @@
 import type { Section } from '../../types/learning';
 import { worldClips, worldItems } from './things';
 import { touchAnimal, touchBody, touchWeather, whoSays } from './games';
+import { babiesGame, dressGame, growGame, helpersGame, moreWorldClips, moreWorldItems, sensesGame, timeGame } from './more';
 
 /** My World: animals and their sounds, my body, and the weather. */
 const world: Section = {
@@ -9,7 +10,7 @@ const world: Section = {
   titleClip: 'world.title',
   icon: '🌍',
   colour: '#94d82d',
-  items: worldItems,
+  items: { ...worldItems, ...moreWorldItems },
   clips: {
     'world.title': 'My world',
     'world.who-says-title': 'Who says moo?',
@@ -20,9 +21,16 @@ const world: Section = {
     'world.which-is': 'Which one is',
     'world.yes': 'Yes! It is',
     'world.that-one-is': 'Oops! That one is',
+    'world.babies-title': 'Baby animals',
+    'world.helpers-title': 'Who helps us?',
+    'world.dress-title': 'Dress for the weather',
+    'world.senses-title': 'My senses',
+    'world.grow-title': 'How things grow',
+    'world.time-title': 'Morning or night?',
     ...worldClips,
+    ...moreWorldClips,
   },
-  games: [whoSays, touchAnimal, touchBody, touchWeather],
+  games: [whoSays, touchAnimal, touchBody, touchWeather, babiesGame, helpersGame, dressGame, sensesGame, growGame, timeGame],
 };
 
 export default world;

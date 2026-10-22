@@ -8,6 +8,8 @@ export const animalKeys = {
   wild: ['lion', 'monkey', 'elephant', 'snake', 'frog', 'owl', 'bee'],
 };
 export const allAnimals = [...new Set([...animalKeys.firstThree, ...animalKeys.farm, ...animalKeys.wild, 'mouse'])];
+/** South African animals (the Big Five and friends) */
+export const saAnimals = ['lion', 'elephant', 'rhino', 'leopard', 'buffalo', 'zebra', 'giraffe', 'hippo', 'penguin', 'baboon', 'springbok', 'crocodile'];
 
 export const bodyKeys = {
   face: ['nose', 'eye', 'ear', 'mouth'],
@@ -38,6 +40,17 @@ export const { items: worldItems, clips: worldClips } = emojiItems('world', [
   { key: 'owl', emoji: '🦉', name: 'owl', sound: 'Hoo hoo!' },
   { key: 'bee', emoji: '🐝', name: 'bee', sound: 'Bzzzz!' },
   { key: 'mouse', emoji: '🐭', name: 'mouse', plural: 'mice', sound: 'Squeak squeak!' },
+  // South African animals
+  { key: 'rhino', emoji: '🦏', name: 'rhino' },
+  { key: 'leopard', emoji: '🐆', name: 'leopard' },
+  { key: 'buffalo', emoji: '🐃', name: 'buffalo', plural: 'buffalo' },
+  { key: 'zebra', emoji: '🦓', name: 'zebra' },
+  { key: 'giraffe', emoji: '🦒', name: 'giraffe' },
+  { key: 'hippo', emoji: '🦛', name: 'hippo' },
+  { key: 'penguin', emoji: '🐧', name: 'penguin' },
+  { key: 'baboon', emoji: '🐒', name: 'baboon' },
+  { key: 'springbok', emoji: '🦌', name: 'springbok', plural: 'springbok' },
+  { key: 'crocodile', emoji: '🐊', name: 'crocodile' },
   // Body
   { key: 'nose', emoji: '👃', name: 'nose' },
   { key: 'eye', emoji: '👁️', name: 'eye' },

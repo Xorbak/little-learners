@@ -1,5 +1,5 @@
 import type { Game } from '../../types/learning';
-import { allAnimals, animalKeys, bodyKeys, weatherKeys } from './things';
+import { allAnimals, animalKeys, bodyKeys, saAnimals, weatherKeys } from './things';
 
 /** "Who says moo?" She hears the sound and touches the animal; it answers with its name and sound. */
 export const whoSays: Game = {
@@ -24,6 +24,7 @@ export const touchAnimal: Game = {
     { id: 'farm', parentLabel: 'Farm animals', rounds: 6, activity: { kind: 'touch-it', pool: animalKeys.farm, choices: 3, varied: 'none' } },
     { id: 'wild', parentLabel: 'Wild animals', rounds: 6, activity: { kind: 'touch-it', pool: animalKeys.wild, choices: 4, varied: 'none' } },
     { id: 'all', parentLabel: 'All the animals', rounds: 6, activity: { kind: 'touch-it', pool: allAnimals, choices: 6, varied: 'none' } },
+    { id: 'south-africa', parentLabel: 'South African animals (the Big Five and friends)', rounds: 6, activity: { kind: 'touch-it', pool: saAnimals, choices: 4, varied: 'none' } },
   ],
 };
 

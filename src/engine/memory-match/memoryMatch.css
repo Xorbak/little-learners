@@ -198,3 +198,19 @@
   .mem-dot { width: 14px; height: 14px; border-width: 2px; }
   .mem-counter { gap: 5px; }
 }
+
+/* Taking turns with a grown-up */
+.mem-turns { display: flex; gap: 10px; }
+.mem-turn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.55);
+  font-size: 26px;
+  opacity: 0.6;
+  transition: transform 0.25s, opacity 0.25s, box-shadow 0.25s;
+}
+.mem-turn b { font-size: 22px; }
+.mem-turn--now { opacity: 1; background: #fff; transform: scale(1.12); box-shadow: 0 0 0 4px #ffd43b, var(--shadow); }

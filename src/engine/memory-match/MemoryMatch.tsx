@@ -86,6 +86,12 @@ function MemoryMatchRound({ config, target, items, onRoundComplete }: RoundProps
   const [hintId, setHintId] = useState<number | null>(null);
   const [stinkCloud, setStinkCloud] = useState(false);
   const layout = useBoardLayout(config.rows, config.cols);
+  // Taking turns with a grown-up: 0 = her, 1 = the grown-up
+  const turns = !!config.turns;
+  const [turn, setTurn] = useState<0 | 1>(0);
+  const [score, setScore] = useState<[number, number]>([0, 0]);
+  const turnRef = useRef<0 | 1>(0);
+  const point = () => setScore((s) => (turnRef.current === 0 ? [s[0] + 1, s[1]] : [s[0], s[1] + 1]));
 
   const firstRef = useRef<number | null>(null);
   const missStreak = useRef(0);
@@ -100,7 +106,10 @@ function MemoryMatchRound({ config, target, items, onRoundComplete }: RoundProps
 
   const nameOf = (key: string): ClipId => (key === STINKY ? 'memory.stinky-name' : items[key].nameClip);
 
-  const sayPrompt = useCallback(() => void narrator.say(['memory.find-two']), []);
+  const sayPrompt = useCallback(
+    () => void narrator.say(turns ? (turnRef.current === 0 ? ['shared.child-name', 'memory.turn-yours'] : ['memory.turn-grown-up']) : ['memory.find-two']),
+    [turns],
+  );
 
   // Start: optional peek at all the cards, then ask
   useEffect(() => {
@@ -116,7 +125,9 @@ function MemoryMatchRound({ config, target, items, onRoundComplete }: RoundProps
       }, peekMs);
       return () => window.clearTimeout(t);
     }
-    sayPrompt();
+    if (turns) void narrator.say(['memory.take-turns', 'shared.child-name', 'memory.goes-first']);
+    else sayPrompt();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [config.peekSeconds, sayPrompt]);
 
   // Gentle reminder if nothing happens for a while
@@ -132,9 +143,20 @@ function MemoryMatchRound({ config, target, items, onRoundComplete }: RoundProps
 
   useEffect(() => {
     if (!finished) return;
+    if (turns) {
+      let alive = true;
+      void (async () => {
+        await new Promise((r) => setTimeout(r, 900));
+        await narrator.say(['memory.together-done']);
+        if (alive) onRoundComplete();
+      })();
+      return () => {
+        alive = false;
+      };
+    }
     const t = window.setTimeout(onRoundComplete, 1100);
     return () => window.clearTimeout(t);
-  }, [finished, onRoundComplete]);
+  }, [finished, onRoundComplete, turns]);
 
   const setStatus = (ids: number[], status: CardStatus) =>
     setCards((list) => list.map((c) => (ids.includes(c.id) ? { ...c, status } : c)));
@@ -186,6 +208,7 @@ function MemoryMatchRound({ config, target, items, onRoundComplete }: RoundProps
         later(() => setStinkCloud(false), 2600);
         later(() => {
           setStatus(pair, 'matched');
+          point();
           setBusy(false);
         }, 1600);
       } else {
@@ -195,6 +218,7 @@ function MemoryMatchRound({ config, target, items, onRoundComplete }: RoundProps
           sfx.pop();
           sfx.sparkle();
           setStatus(pair, 'matched');
+          point();
           pair.forEach((id, i) => {
             const el = cardEl(id);
             window.setTimeout(() => fx.jump(el, 26), i * 90);
@@ -225,6 +249,14 @@ function MemoryMatchRound({ config, target, items, onRoundComplete }: RoundProps
       setWobbling([]);
       setStatus(pair, 'down');
       setBusy(false);
+      // Taking turns: a miss passes the turn
+      if (turns) {
+        const next = turnRef.current === 0 ? 1 : 0;
+        turnRef.current = next;
+        setTurn(next);
+        missStreak.current = 0;
+        void narrator.say(next === 0 ? ['shared.child-name', 'memory.turn-yours'] : ['memory.turn-grown-up']);
+      }
     }, 2300);
   };
 
@@ -232,11 +264,22 @@ function MemoryMatchRound({ config, target, items, onRoundComplete }: RoundProps
     <div className="mem-round">
       <header className="mem-prompt">
         <SpeakerButton onPress={sayPrompt} />
-        <div className="mem-counter" aria-label={`${pairsFound} of ${totalPairs} pairs found`}>
-          {Array.from({ length: totalPairs }, (_, i) => (
-            <span key={i} className={`mem-dot ${i < pairsFound ? 'mem-dot--done' : ''}`} />
-          ))}
-        </div>
+        {turns ? (
+          <div className="mem-turns" aria-label={turn === 0 ? 'Her turn' : "Grown-up's turn"}>
+            <span className={`mem-turn ${turn === 0 ? 'mem-turn--now' : ''}`}>
+              🧒 <b>{score[0]}</b>
+            </span>
+            <span className={`mem-turn ${turn === 1 ? 'mem-turn--now' : ''}`}>
+              🧑 <b>{score[1]}</b>
+            </span>
+          </div>
+        ) : (
+          <div className="mem-counter" aria-label={`${pairsFound} of ${totalPairs} pairs found`}>
+            {Array.from({ length: totalPairs }, (_, i) => (
+              <span key={i} className={`mem-dot ${i < pairsFound ? 'mem-dot--done' : ''}`} />
+            ))}
+          </div>
+        )}
       </header>
 
       <div className="mem-board-wrap">
@@ -311,5 +354,10 @@ export const memoryMatch: Mechanic<MemoryMatchConfig> = {
     'memory.stinky-name': 'stinky',
     'memory.stinky-flip': 'Ooh, a stinky card! Find the other one!',
     'memory.stinky-match': 'Pee-yew! You found the stinky pair!',
+    'memory.take-turns': "Let's take turns! Turn over two cards. If they are not the same, it's the next person's turn.",
+    'memory.goes-first': 'goes first!',
+    'memory.turn-yours': "it's your turn!",
+    'memory.turn-grown-up': "Grown-up's turn!",
+    'memory.together-done': 'All the pairs! Well played, both of you. Taking turns is fun!',
   },
 };

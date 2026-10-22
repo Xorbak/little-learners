@@ -1,5 +1,5 @@
 import type { Game, LearningItem, Section, SortSet } from '../../types/learning';
-import { EmojiPicture } from '../../shared/ui/emojiItems';
+import { EmojiPicture, emojiItems } from '../../shared/ui/emojiItems';
 import { Pic } from '../../shared/ui/scenes';
 import { orderItem, picAnswer, pickNew, quizItem, shuffle, simpleQuestions } from '../../shared/quiz';
 import { ME_QUESTIONS } from '../../engine/about-me/AboutMe';
@@ -197,7 +197,7 @@ const { items: whatToDo, clips: whatClips } = simpleQuestions(
     { key: 'eat', scene: '🍽️', ask: 'It’s time to eat. What do you do first?', answers: [['🧼', 'Wash your hands'], ['🐶', 'Pat the dog'], ['📺', 'Watch TV']], yes: 'Wash your hands, to wash the germs away.' },
     { key: 'sneeze', scene: '🤧', ask: 'You need to sneeze! What do you do?', answers: [['💪', 'Sneeze into your elbow'], ['🧑🏽', 'Sneeze on your friend'], ['🍪', 'Sneeze on the food']], yes: 'Sneeze into your elbow, so the germs don’t spread.' },
     { key: 'tidy', scene: '🧸🧱🚗', ask: 'It’s tidy up time. What do you do?', answers: [['📦', 'Pack the toys away'], ['🏃', 'Run away'], ['📺', 'Watch TV']], yes: 'Pack them away. Tidy up, tidy up, everybody tidy up!' },
-    { key: 'swing', scene: '🛝', ask: 'You want a turn on the swing, but your friend is on it. What do you do?', answers: [['⏳', 'Wait for your turn'], ['🫸', 'Push your friend off'], ['😭', 'Cry and cry']], yes: 'Wait for your turn. Taking turns is fair!' },
+    { key: 'swing', scene: '🛝', ask: 'You want a turn on the swing, but your friend is on it. What do you do?', answers: [['⏳', 'Wait for your turn'], ['💢', 'Push your friend off'], ['😭', 'Cry and cry']], yes: 'Wait for your turn. Taking turns is fair!' },
     { key: 'fire', scene: '🔥🏠', ask: 'There is a fire! What do you do?', answers: [['🏃‍♀️', 'Get out fast, and shout for a grown-up'], ['🛏️', 'Hide under the bed'], ['🧸', 'Look for your toys']], yes: 'Get out fast, shout for a grown-up, and never go back inside.' },
     { key: 'dog', scene: '🐕', ask: 'A dog you don’t know comes up to you. What do you do?', answers: [['🧍', 'Stand still like a tree'], ['🤚', 'Pull its tail'], ['😱', 'Scream and run']], yes: 'Stand still like a tree, and let a grown-up help. Only pat a dog when its owner says you may.' },
     { key: 'sad-friend', scene: '🧒🏿😢', ask: 'Your friend is sad. What can you do?', answers: [['🤗', 'Give them a hug, or play with them'], ['😝', 'Pull a face at them'], ['🚶', 'Walk away']], yes: 'Be a good friend. Ask if they want a hug, or to play.' },
@@ -237,6 +237,22 @@ const celebrate = quizItem('q-celebrate', (c) => {
     yes: ['pick.yes', `me.day.${key}.about`],
   };
 });
+
+// ---------------------------------------------------------------------------
+// Take turns: Memory with a grown-up
+// ---------------------------------------------------------------------------
+const { items: cardItems, clips: cardClips } = emojiItems('me.card', [
+  { key: 'dog', emoji: '🐶', name: 'dog' },
+  { key: 'cat', emoji: '🐱', name: 'cat' },
+  { key: 'frog', emoji: '🐸', name: 'frog' },
+  { key: 'lion', emoji: '🦁', name: 'lion' },
+  { key: 'monkey', emoji: '🐵', name: 'monkey' },
+  { key: 'rabbit', emoji: '🐰', name: 'rabbit' },
+  { key: 'panda', emoji: '🐼', name: 'panda' },
+  { key: 'giraffe', emoji: '🦒', name: 'giraffe' },
+]);
+for (const item of Object.values(cardItems)) item.track = false;
+const cards = Object.keys(cardItems);
 
 // ---------------------------------------------------------------------------
 // Games
@@ -318,13 +334,25 @@ const celebrateGame: Game = {
   ],
 };
 
+const turnsGame: Game = {
+  id: 'take-turns',
+  titleClip: 'me.turns-title',
+  icon: '👫',
+  levels: [
+    { id: '2x3', parentLabel: 'Memory with a grown-up, taking turns: 2×3, with a peek', rounds: 2, activity: { kind: 'memory-match', pool: cards, rows: 2, cols: 3, peekSeconds: 3, turns: true } },
+    { id: '2x4', parentLabel: 'Taking turns: 2×4', rounds: 2, activity: { kind: 'memory-match', pool: cards, rows: 2, cols: 4, turns: true } },
+    { id: '3x4', parentLabel: 'Taking turns: 3×4', rounds: 2, activity: { kind: 'memory-match', pool: cards, rows: 3, cols: 4, turns: true } },
+    { id: '4x4', parentLabel: 'Taking turns: 4×4 + stinky pair', rounds: 1, activity: { kind: 'memory-match', pool: cards, rows: 4, cols: 4, stinkyPair: true, turns: true } },
+  ],
+};
+
 const me: Section = {
   id: 'me',
   order: 5.5,
   titleClip: 'me.title',
   icon: '🙋',
   colour: '#63e6be',
-  items: { ...meItems, family: familyItem, ...routineItems, ...sortItems, 'q-from': whereFrom, ...whatToDo, 'q-celebrate': celebrate },
+  items: { ...cardItems, ...meItems, family: familyItem, ...routineItems, ...sortItems, 'q-from': whereFrom, ...whatToDo, 'q-celebrate': celebrate },
   clips: {
     'me.title': 'All about me',
     'me.about-title': 'About me',
@@ -334,6 +362,8 @@ const me: Section = {
     'me.safe-title': 'Safe or not?',
     'me.what-title': 'What should I do?',
     'me.celebrate-title': 'Days we celebrate',
+    'me.turns-title': 'Take turns',
+    ...cardClips,
     'me.do.hmm': 'Hmm, is that a good idea? Have another think!',
     'me.sort.healthy': 'Food we can eat every day goes in the green basket. Sometimes food, like sweets and chips, goes in the orange basket!',
     'me.sort.plant-animal': 'Does it come from a plant, or from an animal?',
@@ -349,7 +379,7 @@ const me: Section = {
     ...whatClips,
     ...dayClips,
   },
-  games: [aboutMeGame, familyGame, routinesGame, foodGame, safeGame, whatGame, celebrateGame],
+  games: [aboutMeGame, familyGame, routinesGame, foodGame, safeGame, whatGame, turnsGame, celebrateGame],
   trackProgress: false,
 };
 
