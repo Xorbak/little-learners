@@ -1,6 +1,6 @@
 import type { Game, LearningItem, QuizAnswer } from '../../types/learning';
 import { Balance, Glass, Pencil, PlaceScene, Pic, Tower, type Place } from '../../shared/ui/scenes';
-import { orderItem, pickOne, quizItem, shuffle } from '../../shared/quiz';
+import { orderItem, pickNew, pickOne, quizItem, shuffle } from '../../shared/quiz';
 
 /**
  * Shape, space and measurement (NCF Exploring mathematics): where things are
@@ -28,7 +28,7 @@ const whereIsIt = quizItem('q-where', (c) => {
   const group = TABLE_PLACES.includes(place) ? TABLE_PLACES : BOX_PLACES;
   const object = group === TABLE_PLACES ? 'where.the-table' : 'where.the-box';
   const options = group.filter((p) => allowed.includes(p));
-  const thing = pickOne(WHERE_THINGS);
+  const thing = pickNew('where-thing', WHERE_THINGS);
   const answers: QuizAnswer[] = options.map((p) => ({
     key: p,
     right: p === place,
@@ -62,7 +62,7 @@ const compare = quizItem('q-compare', (c) => {
 
   // Heavier or lighter: two things on a balance
   if (kind === 'heavier' || kind === 'lighter') {
-    const [heavy, heavyClip, light, lightClip] = pickOne(HEAVY_LIGHT);
+    const [heavy, heavyClip, light, lightClip] = pickNew('heavy', HEAVY_LIGHT);
     const heavyLeft = Math.random() < 0.5;
     const want = kind === 'heavier';
     return {

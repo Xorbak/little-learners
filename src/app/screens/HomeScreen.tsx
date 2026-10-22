@@ -6,6 +6,35 @@ import { requiredSteps, todaysPlan } from '../daily';
 import type { Navigate } from '../App';
 import { sections } from '../registry';
 import { Tag, words } from '../../shared/ui/Tag';
+import { useEffect, useState } from 'react';
+import { ageOf, isBirthdayToday } from '../aboutMe';
+import { fanfare } from '../../shared/audio/music';
+import { fx } from '../../shared/fx';
+import { Celebration } from '../../shared/ui/Celebration';
+
+/** On her birthday (from About her), a surprise the first time she opens the app that day */
+function BirthdaySurprise() {
+  const profile = progress.profile();
+  const year = new Date().getFullYear();
+  const [show, setShow] = useState(() => isBirthdayToday(profile.aboutMe?.birthday) && profile.birthdaySeen !== year);
+  useEffect(() => {
+    if (!show) return;
+    progress.setBirthdaySeen(year);
+    fanfare();
+    fx.shake(0.6);
+    const age = ageOf(profile.aboutMe?.birthday);
+    void narrator.say(['home.birthday', 'shared.child-name', ...(age ? ['home.birthday-age', `numbers.name.${age}`] : []), 'home.birthday-end']);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  if (!show) return null;
+  return (
+    <div className="birthday" onClick={() => setShow(false)} role="dialog" aria-label="Happy birthday">
+      <Celebration big />
+      <span className="birthday-cake">🎂</span>
+      <span className="birthday-words">Happy birthday{profile.name && profile.name !== 'My little one' ? `, ${profile.name}` : ''}!</span>
+    </div>
+  );
+}
 
 export function HomeScreen({ navigate }: { navigate: Navigate }) {
   useProgress();
@@ -16,6 +45,7 @@ export function HomeScreen({ navigate }: { navigate: Navigate }) {
 
   return (
     <main className="screen screen--scroll screen--home">
+      <BirthdaySurprise />
       <div className="corner-left">
         <button
           type="button"

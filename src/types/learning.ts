@@ -483,8 +483,24 @@ export interface SayItConfig {
   askClip?: ClipId;
 }
 
+export interface AboutMeConfig {
+  kind: 'about-me';
+  /** Question keys (me-name, me-age, me-town…) */
+  pool: string[];
+}
+
+export interface FamilyConfig {
+  kind: 'family';
+  /** Not used for picking (photos come from the grown-ups area); one item to keep her answers */
+  pool: string[];
+  /** 1 = "Who is this?" with one photo; more = "Touch Mama!" with that many photos */
+  choices: number;
+}
+
 export type ActivityConfig =
   | PickItConfig
+  | AboutMeConfig
+  | FamilyConfig
   | BeatsConfig
   | StoryConfig
   | SayItConfig

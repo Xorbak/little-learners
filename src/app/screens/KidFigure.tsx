@@ -192,6 +192,61 @@ const MOVES: Record<Exclude<KidPose, 'wheelbarrow'>, { ms: number; parts: Partia
       'arm-r': rot(-80, -90, -80),
     },
   },
+  skip: {
+    ms: 800,
+    parts: {
+      'leg-l': [{ transform: 'scaleY(1)' }, { transform: 'scaleY(0.5)' }, { transform: 'scaleY(1)' }, { transform: 'scaleY(1)' }, { transform: 'scaleY(1)' }],
+      'leg-r': [{ transform: 'scaleY(1)' }, { transform: 'scaleY(1)' }, { transform: 'scaleY(1)' }, { transform: 'scaleY(0.5)' }, { transform: 'scaleY(1)' }],
+      'arm-l': rot(-30, 35, -30, 35, -30),
+      'arm-r': rot(-35, 30, -35, 30, -35),
+      body: [{ transform: 'translateY(0)' }, { transform: 'translateY(-16px)' }, { transform: 'translateY(0)' }, { transform: 'translateY(-16px)' }, { transform: 'translateY(0)' }],
+      shadow: [{ transform: 'scale(1)' }, { transform: 'scale(0.85)' }, { transform: 'scale(1)' }, { transform: 'scale(0.85)' }, { transform: 'scale(1)' }],
+    },
+  },
+  gallop: {
+    ms: 650,
+    parts: {
+      'leg-l': rot(0, 24, 0),
+      'leg-r': rot(0, -14, 0),
+      'arm-l': rot(-55, -45, -55),
+      'arm-r': rot(55, 45, 55),
+      body: [{ transform: 'translate(0, 0)' }, { transform: 'translate(-6px, -18px)' }, { transform: 'translate(0, 0)' }],
+      shadow: [{ transform: 'scale(1)' }, { transform: 'scale(0.8)' }, { transform: 'scale(1)' }],
+    },
+  },
+  'jump-fb': {
+    ms: 1300,
+    parts: {
+      body: [
+        { transform: 'translateY(0) scale(1)' },
+        { transform: 'translateY(-20px) scale(1.06)', offset: 0.25 },
+        { transform: 'translateY(0) scale(1.12)', offset: 0.5 },
+        { transform: 'translateY(-20px) scale(1.06)', offset: 0.75 },
+        { transform: 'translateY(0) scale(1)' },
+      ],
+      'arm-l': rot(10, 70, 10, 70, 10),
+      'arm-r': rot(-10, -70, -10, -70, -10),
+    },
+  },
+  balance: {
+    ms: 1200,
+    parts: {
+      'leg-r': [{ transform: 'rotate(-30deg) scaleY(0.6)' }, { transform: 'rotate(-34deg) scaleY(0.58)' }, { transform: 'rotate(-30deg) scaleY(0.6)' }],
+      'arm-l': rot(80, 72, 86, 80),
+      'arm-r': rot(-80, -86, -72, -80),
+      body: [{ transform: 'rotate(0deg)' }, { transform: 'rotate(-3deg)' }, { transform: 'rotate(3deg)' }, { transform: 'rotate(0deg)' }],
+    },
+  },
+  dance: {
+    ms: 1100,
+    parts: {
+      'arm-l': rot(10, 160, 160, 10, 10),
+      'arm-r': rot(-10, -10, -160, -160, -10),
+      body: [{ transform: 'rotate(0deg)' }, { transform: 'rotate(-6deg)' }, { transform: 'rotate(0deg)' }, { transform: 'rotate(6deg)' }, { transform: 'rotate(0deg)' }],
+      'leg-l': [{ transform: 'scaleY(1)' }, { transform: 'scaleY(0.85)' }, { transform: 'scaleY(1)' }, { transform: 'scaleY(1)' }, { transform: 'scaleY(1)' }],
+      'leg-r': [{ transform: 'scaleY(1)' }, { transform: 'scaleY(1)' }, { transform: 'scaleY(1)' }, { transform: 'scaleY(0.85)' }, { transform: 'scaleY(1)' }],
+    },
+  },
   tiptoe: {
     ms: 700,
     parts: {

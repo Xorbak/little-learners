@@ -51,6 +51,27 @@ export interface ChildProfile {
   missions?: Record<string, { id: string; done?: boolean }>;
   /** Today's lessons: which steps are done, per day (kept for two weeks) */
   daily?: Record<string, { done: string[]; trophy?: boolean }>;
+  /** Her details, typed by a grown-up, for the About Me practice (kept on this phone only) */
+  aboutMe?: AboutMe;
+  /** Grown-ups' ticks for the Grade R report: aim id → stage reached, with a note */
+  report?: Record<string, { stage: number; note?: string; date: string }>;
+  /** The last year she got her birthday surprise */
+  birthdaySeen?: number;
+}
+
+export interface AboutMe {
+  surname?: string;
+  /** YYYY-MM-DD */
+  birthday?: string;
+  /** Suburb or town ("I live in Durbanville") */
+  town?: string;
+  /** Street address ("12 Rose Street") */
+  street?: string;
+  /** A grown-up's phone number */
+  phone?: string;
+  /** Whose phone number it is ("Mama's") */
+  phoneOf?: string;
+  school?: string;
 }
 
 /** Everything a sticker can be. She collects new ones first; once she has them all, repeats are fine. */
@@ -280,6 +301,24 @@ export const progress = {
       const m = p.missions?.[day];
       return m ? { ...p, missions: { ...p.missions, [day]: { ...m, done: true } } } : p;
     });
+  },
+
+  setAboutMe(change: Partial<AboutMe>) {
+    updateProfile((p) => ({ ...p, aboutMe: { ...p.aboutMe, ...change } }));
+  },
+
+  /** Grown-ups' tick in the Grade R report (stage 0 clears it) */
+  setReport(aim: string, stage: number, note?: string) {
+    updateProfile((p) => {
+      const report = { ...(p.report ?? {}) };
+      if (stage <= 0 && !note) delete report[aim];
+      else report[aim] = { stage, note, date: today() };
+      return { ...p, report };
+    });
+  },
+
+  setBirthdaySeen(year: number) {
+    updateProfile((p) => ({ ...p, birthdaySeen: year }));
   },
 
   setName(name: string) {

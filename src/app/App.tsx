@@ -16,6 +16,8 @@ import { CalmScreen } from './screens/CalmScreen';
 import { SongsScreen } from './screens/SongsScreen';
 import { findSection } from './registry';
 import { hasName } from './name';
+import { aboutMeClips } from './aboutMe';
+import { useFamily } from '../shared/family';
 import { setHapticsEnabled } from '../shared/haptics';
 import { preloadMusic, setBackgroundMusic, setBed } from '../shared/audio/music';
 
@@ -57,11 +59,14 @@ export function App() {
     document.documentElement.toggleAttribute('data-no-labels', saved.showLabels === false);
   }, [saved.showLabels]);
 
-  // Her name, so the narrator can greet her (record it as shared.child-name if you like)
+  // Her name, so the narrator can greet her (record it as shared.child-name if you like),
+  // and her details and family names for All About Me
   const childName = saved.profiles[saved.activeProfileId].name;
+  const aboutMe = saved.profiles[saved.activeProfileId].aboutMe;
+  const familyMembers = useFamily();
   useEffect(() => {
-    narrator.registerClips({ 'shared.child-name': hasName(childName) ? childName : '' });
-  }, [childName]);
+    narrator.registerClips({ 'shared.child-name': hasName(childName) ? childName : '', ...aboutMeClips(childName, aboutMe, familyMembers) });
+  }, [childName, aboutMe, familyMembers]);
 
   // ---- Play time: exercise breaks and the end of the session ----
   const [guard, setGuard] = useState<null | 'break' | 'rest'>(null);

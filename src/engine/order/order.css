@@ -67,11 +67,13 @@
 }
 
 .order-card { background: rgba(255, 255, 255, 0.72); }
-.order-card--gone {
+.touch-choice.order-card--gone {
   opacity: 0;
+  visibility: hidden;
   transform: scale(0.3);
   pointer-events: none;
-  transition: opacity 0.25s, transform 0.25s;
+  /* hidden once it has shrunk (the listen-first dimming must not bring it back) */
+  transition: opacity 0.25s, transform 0.25s, visibility 0s 0.25s;
   animation: none;
 }
 

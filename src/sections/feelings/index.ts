@@ -1,5 +1,6 @@
 import type { Game, Section } from '../../types/learning';
 import { emojiItems } from '../../shared/ui/emojiItems';
+import { simpleQuestions } from '../../shared/quiz';
 
 /**
  * Feelings: names for how we feel. "Who is happy?" and a daily check-in
@@ -44,15 +45,45 @@ const whoIs: Game = {
   ],
 };
 
+/** How do they feel? A little situation, and the faces to choose from (NCF: match feelings to pictures) */
+const { items: situations, clips: situationClips } = simpleQuestions(
+  'feel.sit',
+  [
+    { key: 'present', scene: '🧒🏽🎁', ask: 'It’s his birthday, and he got a big present! How does he feel?', answers: [['😊', 'happy'], ['😢', 'sad'], ['😴', 'sleepy']], yes: 'He feels happy!' },
+    { key: 'ice-cream', scene: '🍦💥', ask: 'Oh no! Her ice cream fell on the ground. How does she feel?', answers: [['😢', 'sad'], ['😊', 'happy'], ['🤪', 'silly']], yes: 'She feels sad. Maybe a hug will help.' },
+    { key: 'tower', scene: '🧱💥', ask: 'Someone knocked his tower down, on purpose! How does he feel?', answers: [['😠', 'cross'], ['😴', 'sleepy'], ['😊', 'happy']], yes: 'He feels cross. He can take big breaths, and say: I don’t like that!' },
+    { key: 'storm', scene: '⛈️🛏️', ask: 'There is a loud storm in the night. Boom! How does she feel?', answers: [['😨', 'scared'], ['😊', 'happy'], ['🤪', 'silly']], yes: 'She feels scared. A grown-up can give her a cuddle.' },
+    { key: 'late', scene: '🌙🥱', ask: 'It’s very late, and he played all day long. How does he feel?', answers: [['😴', 'sleepy'], ['😠', 'cross'], ['😲', 'surprised']], yes: 'He feels sleepy. Time for bed!' },
+    { key: 'box', scene: '📦🎈', ask: 'She opens a box, and balloons pop out! How does she feel?', answers: [['😲', 'surprised'], ['😢', 'sad'], ['😴', 'sleepy']], yes: 'She feels surprised! Ooh!' },
+    { key: 'face', scene: '🤡👨🏾', ask: 'Daddy pulls a funny face. How does she feel?', answers: [['🤪', 'silly'], ['😨', 'scared'], ['😢', 'sad']], yes: 'She feels silly! Hee hee!' },
+    { key: 'moved', scene: '👋🚚', ask: 'Her best friend moved far away. How does she feel?', answers: [['😢', 'sad'], ['🤩', 'excited'], ['🤪', 'silly']], yes: 'She feels sad. She can draw a picture for her friend.' },
+    { key: 'party', scene: '🎢🎡', ask: 'Tomorrow they are going to the fun fair! How does he feel?', answers: [['🤩', 'excited'], ['😢', 'sad'], ['😴', 'sleepy']], yes: 'He feels excited! Woohoo!' },
+    { key: 'dog', scene: '🐶💕', ask: 'Her puppy licks her face. How does she feel?', answers: [['😊', 'happy'], ['😠', 'cross'], ['😨', 'scared']], yes: 'She feels happy!' },
+    { key: 'dark', scene: '🌑🔦', ask: 'The lights went out, and it’s very dark. How does he feel?', answers: [['😨', 'scared'], ['🤩', 'excited'], ['😊', 'happy']], yes: 'He feels a bit scared. It’s OK. A grown-up will find a torch.' },
+    { key: 'grab', scene: '🧸🫳', ask: 'Her brother grabbed her teddy. How does she feel?', answers: [['😠', 'cross'], ['😊', 'happy'], ['😴', 'sleepy']], yes: 'She feels cross. She can say: Please give it back!' },
+  ],
+  { oops: ['feel.sit.hmm'] },
+);
+
+const howDoTheyFeel: Game = {
+  id: 'how-feel',
+  titleClip: 'feel.situations-title',
+  icon: '🍦',
+  levels: [{ id: 'all', parentLabel: 'How does she feel? (little situations)', rounds: 6, activity: { kind: 'pick-it', pool: Object.keys(situations) } }],
+};
+
 const feelings: Section = {
   id: 'feelings',
   order: 6,
   titleClip: 'feel.title',
   icon: '😊',
   colour: '#ffd43b',
-  items: { ...items, ...checkInItems },
+  items: { ...items, ...checkInItems, ...situations },
   clips: {
     ...clips,
+    ...situationClips,
+    'feel.situations-title': 'How do they feel?',
+    'feel.sit.hmm': 'Hmm, would they feel like that? Have another look!',
     ...faceNames,
     'feel.title': 'Feelings',
     'feel.check-in-title': 'How do you feel?',
@@ -61,7 +92,7 @@ const feelings: Section = {
     'feel.yes': 'Yes! That face is',
     'feel.that-face-is': 'Oops! That face is',
   },
-  games: [checkInGame, whoIs],
+  games: [checkInGame, whoIs, howDoTheyFeel],
 };
 
 export default feelings;

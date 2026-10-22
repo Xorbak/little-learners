@@ -17,6 +17,8 @@ import { EXERCISES } from '../exercises';
 import { playClock, UNTIL_TOMORROW } from '../../shared/playtime';
 import { soundExamples } from '../../sections/letters/words';
 import { haptic, setHapticsEnabled } from '../../shared/haptics';
+import { AboutHerCard, FamilyCard } from './parent/AboutHerCards';
+import { FAMILY_KEY } from '../../shared/family';
 
 /**
  * Grown-ups only (behind the hold-to-enter button).
@@ -58,6 +60,10 @@ export function ParentArea({ navigate }: { navigate: Navigate }) {
           onBlur={(e) => progress.setName(e.target.value.trim() || 'My little one')}
         />
       </section>
+
+      <AboutHerCard />
+
+      <FamilyCard />
 
       <PlayTimeCard />
 
@@ -652,7 +658,7 @@ function AfrikaansCard() {
 /** Save all her progress to a file, and bring it back (new phone, cleared browser) */
 function BackupCard() {
   const [message, setMessage] = useState('');
-  const KEYS = ['little-learners', 'little-learners-clock'];
+  const KEYS = ['little-learners', 'little-learners-clock', FAMILY_KEY];
   const save = () => {
     const data: Record<string, unknown> = { app: 'little-learners', saved: new Date().toISOString() };
     for (const k of KEYS) {
@@ -672,7 +678,7 @@ function BackupCard() {
     try {
       const data = JSON.parse(await file.text());
       if (data.app !== 'little-learners' || !data['little-learners']?.profiles) throw new Error('not a Little Learners backup');
-      for (const k of KEYS) if (data[k]) localStorage.setItem(k, JSON.stringify(data[k]));
+      for (const k of KEYS) if (data[k] !== undefined) localStorage.setItem(k, JSON.stringify(data[k]));
       setMessage('Restored. Starting again…');
       window.setTimeout(() => window.location.reload(), 800);
     } catch (e) {
@@ -683,7 +689,7 @@ function BackupCard() {
     <section className="parent-card">
       <h2>Backup</h2>
       <p className="parent-hint">
-        Everything she has done (progress, stickers, Afrikaans words, settings) is kept on this phone, in the browser. The app asks the
+        Everything she has done (progress, stickers, Afrikaans words, settings, her details and family photos) is kept on this phone, in the browser. The app asks the
         browser never to clear it, but clearing Chrome's data would. Save a backup now and then; restore it on a new phone or after clearing.
       </p>
       <div className="rest-panel-buttons">

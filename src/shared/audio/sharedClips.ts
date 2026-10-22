@@ -32,6 +32,9 @@ export const sharedClips: ClipTable = {
   'today.next': 'Well done! Ready for the next one?',
   'today.all-done': 'You did all of today’s lessons! Here is a golden trophy!',
   'today.all-done-again': 'All done for today! Time to go and play.',
+  'home.birthday': 'Happy birthday,',
+  'home.birthday-age': '! Today you are',
+  'home.birthday-end': '! Hip hip, hooray!',
 };
 
 export const praiseClips = ['shared.praise.1', 'shared.praise.2', 'shared.praise.3', 'shared.praise.4'];

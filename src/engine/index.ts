@@ -23,6 +23,8 @@ import { share } from './share/Share';
 import { beats } from './beats/Beats';
 import { storyTime } from './story/Story';
 import { sayIt } from './say-it/SayIt';
+import { aboutMe } from './about-me/AboutMe';
+import { familyGame } from './family/Family';
 
 /**
  * Every game mechanic, keyed by its activity `kind`.
@@ -57,6 +59,8 @@ export const mechanics: { [K in ActivityConfig['kind']]: Mechanic<Extract<Activi
   beats,
   story: storyTime,
   'say-it': sayIt,
+  'about-me': aboutMe,
+  family: familyGame,
 };
 
 export function mechanicFor<C extends ActivityConfig>(config: C): Mechanic<C> {

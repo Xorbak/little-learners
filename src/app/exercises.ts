@@ -8,7 +8,7 @@ import type { StickerAction } from './stickers';
  * along while she does it.
  */
 export type MoveBeat = 'jump' | 'stomp' | 'sway' | 'stretch' | 'shake' | 'balance';
-export type KidPose = 'jacks' | 'run' | 'march' | 'toes' | 'hop' | 'twirl' | 'tiptoe' | 'wheelbarrow';
+export type KidPose = 'jacks' | 'run' | 'march' | 'toes' | 'hop' | 'twirl' | 'tiptoe' | 'wheelbarrow' | 'skip' | 'gallop' | 'jump-fb' | 'balance' | 'dance';
 
 export interface Exercise {
   key: string;
@@ -38,6 +38,11 @@ export const EXERCISES: Exercise[] = [
   { key: 'hop-one-foot', kid: 'hop', beat: 'jump', count: 6, icon: '🦶', name: 'Hop on one foot', says: 'Hop on one foot! Arms out to help you balance!', well: 'Hoppity hop! Well done!' },
   { key: 'twirl', kid: 'twirl', beat: 'balance', count: 3, icon: '💃', name: 'Twirl around', says: 'Twirl around like a ballerina! Slowly, round and round.', well: 'Beautiful twirling!' },
   { key: 'tiptoe', kid: 'tiptoe', beat: 'balance', count: 8, icon: '🐭', name: 'Tiptoe walk', says: 'Walk on your tiptoes, as quiet as a mouse!', well: 'Shh! So quiet!' },
+  { key: 'skip', kid: 'skip', beat: 'jump', count: 8, icon: '🎀', name: 'Skipping', says: 'Skipping! Step and hop, step and hop, and swing your arms!', well: 'Super skipping!' },
+  { key: 'gallop', kid: 'gallop', beat: 'jump', count: 8, icon: '🐴', name: 'Gallop like a horse', says: 'Gallop like a horse! One foot in front, and gallop, gallop, gallop!', well: 'Giddy up! Great galloping!' },
+  { key: 'jump-front-back', kid: 'jump-fb', beat: 'jump', count: 8, icon: '↕️', name: 'Jump forwards and backwards', says: 'Feet together! Jump forwards, then jump backwards. Forwards, backwards!', well: 'Forwards, backwards! Brilliant!' },
+  { key: 'stand-one-leg', kid: 'balance', beat: 'balance', count: 5, icon: '🦶', name: 'Stand on one leg, count to five', says: 'Stand on one leg, with your arms out wide. Can you keep still while we count to five?', well: 'Wow! What balance!' },
+  { key: 'dance', kid: 'dance', beat: 'sway', count: 8, icon: '🕺', name: 'Dance moves', says: "Let's dance! One arm up, other arm up, and wiggle your hips!", well: 'What a dancer!' },
   { key: 'wheelbarrow', kid: 'wheelbarrow', beat: 'sway', count: 8, grownUp: true, icon: '🛞', name: 'Wheelbarrow walk (with a grown-up)', says: 'Wheelbarrow walk! Ask a grown-up to hold your legs, and walk on your hands!', well: 'Wheelbarrow champion!' },
   // Animals
   { key: 'bunny-hops', emoji: '🐰', demo: 'hop', beat: 'jump', count: 6, icon: '🐰', name: 'Bunny hops', says: 'Bunny hops! Put your hands up like ears, and hop, hop, hop!', well: 'Bouncy bunny!' },

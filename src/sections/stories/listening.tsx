@@ -1,6 +1,6 @@
 import type { ClipId, LearningItem, QuizAnswer } from '../../types/learning';
 import { Pic } from '../../shared/ui/scenes';
-import { picAnswer, pickOne, quizItem, shuffle, textAnswer } from '../../shared/quiz';
+import { picAnswer, pickNew, pickOne, quizItem, shuffle, textAnswer } from '../../shared/quiz';
 import { EVERYDAY_SOUNDS, playEveryday, type EverydaySound } from '../../shared/audio/everyday';
 import { progress } from '../../shared/progress/store';
 import { hasName } from '../../app/name';
@@ -55,7 +55,7 @@ Object.assign(clips, {
 });
 
 const rhyme = quizItem('q-rhyme', (c) => {
-  const pair = pickOne(RHYMES);
+  const pair = pickNew('rhyme', RHYMES);
   const flip = Math.random() < 0.5;
   const [word, wordEmoji, right, rightEmoji] = flip ? [pair[2], pair[3], pair[0], pair[1]] : pair;
   const others = shuffle(RHYMES.filter((p) => p !== pair))
@@ -106,7 +106,7 @@ export const MORE_SOUNDS: EverydaySound[] = [...EASY_SOUNDS, 'clock', 'siren', '
 
 const sounds = quizItem('q-sound', (c) => {
   const pool = (c.modes as EverydaySound[] | undefined) ?? [...EVERYDAY_SOUNDS];
-  const key = pickOne(pool);
+  const key = pickNew('sound', pool);
   const others = shuffle(pool.filter((k) => k !== key)).slice(0, (c.choices ?? 3) - 1);
   return {
     Scene: ({ width, height }) => <Pic e="👂" size={Math.min(width, height) * 0.8} style={{ animation: 'fx-bob 1.4s ease-in-out infinite' }} />,
@@ -242,7 +242,7 @@ export const SIGN_LEVELS = {
 
 const signs = quizItem('q-sign', (c) => {
   const pool = SIGNS.filter((s) => (c.modes ?? SIGN_LEVELS.all).includes(s.key));
-  const sign = pickOne(pool);
+  const sign = pickNew('sign', pool);
   const others = shuffle(pool.filter((s) => s !== sign)).slice(0, (c.choices ?? 3) - 1);
   return {
     ask: ['sign.find', `sign.n.${sign.key}`],

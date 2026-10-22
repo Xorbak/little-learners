@@ -7,6 +7,15 @@ import { Pic } from './ui/scenes';
 
 export const rand = (from: number, to: number) => from + Math.floor(Math.random() * (to - from + 1));
 export const pickOne = <T,>(list: T[]): T => list[Math.floor(Math.random() * list.length)];
+
+/** Like pickOne, but not the same as last time for this `slot` (so a question doesn't come up twice in a row) */
+const lastPicks = new Map<string, unknown>();
+export function pickNew<T>(slot: string, list: T[]): T {
+  const fresh = list.length > 1 ? list.filter((x) => x !== lastPicks.get(slot)) : list;
+  const pick = pickOne(fresh);
+  lastPicks.set(slot, pick);
+  return pick;
+}
 export function shuffle<T>(list: T[]): T[] {
   const a = [...list];
   for (let i = a.length - 1; i > 0; i--) {
@@ -34,12 +43,15 @@ export function orderItem(key: string, orderSet: OrderSet): LearningItem {
 }
 
 /** An answer card showing an emoji */
-export const picAnswer = (key: string, emoji: string, clip?: ClipId, right?: boolean | number, scale?: number): QuizAnswer => ({
-  key,
-  clip,
-  right,
-  View: ({ size }) => <Pic e={emoji} size={size} scale={scale} />,
-});
+export const picAnswer = (key: string, emoji: string, clip?: ClipId, right?: boolean | number, scale?: number): QuizAnswer => {
+  const n = countPics(emoji);
+  return {
+    key,
+    clip,
+    right,
+    View: ({ size }) => <Pic e={emoji} size={size} scale={scale ?? (n > 1 ? 1.1 / n : 1)} style={{ whiteSpace: 'nowrap' }} />,
+  };
+};
 
 /** An answer card with writing on it (names, words) */
 export const textAnswer = (key: string, text: string, right?: boolean, clip?: ClipId): QuizAnswer => ({
@@ -52,6 +64,25 @@ export const textAnswer = (key: string, text: string, right?: boolean, clip?: Cl
     </span>
   ),
 });
+
+/** How many pictures are in a string of emoji */
+export const countPics = (s: string) => {
+  try {
+    return [...new Intl.Segmenter().segment(s)].length;
+  } catch {
+    return Math.ceil(s.length / 2);
+  }
+};
+
+/** A scene of a few emoji in a row, as big as fits */
+export function ScenePic({ e, width, height }: { e: string; width: number; height: number }) {
+  const n = countPics(e);
+  return (
+    <span className="pic" style={{ fontSize: Math.min(height * 0.7, (width * 0.85) / (n * 1.2)), whiteSpace: 'nowrap' }} aria-hidden="true">
+      {e}
+    </span>
+  );
+}
 
 /**
  * A simple fixed question: something to look at, a question, and answers
@@ -69,7 +100,7 @@ export interface SimpleQuestion {
   yes?: string;
 }
 
-export function simpleQuestions(prefix: string, list: SimpleQuestion[]) {
+export function simpleQuestions(prefix: string, list: SimpleQuestion[], opts: { oops?: ClipId[] } = {}) {
   const items: Record<string, LearningItem> = {};
   const clips: Record<string, string> = {};
   for (const q of list) {
@@ -80,10 +111,11 @@ export function simpleQuestions(prefix: string, list: SimpleQuestion[]) {
     items[q.key] = quizItem(
       q.key,
       () => ({
-        Scene: q.scene ? ({ width, height }) => <Pic e={q.scene!} size={Math.min(width, height)} scale={q.scene!.length > 2 ? 0.7 : 1} /> : undefined,
+        Scene: q.scene ? ({ width, height }) => <ScenePic e={q.scene!} width={width} height={height} /> : undefined,
         ask: [`${id}.ask`],
         answers: q.answers.map(([emoji], i) => picAnswer(`a${i}`, emoji, `${id}.a${i}`, i === 0)),
         yes: q.yes ? ['pick.yes', `${id}.yes`] : ['pick.yes', `${id}.a0`],
+        oops: opts.oops,
       }),
       `${id}.ask`,
     );

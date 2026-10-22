@@ -13,7 +13,7 @@ import { songClips } from './songs';
  * Finds every section automatically: any folder in src/sections with an index.ts
  * that default-exports a Section appears on the home screen. Nothing else to edit.
  */
-const found = import.meta.glob<{ default: Section }>('../sections/*/index.ts', { eager: true });
+const found = import.meta.glob<{ default: Section }>('../sections/*/index.{ts,tsx}', { eager: true });
 
 export const sections: Section[] = Object.values(found)
   .map((m) => m.default)

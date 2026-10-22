@@ -1489,3 +1489,35 @@ html[data-less-motion] .listen-ear { animation: none; }
 /* Grown-ups → Afrikaans */
 .af-status { font-size: 12px; color: var(--ink-soft); }
 .af-learned { font-size: 12px; color: var(--good); font-weight: 600; }
+
+/* Grown-ups: her details and family photos */
+.parent-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 10px 16px;
+  margin: 10px 0;
+}
+.parent-field { display: flex; flex-direction: column; gap: 4px; font-size: 14px; font-weight: 600; color: #495057; }
+.parent-field .parent-input { width: 100%; }
+.family-list { display: flex; flex-direction: column; gap: 8px; margin: 10px 0; }
+.family-item { display: flex; align-items: center; gap: 10px; }
+.family-item img { width: 56px; height: 56px; border-radius: 12px; object-fit: cover; flex: none; }
+.family-item .parent-input { flex: 1; min-width: 0; }
+.family-add { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.parent-btn--busy { opacity: 0.5; pointer-events: none; }
+
+/* Her birthday */
+.birthday {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: rgba(255, 249, 219, 0.92);
+  cursor: pointer;
+}
+.birthday-cake { font-size: min(40vw, 40vh); line-height: 1; animation: fx-bob 1.4s ease-in-out infinite; }
+.birthday-words { font-size: clamp(30px, 8vw, 60px); font-weight: 800; color: #e64980; text-align: center; padding: 0 16px; }
