@@ -57,6 +57,33 @@ export interface LearningItem {
   quiz?: (config: PickItConfig) => QuizQuestion;
   /** Steps to put in order, for Put In Order (a routine, a life cycle, a story) */
   orderSet?: OrderSet;
+  /** Parts to tap on the drum, for Beats (a word's syllables, a sentence's words, a rhythm) */
+  beats?: BeatSet;
+  /** A picture story, for Story Time */
+  story?: Story;
+}
+
+export interface BeatSet {
+  /** Each part, said as she taps (syllables: 'ell', 'uh', 'fant'; or words) */
+  parts: ClipId[];
+  /** The whole thing ("Elephant!", "I like cake.") */
+  whole: ClipId;
+  picture: string;
+  /** Written under the picture (sentences) */
+  text?: string;
+  /** Copy the beat: the gaps between drum beats (ms) */
+  rhythm?: number[];
+}
+
+/** A short picture story: pages read aloud, then questions */
+export interface Story {
+  title: ClipId;
+  cover: string;
+  pages: { scene: string; clip: ClipId }[];
+  /** Asked after the story; the first answer is right */
+  questions: { ask: ClipId; answers: { emoji: string; clip: ClipId }[] }[];
+  /** "What do you think happens next?" before the last page; the first is what happens */
+  next: { emoji: string; clip: ClipId }[];
 }
 
 /** One answer card in Pick It */
@@ -110,6 +137,8 @@ export interface OrderSet {
   doneClip?: ClipId;
   /** 'size': smallest to biggest (says "Smallest… bigger… biggest!" instead of first, then, last) */
   by?: 'time' | 'size';
+  /** Don't say each step as it is placed (long steps, like story pages); they are all said at the end */
+  quiet?: boolean;
 }
 
 export interface OrderStep {
@@ -425,8 +454,40 @@ export interface ShareConfig {
   each: [number, number];
 }
 
+export interface BeatsConfig {
+  kind: 'beats';
+  /** Items with beats */
+  pool: string[];
+  mode: 'syllables' | 'words' | 'copy';
+  /** The narrator does it first, with the drum */
+  demo?: boolean;
+  /** Each tap says the next part */
+  guide?: boolean;
+}
+
+export interface StoryConfig {
+  kind: 'story';
+  /** Story items */
+  pool: string[];
+  /** Questions after the story */
+  questions: number;
+  /** Stop before the last page: "What do you think happens next?" */
+  guessNext?: boolean;
+}
+
+export interface SayItConfig {
+  kind: 'say-it';
+  /** Items to say (pictures with names) */
+  pool: string[];
+  /** The question before the word, e.g. "Can you say" (default) */
+  askClip?: ClipId;
+}
+
 export type ActivityConfig =
   | PickItConfig
+  | BeatsConfig
+  | StoryConfig
+  | SayItConfig
   | ShareConfig
   | OrderConfig
   | MatchItConfig

@@ -20,6 +20,9 @@ import { waitForIt } from './wait-for-it/WaitForIt';
 import { pickIt } from './pick-it/PickIt';
 import { order } from './order/Order';
 import { share } from './share/Share';
+import { beats } from './beats/Beats';
+import { storyTime } from './story/Story';
+import { sayIt } from './say-it/SayIt';
 
 /**
  * Every game mechanic, keyed by its activity `kind`.
@@ -51,6 +54,9 @@ export const mechanics: { [K in ActivityConfig['kind']]: Mechanic<Extract<Activi
   'pick-it': pickIt,
   order,
   share,
+  beats,
+  story: storyTime,
+  'say-it': sayIt,
 };
 
 export function mechanicFor<C extends ActivityConfig>(config: C): Mechanic<C> {

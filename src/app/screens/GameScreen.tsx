@@ -18,7 +18,7 @@ import { gameKey } from '../registry';
 import { Tag, words } from '../../shared/ui/Tag';
 
 /** Games where she picks one answer: the cards wait until the question has been asked ("listen first") */
-const LISTEN_FIRST = new Set(['touch-it', 'match-it', 'odd-one-out', 'pattern', 'learn-words', 'pick-it', 'order']);
+const LISTEN_FIRST = new Set(['touch-it', 'match-it', 'odd-one-out', 'pattern', 'learn-words', 'pick-it', 'order', 'story']);
 
 interface Props {
   section: Section;

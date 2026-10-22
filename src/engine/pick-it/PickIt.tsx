@@ -104,7 +104,7 @@ function PickItRound({ config, target, onCorrect, onWrong, onRoundComplete }: Ro
   return <QuestionView key={n} question={question} onSolved={solved} onMiss={miss} />;
 }
 
-function QuestionView({ question, onSolved, onMiss }: { question: QuizQuestion; onSolved: () => void; onMiss: () => void }) {
+export function QuestionView({ question, onSolved, onMiss }: { question: QuizQuestion; onSolved: () => void; onMiss: () => void }) {
   const { Scene } = question;
   const tell = question.tell ?? [];
   const [stage, setStage] = useState(0);

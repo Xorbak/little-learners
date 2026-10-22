@@ -1,0 +1,98 @@
+/* Story Time: a page with a big picture, the words, and page-turn arrows */
+.story-round {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+}
+.story-end {
+  align-items: center;
+  justify-content: center;
+  font-size: 120px;
+}
+
+.story-page {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 0 16px 36px;
+  animation: story-in 0.45s ease both;
+}
+
+.story-scene {
+  display: grid;
+  place-items: center;
+  padding: 12px 18px;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.55);
+  box-shadow: var(--shadow);
+}
+.story-pic { white-space: nowrap; line-height: 1.1; }
+
+.story-words {
+  max-width: 760px;
+  margin: 0;
+  padding: 12px 18px;
+  border-radius: 18px;
+  background: #fffdf5;
+  box-shadow: var(--shadow);
+  font-size: clamp(22px, 5.2vw, 34px);
+  font-weight: 700;
+  line-height: 1.45;
+  text-align: center;
+  color: #868e96;
+}
+.story-word { border-radius: 8px; transition: background 0.15s, color 0.15s; }
+.story-word--read { color: #343a40; }
+.story-word--now { color: #212529; background: #ffe066; box-shadow: 0 0 0 3px #ffe066; }
+
+.story-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: min(100%, 520px);
+}
+.story-page-num { font-weight: 700; color: rgba(0, 0, 0, 0.35); }
+.story-turn {
+  width: 76px;
+  height: 76px;
+  border: 0;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: var(--shadow);
+  font-size: 34px;
+  color: #ff922b;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.story-turn--back { width: 58px; height: 58px; font-size: 24px; color: #adb5bd; }
+.story-turn--ready { background: #ff922b; color: #fff; animation: story-nudge 1s ease-in-out infinite; }
+
+.story-guess {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+}
+.story-guess-card { padding: 16px; background: rgba(255, 255, 255, 0.75); }
+
+@keyframes story-in {
+  from { opacity: 0; transform: translateX(40px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes story-nudge {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(8px) scale(1.06); }
+}
+
+@media (max-height: 500px) {
+  .story-page { flex-direction: row; flex-wrap: wrap; gap: 10px 20px; padding-bottom: 20px; }
+  .story-words { max-width: 46vw; font-size: 22px; }
+  .story-nav { width: 100%; }
+  .story-turn { width: 58px; height: 58px; font-size: 26px; }
+}

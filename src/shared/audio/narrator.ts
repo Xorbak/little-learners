@@ -64,6 +64,9 @@ function voiceForLanguage(lang: string): { voice: SpeechSynthesisVoice | null; m
   return { voice: null, match: 'none' };
 }
 
+/** Story time listens for which word is being said (text-to-speech only) */
+const wordListeners = new Set<(word: { text: string; charIndex: number }) => void>();
+
 // Background music listens, to go quieter while the narrator talks
 const speakingListeners = new Set<(on: boolean) => void>();
 let speakingNow = false;
@@ -125,6 +128,14 @@ export const narrator = {
   /** Is the narrator talking right now? */
   isSpeaking(): boolean {
     return speakingNow;
+  },
+
+  /** Told as each word is spoken (when the voice reports it; recordings don't) */
+  onWord(listener: (word: { text: string; charIndex: number }) => void): () => void {
+    wordListeners.add(listener);
+    return () => {
+      wordListeners.delete(listener);
+    };
   },
 
   /** Told when the narrator starts and stops talking */
@@ -236,6 +247,9 @@ function speak(text: string, lang?: string): Promise<void> {
     }
     utterance.onend = done;
     utterance.onerror = done;
+    utterance.onboundary = (e) => {
+      if (e.name === 'word' || e.name === undefined) wordListeners.forEach((l) => l({ text, charIndex: e.charIndex }));
+    };
 
     currentUtterance = utterance;
     speechSynthesis.speak(currentUtterance);

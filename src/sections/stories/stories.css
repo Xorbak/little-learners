@@ -1,0 +1,13 @@
+/* The green EXIT sign (there is no emoji for it) */
+.sign-exit {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2em;
+  border-radius: 0.25em;
+  background: #2b8a3e;
+  color: #fff;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  line-height: 1.1;
+  white-space: nowrap;
+}

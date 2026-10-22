@@ -65,9 +65,19 @@ function useSizes(n: number, cardsLeft: number) {
   return sizes;
 }
 
+/** How many pictures are in a step (a crowded one is drawn smaller) */
+const count = (s: string) => {
+  try {
+    return [...new Intl.Segmenter().segment(s)].length;
+  } catch {
+    return Math.ceil(s.length / 2);
+  }
+};
+
 function StepPicture({ step, size }: { step: OrderStep; size: number }) {
+  const n = count(step.emoji);
   return (
-    <span className="order-pic" style={{ fontSize: size * 0.62 * (step.scale ?? 1) }} aria-hidden="true">
+    <span className="order-pic" style={{ fontSize: (size * 0.62 * (step.scale ?? 1)) / (n > 1 ? Math.min(n, 2.4) * 0.85 : 1) }} aria-hidden="true">
       {step.emoji}
     </span>
   );
@@ -153,7 +163,7 @@ function OrderRound({ config, target, onCorrect, onWrong, onRoundComplete }: Rou
         done.current = true;
         if (!missed.current) onCorrect(target);
         void retell();
-      } else if (!bySize) void narrator.say([steps[i].clip]);
+      } else if (!bySize && !set.quiet) void narrator.say([steps[i].clip]);
       return;
     }
     sfx.boing();

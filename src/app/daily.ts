@@ -17,9 +17,12 @@ export interface DailyStep {
   move?: number;
 }
 
-const SUBJECTS = ['numbers', 'colours', 'shapes', 'letters', 'afrikaans', 'world', 'thinking'];
+const SUBJECTS = ['numbers', 'colours', 'shapes', 'letters', 'stories', 'afrikaans', 'world', 'thinking'];
 /** Games left out of the daily rotation (free play and long-form games) */
 const SKIP = new Set(['colours/mix-paint', 'numbers/memory-match', 'colours/memory-match', 'shapes/memory-match', 'letters/memory-match']);
+
+/** Games where one round is already a good little session */
+const ONE_ROUND = new Set(['sort', 'puzzle', 'story-time', 'share']);
 
 export const dayNumber = () => {
   const now = new Date();
@@ -36,7 +39,7 @@ export function todaysPlan(): DailyStep[] {
     if (!section) return;
     const games = section.games.filter((g) => !SKIP.has(`${sectionId}/${g.id}`));
     const game = games[(day + i) % games.length];
-    steps.push({ id: `${sectionId}/${game.id}`, sectionId, gameId: game.id, rounds: game.id === 'sort' || game.id === 'puzzle' ? 1 : sectionId === 'afrikaans' ? 4 : 2 });
+    steps.push({ id: `${sectionId}/${game.id}`, sectionId, gameId: game.id, rounds: ONE_ROUND.has(game.id) ? 1 : sectionId === 'afrikaans' ? 4 : 2 });
     // A movement break after every two subjects (not at the very end)
     subjects++;
     if (subjects % 2 === 0 && subjects < SUBJECTS.length) {
