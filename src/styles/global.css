@@ -1558,3 +1558,28 @@ html[data-less-motion] .listen-ear { animation: none; }
   .report-note { border: 0; padding: 0; min-height: 0; resize: none; }
   .report-note:placeholder-shown { display: none; }
 }
+
+/* My art */
+.myart-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 14px;
+  padding: 96px 16px 32px;
+}
+.myart-thumb {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  padding: 6px;
+  border: 0;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}
+.myart-thumb img { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; }
+.myart-has-voice { position: absolute; right: 8px; bottom: 8px; font-size: 22px; }
+.myart-empty { font-size: 90px; text-align: center; grid-column: 1 / -1; }
+.myart-big { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 96px 16px 24px; }
+.myart-big img { max-width: 100%; max-height: 64vh; border-radius: 16px; box-shadow: 0 0 0 8px #fff, var(--shadow); }
+.myart-date { margin: 0; font-weight: 700; color: #495057; }
+.myart-play { width: 76px; height: 76px; border: 0; border-radius: 50%; background: #fff; font-size: 34px; box-shadow: var(--shadow); cursor: pointer; }

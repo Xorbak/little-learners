@@ -2,6 +2,7 @@ import type { Section } from '../../types/learning';
 import { pictureClips, pictureItems } from './pictures';
 import { paintByNumbersArt } from './games/paintByNumbers';
 import { musicArt } from './games/music';
+import { bandGame, copyBeatGame, drawGame, listenMusicGame, musicClips, musicItems } from './games/listening';
 
 /**
  * Art section: creative play. Drawing, tracing and music games can join here.
@@ -13,12 +14,13 @@ const art: Section = {
   titleClip: 'art.title',
   icon: '🖌️',
   colour: '#da77f2',
-  items: pictureItems,
+  items: { ...pictureItems, ...musicItems },
   clips: {
     'art.title': 'Art and music',
     ...pictureClips,
+    ...musicClips,
   },
-  games: [paintByNumbersArt, musicArt],
+  games: [drawGame, paintByNumbersArt, musicArt, listenMusicGame, copyBeatGame, bandGame],
   trackProgress: false,
 };
 

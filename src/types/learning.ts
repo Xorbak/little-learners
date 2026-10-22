@@ -499,8 +499,35 @@ export interface FamilyConfig {
   choices: number;
 }
 
+export interface DrawConfig {
+  kind: 'draw';
+  /** One item, to keep her answers */
+  pool: string[];
+  /** The narrator suggests something to draw ("Can you draw yourself?") */
+  ideas?: boolean;
+}
+
+export interface BandConfig {
+  kind: 'band';
+  /** One item, to keep her answers */
+  pool: string[];
+  /** Seconds to play along for, when there is no song to play */
+  seconds: number;
+}
+
+export interface MakePatternConfig {
+  kind: 'make-pattern';
+  /** Item keys to make patterns with */
+  pool: string[];
+  /** How many different things to choose from */
+  choices: number;
+}
+
 export type ActivityConfig =
   | PickItConfig
+  | DrawConfig
+  | BandConfig
+  | MakePatternConfig
   | AboutMeConfig
   | FamilyConfig
   | BeatsConfig

@@ -18,6 +18,7 @@ import { findSection } from './registry';
 import { hasName } from './name';
 import { aboutMeClips } from './aboutMe';
 import { ReportScreen } from './screens/ReportScreen';
+import { MyArtScreen } from './screens/MyArtScreen';
 import { useFamily } from '../shared/family';
 import { setHapticsEnabled } from '../shared/haptics';
 import { preloadMusic, setBackgroundMusic, setBed } from '../shared/audio/music';
@@ -34,7 +35,8 @@ export type Screen =
   | { name: 'calm' }
   | { name: 'songs' }
   | { name: 'parent' }
-  | { name: 'report' };
+  | { name: 'report' }
+  | { name: 'my-art' };
 
 export type Navigate = (screen: Screen) => void;
 
@@ -174,6 +176,8 @@ export function App() {
         return <ParentArea navigate={navigate} />;
       case 'report':
         return <ReportScreen navigate={navigate} />;
+      case 'my-art':
+        return <MyArtScreen navigate={navigate} />;
       case 'today':
         return <TodayScreen key={screen.justFinished ?? 'today'} navigate={navigate} justFinished={screen.justFinished} />;
       case 'stickers':
@@ -218,12 +222,13 @@ function bedFor(screen: Screen, guard: null | 'break' | 'rest'): string | null {
     case 'today':
     case 'stickers':
     case 'mission':
+    case 'my-art':
       return 'bg-home';
     case 'move':
       return 'bg-move';
     case 'play':
       if (screen.sectionId === 'thinking') return 'bg-thinking';
-      if (screen.sectionId === 'art' && screen.gameId === 'paint-by-numbers') return 'bg-art';
+      if (screen.sectionId === 'art' && (screen.gameId === 'paint-by-numbers' || screen.gameId === 'draw')) return 'bg-art';
       return null;
     default:
       return null;

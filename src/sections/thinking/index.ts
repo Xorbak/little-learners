@@ -3,6 +3,7 @@ import { EmojiPicture, emojiItems } from '../../shared/ui/emojiItems';
 import { createElement } from 'react';
 import { picturesIn } from '../../shared/pictures';
 import { compareGame, spaceClips, spaceItems, whereGame } from './space';
+import { riddleClips, riddleGame, riddleItems } from './riddles';
 
 /**
  * Thinking skills: sorting, patterns and odd one out.
@@ -158,6 +159,17 @@ const patternGame: Game = {
   ],
 };
 
+/** Make your own pattern (free, but it has to repeat) */
+const makeGame: Game = {
+  id: 'make-pattern',
+  titleClip: 'think.make-title',
+  icon: '🍎',
+  levels: [
+    { id: 'two', parentLabel: 'Make a pattern with 2 things to choose from', rounds: 3, activity: { kind: 'make-pattern', pool: keysIn('fruit', 'animals'), choices: 2 } },
+    { id: 'three', parentLabel: 'Make a pattern with 3 things to choose from', rounds: 3, activity: { kind: 'make-pattern', pool: keysIn('fruit', 'animals', 'toys'), choices: 3 } },
+  ],
+};
+
 const oddGame: Game = {
   id: 'odd-one-out',
   titleClip: 'odd.title',
@@ -225,11 +237,13 @@ const thinking: Section = {
   titleClip: 'think.title',
   icon: '🧩',
   colour: '#748ffc',
-  items: { ...things, ...sortItems, ...puzzleItems, ...spaceItems },
+  items: { ...things, ...sortItems, ...puzzleItems, ...spaceItems, ...riddleItems },
   clips: {
     ...thingClips,
     ...puzzleClips,
     ...spaceClips,
+    ...riddleClips,
+    'think.make-title': 'Make a pattern',
     'think.title': 'Thinking',
     'think.wait-title': 'Wait for it!',
     'sort.ask.red-blue': 'Put the red things in the red basket, and the blue things in the blue basket!',
@@ -247,7 +261,7 @@ const thinking: Section = {
     'sort.basket.land': 'the land basket',
     'sort.basket.sea': 'the sea basket',
   },
-  games: [...(puzzles.length ? [puzzleGame] : []), sortGame, patternGame, oddGame, waitGame, whereGame, compareGame],
+  games: [...(puzzles.length ? [puzzleGame] : []), sortGame, patternGame, makeGame, oddGame, riddleGame, waitGame, whereGame, compareGame],
   trackProgress: false,
 };
 

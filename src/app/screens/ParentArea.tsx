@@ -19,6 +19,7 @@ import { soundExamples } from '../../sections/letters/words';
 import { haptic, setHapticsEnabled } from '../../shared/haptics';
 import { AboutHerCard, FamilyCard } from './parent/AboutHerCards';
 import { FAMILY_KEY } from '../../shared/family';
+import { ART_KEY } from '../../shared/art';
 
 /**
  * Grown-ups only (behind the hold-to-enter button).
@@ -669,7 +670,7 @@ function AfrikaansCard() {
 /** Save all her progress to a file, and bring it back (new phone, cleared browser) */
 function BackupCard() {
   const [message, setMessage] = useState('');
-  const KEYS = ['little-learners', 'little-learners-clock', FAMILY_KEY];
+  const KEYS = ['little-learners', 'little-learners-clock', FAMILY_KEY, ART_KEY];
   const save = () => {
     const data: Record<string, unknown> = { app: 'little-learners', saved: new Date().toISOString() };
     for (const k of KEYS) {
@@ -700,7 +701,7 @@ function BackupCard() {
     <section className="parent-card">
       <h2>Backup</h2>
       <p className="parent-hint">
-        Everything she has done (progress, stickers, Afrikaans words, settings, her details and family photos) is kept on this phone, in the browser. The app asks the
+        Everything she has done (progress, stickers, Afrikaans words, settings, her details, family photos and her drawings) is kept on this phone, in the browser. The app asks the
         browser never to clear it, but clearing Chrome's data would. Save a backup now and then; restore it on a new phone or after clearing.
       </p>
       <div className="rest-panel-buttons">

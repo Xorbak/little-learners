@@ -25,6 +25,9 @@ import { storyTime } from './story/Story';
 import { sayIt } from './say-it/SayIt';
 import { aboutMe } from './about-me/AboutMe';
 import { familyGame } from './family/Family';
+import { draw } from './draw/Draw';
+import { band } from './band/Band';
+import { makePattern } from './make-pattern/MakePattern';
 
 /**
  * Every game mechanic, keyed by its activity `kind`.
@@ -61,6 +64,9 @@ export const mechanics: { [K in ActivityConfig['kind']]: Mechanic<Extract<Activi
   'say-it': sayIt,
   'about-me': aboutMe,
   family: familyGame,
+  draw,
+  band,
+  'make-pattern': makePattern,
 };
 
 export function mechanicFor<C extends ActivityConfig>(config: C): Mechanic<C> {
