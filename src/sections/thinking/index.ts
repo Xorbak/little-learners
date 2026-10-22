@@ -2,6 +2,7 @@ import type { Game, LearningItem, Section, SortSet } from '../../types/learning'
 import { EmojiPicture, emojiItems } from '../../shared/ui/emojiItems';
 import { createElement } from 'react';
 import { picturesIn } from '../../shared/pictures';
+import { compareGame, spaceClips, spaceItems, whereGame } from './space';
 
 /**
  * Thinking skills: sorting, patterns and odd one out.
@@ -224,10 +225,11 @@ const thinking: Section = {
   titleClip: 'think.title',
   icon: '🧩',
   colour: '#748ffc',
-  items: { ...things, ...sortItems, ...puzzleItems },
+  items: { ...things, ...sortItems, ...puzzleItems, ...spaceItems },
   clips: {
     ...thingClips,
     ...puzzleClips,
+    ...spaceClips,
     'think.title': 'Thinking',
     'think.wait-title': 'Wait for it!',
     'sort.ask.red-blue': 'Put the red things in the red basket, and the blue things in the blue basket!',
@@ -245,7 +247,7 @@ const thinking: Section = {
     'sort.basket.land': 'the land basket',
     'sort.basket.sea': 'the sea basket',
   },
-  games: puzzles.length ? [puzzleGame, sortGame, patternGame, oddGame, waitGame] : [sortGame, patternGame, oddGame, waitGame],
+  games: [...(puzzles.length ? [puzzleGame] : []), sortGame, patternGame, oddGame, waitGame, whereGame, compareGame],
   trackProgress: false,
 };
 

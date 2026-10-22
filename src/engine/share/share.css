@@ -1,0 +1,88 @@
+/* Share It Fairly: friends with plates on top, the pile of treats below */
+.share-round {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.share-friends {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  padding: 0 16px;
+}
+
+.share-friend {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.share-friend-btn {
+  position: relative;
+  border: 0;
+  background: none;
+  line-height: 1;
+  padding: 0;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  animation: touch-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.share-friend-btn--happy { animation: share-hop 0.5s ease-in-out infinite alternate; }
+
+.share-mood {
+  position: absolute;
+  right: -12%;
+  top: -8%;
+  font-size: 40%;
+  animation: touch-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.share-plate {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content: center;
+  gap: 2px;
+  width: 100%;
+  padding: 8px 6px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: inset 0 -6px 0 #e9ecef, var(--shadow);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.share-plate--hint { animation: touch-hint 1s ease-in-out infinite; }
+
+.share-treat {
+  display: grid;
+  place-items: center;
+  line-height: 1;
+  animation: touch-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.share-treat--on-plate {
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.share-pile {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px 30px;
+}
+
+@keyframes share-hop {
+  from { transform: translateY(0); }
+  to { transform: translateY(-14px); }
+}

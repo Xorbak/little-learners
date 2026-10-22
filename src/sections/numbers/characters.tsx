@@ -1,4 +1,5 @@
 import { amountFace } from '../../shared/ui/faces';
+import { Fingers, SKIN } from '../../shared/ui/scenes';
 import type { LearningItem } from '../../types/learning';
 
 /**
@@ -72,6 +73,8 @@ export const numberItems: Record<string, LearningItem> = Object.fromEntries(
           ),
         }),
         amount: amountFace(c.value),
+        // Fingers held up (two hands after five); the skin tone changes from round to round
+        fingers: (seed) => ({ View: ({ size, counting }) => <Fingers n={c.value} size={size} tone={SKIN[seed % SKIN.length]} counting={counting} /> }),
       },
     } satisfies LearningItem,
   ]),

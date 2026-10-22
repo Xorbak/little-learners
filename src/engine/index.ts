@@ -17,6 +17,9 @@ import { jigsaw } from './jigsaw/Jigsaw';
 import { matchIt } from './match-it/MatchIt';
 import { learnWords } from './learn-words/LearnWords';
 import { waitForIt } from './wait-for-it/WaitForIt';
+import { pickIt } from './pick-it/PickIt';
+import { order } from './order/Order';
+import { share } from './share/Share';
 
 /**
  * Every game mechanic, keyed by its activity `kind`.
@@ -45,6 +48,9 @@ export const mechanics: { [K in ActivityConfig['kind']]: Mechanic<Extract<Activi
   'match-it': matchIt,
   'learn-words': learnWords,
   'wait-for-it': waitForIt,
+  'pick-it': pickIt,
+  order,
+  share,
 };
 
 export function mechanicFor<C extends ActivityConfig>(config: C): Mechanic<C> {

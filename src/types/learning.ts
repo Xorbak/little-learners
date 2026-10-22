@@ -53,6 +53,71 @@ export interface LearningItem {
    * a thing of that colour, a shape as a thing that shape.
    */
   faces?: Record<string, Face>;
+  /** A question for Pick It, made fresh each round (numbers and things can change) */
+  quiz?: (config: PickItConfig) => QuizQuestion;
+  /** Steps to put in order, for Put In Order (a routine, a life cycle, a story) */
+  orderSet?: OrderSet;
+}
+
+/** One answer card in Pick It */
+export interface QuizAnswer {
+  key: string;
+  View: FC<{ size: number }>;
+  /** What it's called, said after a wrong tap ("Oops! That's the dog") */
+  clip?: ClipId;
+  /** Or a whole phrase for a wrong tap ("Oops! That one is under the table") */
+  says?: ClipId[];
+  /** The right answer; with `inOrder`, which tap it is (1, 2, 3…) */
+  right?: boolean | number;
+}
+
+/** A question for Pick It: something to look at or hear, a question, answers to tap */
+export interface QuizQuestion {
+  /**
+   * Picture at the top. `stage` counts the `tell` parts said so far (things can
+   * arrive or go away as the story is told); `solved` is true once answered.
+   */
+  Scene?: FC<{ width: number; height: number; stage: number; solved: boolean }>;
+  /** Said before the question, part by part */
+  tell?: ClipId[][];
+  /** The question */
+  ask: ClipId[];
+  /** Riddles: clues said one at a time (the first with the question; the speaker gives the next) */
+  clues?: ClipId[][];
+  /** A sound to listen to after the question (sounds around us, high or low…) */
+  sound?: () => Promise<void> | void;
+  answers: QuizAnswer[];
+  /** Keep the answers in this order (default: shuffled) */
+  fixedOrder?: boolean;
+  /** Tap the right answers in order, e.g. "Touch the cat, then the ball" */
+  inOrder?: boolean;
+  /** Said when right (default: "Yes!" and the answer's name) */
+  yes?: ClipId[];
+  /** Said after a wrong tap, before the question again (default: "Oops! That's the …") */
+  oops?: ClipId[];
+  /** 'wide' answer cards (groups of things, little scenes); default square */
+  cards?: 'square' | 'wide';
+  /** Another question straight after this one (now count them, what happens next…) */
+  then?: () => QuizQuestion;
+}
+
+/** Steps in the right order */
+export interface OrderSet {
+  /** Said at the start, e.g. "Let's wash our hands! What do we do first?" */
+  askClip: ClipId;
+  steps: OrderStep[];
+  /** Said at the end, after going through the steps */
+  doneClip?: ClipId;
+  /** 'size': smallest to biggest (says "Smallest… bigger… biggest!" instead of first, then, last) */
+  by?: 'time' | 'size';
+}
+
+export interface OrderStep {
+  emoji: string;
+  /** What happens, e.g. "Wet your hands." */
+  clip: ClipId;
+  /** Draw the emoji bigger or smaller (ordering by size) */
+  scale?: number;
 }
 
 /**
@@ -327,7 +392,43 @@ export interface WaitForItConfig {
   bearChance?: number;
 }
 
+export interface PickItConfig {
+  kind: 'pick-it';
+  /** Question items (each with a `quiz`) */
+  pool: string[];
+  /** Answers to choose from (questions that can vary it) */
+  choices?: number;
+  /** Numbers questions: the smallest and biggest numbers used */
+  min?: number;
+  max?: number;
+  /** Which kinds of question a generator may ask (e.g. ['more', 'fewer', 'same']) */
+  modes?: string[];
+}
+
+export interface OrderConfig {
+  kind: 'order';
+  /** Items with an orderSet */
+  pool: string[];
+  /** Use at most this many steps (the first and last are always kept) */
+  steps?: number;
+  /** This many steps are already in place at the start (easier) */
+  placed?: number;
+}
+
+export interface ShareConfig {
+  kind: 'share';
+  /** Not used; keep empty */
+  pool: string[];
+  /** How many friends to share between, from–to */
+  friends: [number, number];
+  /** How many treats each friend should end up with, from–to */
+  each: [number, number];
+}
+
 export type ActivityConfig =
+  | PickItConfig
+  | ShareConfig
+  | OrderConfig
   | MatchItConfig
   | LearnWordsConfig
   | WaitForItConfig
